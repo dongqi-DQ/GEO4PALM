@@ -1,0 +1,27 @@
+[case]
+case_name = "big_palm_test",  
+
+[domain]
+ndomain   = 1,                                     # max number of domains
+centlat   = -43.560008,                           # centre latitude
+centlon   = 172.623367,                           # centre longitude
+nx        = 400,    160,   192,    256,            
+ny        = 400,    160,   192,    256,
+nz        = 200,     80,    48,     48,
+dx        = 243.0,  40.0,  20.0,   10.0,
+dy        = 243.0,  40.0,  20.0,   10.0,
+dz        = 54.0,  16.0,   8.0,    4.0,          #16.0,   8.0,   4.0,    2.0,  
+z_origin  = 0.0,   0.0,   0.0,    0.0,
+ll_x      = 0.0, 3200.0, 4240.0, 5040.0,
+ll_y      = 0.0, 4960.0, 6240.0, 6800.0,
+
+
+[tif]
+dem = "dem_243m_lc.tif",
+bldh = "",
+bldid = "",
+lu = "landcover_243m_lc.tif",
+tree = "",
+road = "",
+water = "",
+street = "",
