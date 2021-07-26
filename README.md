@@ -103,15 +103,15 @@ python static_to_flat.py [static_file] [nx,ny]
 
 Note that this requires no urban variables (e.g. buildings and streets) in the input static driver. If precursor run is not required, users do not need to specify `nx` and `ny`.
 
-#--------------------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------#  
 We have been trying to add more comments and more instructions of the scripts. However, if there is anything unclear, please do not hesitate to contact us. 
 
-Dongqi Lin (dongqi.lin@pg.canterbury.ac.nz)
-Jiawei Zhang (jiawei.zhang@canterbury.ac.nz)
+Dongqi Lin (dongqi.lin@pg.canterbury.ac.nz)  
+Jiawei Zhang (jiawei.zhang@canterbury.ac.nz)  
 
 @ Centre for Atmospheric Research, University of Canterbury
 
-#--------------------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------#  
 # End of README
 
 
