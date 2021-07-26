@@ -58,7 +58,7 @@ def plot_rectangle(ax, lon_0, lon_1, lat_0, lat_1):
 settings_cfg = configparser.ConfigParser(inline_comment_prefixes='#')
 config = configparser.RawConfigParser()
 config.read('namelist.static')
-cfg_path = "./cfg_input/"
+cfg_path = "./cfg_files/"
 
 
 case_names =  ast.literal_eval(config.get("case", "case_name"))
