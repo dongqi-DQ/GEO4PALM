@@ -81,6 +81,41 @@ python run_config_static.py
 
 The script should print some processing information and create the desired static files, which can be found in `static_files`. Each domain will also have 
 1. its own geotiff file created in `static_files` for georeferences.
-2. its own cfg file created in `cfg_input`
+2. its own cfg file created in `cfg_files` for future reference, e.g. in WRF4PALM.
+
+### visualise domain on OSM
+Users may visualise domain by running `visualise_PALM_domains.py`:
+```
+python visulalise_PALM_domains.py
+```
+
+### flat terrain and precursor run
+Once a static driver is used, all the PALM domains in the simulation requires static drivers. In case a flat terrain static driver and/or precursor run static driver are required, users may run `static_to_flat.py`. 
+```
+python static_to_flat.py [static_file] [nx,ny]
+```
+
+Note that this requires no urban variables (e.g. buildings and streets) in the input static driver. If precursor run is not required, users do not need to specify `nx` and `ny`.
+
+#--------------------------------------------------------------------------------------------#
+We have been trying to add more comments and more instructions of the scripts. However, if there is anything unclear, please do not hesitate to contact us. 
+
+Dongqi Lin (dongqi.lin@pg.canterbury.ac.nz)
+Jiawei Zhang (jiawei.zhang@canterbury.ac.nz)
+
+@ Centre for Atmospheric Research, University of Canterbury
+
+#--------------------------------------------------------------------------------------------#
+# End of README
+
+
+
+
+
+
+
+
+
+
 
 
