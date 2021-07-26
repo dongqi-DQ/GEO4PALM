@@ -12,7 +12,10 @@ The namelist requires PALM domain configuration and geotiff filenames from users
 
 Users must specify:
 ```
+[case]
 case_name         -  case names for all domains  
+
+[domain]
 ndomain           -  maximum number of domains, when >=2, domain nesting is enabled  
 centlat, centlon  -  centre latitude and longitude of the first domain. Note this is not required for nested domains  
 nx                -  number of grid points along x-axis  
@@ -25,6 +28,7 @@ z_origin          -  elevated terrain mean grid position in meters (leave as 0.0
 ll_x              -  lower left corner distance to the first domain in meters along x-axis   
 ll_y              -  lower left corner distance to the first domain in meters along y-axis   
 
+[tif]
 dem               -  digital elevation model tif file name (for topography)  
 bldh              -  building height tif file name  
 bldid             -  building ID tif file name  
@@ -42,6 +46,8 @@ Note that if the provided `empty.tif` causes any error (usually due to insuffici
 ```
 python create_empty.py [input tif file]
 ```
+
+Two namelist examples are given in `create_static` folder - one for the most simple configuration (`namelist.static.simple`) and the other for all the available features at present (`namelist.static.all_feature`).
 
 #### input tif files explained
 We processed our own geotiff files using the GIS tools before using the python scripts here.  
@@ -81,6 +87,41 @@ python run_config_static.py
 
 The script should print some processing information and create the desired static files, which can be found in `static_files`. Each domain will also have 
 1. its own geotiff file created in `static_files` for georeferences.
-2. its own cfg file created in `cfg_input`
+2. its own cfg file created in `cfg_files` for future reference in e.g. the visualisation script, WRF4PALM.
+
+### visualise domain on OSM
+Users may visualise domain by running `visualise_PALM_domains.py`:
+```
+python visulalise_PALM_domains.py
+```
+
+### flat terrain and precursor run
+Once a static driver is used, all the PALM domains in the simulation requires static drivers. In case a flat terrain static driver and/or precursor run static driver are required, users may run `static_to_flat.py`. 
+```
+python static_to_flat.py [static_file] [nx,ny]
+```
+
+Note that this requires no urban variables (e.g. buildings and streets) in the input static driver. If precursor run is not required, users do not need to specify `nx` and `ny`.
+
+--------------------------------------------------------------------------------------------  
+We have been trying to add more comments and more instructions of the scripts. However, if there is anything unclear, please do not hesitate to contact us. 
+
+Dongqi Lin (dongqi.lin@pg.canterbury.ac.nz)  
+Jiawei Zhang (jiawei.zhang@canterbury.ac.nz)  
+
+@ Centre for Atmospheric Research, University of Canterbury
+
+--------------------------------------------------------------------------------------------
+## End of README
+
+
+
+
+
+
+
+
+
+
 
 
