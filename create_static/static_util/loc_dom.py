@@ -60,7 +60,7 @@ def write_cfg(case_name, dom_dict):
     cfg = pd.DataFrame() 
     for names, values in dom_dict.items():
         cfg[names] = [values]
-    cfg.to_csv('./cfg_input/'+ case_name + '.cfg', index=None)
+    cfg.to_csv('./cfg_files/'+ case_name + '.cfg', index=None)
     print('cfg file is ready: '+case_name)
     
 def domain_nest(tif_projection, west, south, llx, lly, dom_dict):
