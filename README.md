@@ -11,7 +11,7 @@ In `create_static` folder, the main script is `run_config_static.py`. To run thi
 The namelist requires PALM domain configuration and geotiff filenames from users. The domain configuration is similar to variables used in PALM.  
 
 Users must specify:
-
+```
 case_name         -  case names for all domains  
 ndomain           -  maximum number of domains, when >=2, domain nesting is enabled  
 centlat, centlon  -  centre latitude and longitude of the first domain. Note this is not required for nested domains  
@@ -32,7 +32,8 @@ lu                -  land use classification tif file name
 sfch              -  surface objects height (excluding buildings) tif file name  
 pavement          -  pavement type tif file name  
 street            -  street type tif file name  
- 
+```
+
 The **required** fields for tif files are `dem` and `lu`. A lookup table (in `raw_static` folder) is required to convert land use information to PALM recognisable types. Here we used New Zealand Land Cover Data Base (LCDB) v5.0. Our lookup table `nzlcdb_2_PALM_num.csv` is available in `raw_static` folder. 
 
 For other tif file fileds, if users do not have files available, they should leave the file names empty as `"",`. The script will automatically read the "empty" tif file (`empty.tif`) provided in `raw_static`. 
