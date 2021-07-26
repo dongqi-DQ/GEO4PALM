@@ -12,7 +12,10 @@ The namelist requires PALM domain configuration and geotiff filenames from users
 
 Users must specify:
 ```
+[case]
 case_name         -  case names for all domains  
+
+[domain]
 ndomain           -  maximum number of domains, when >=2, domain nesting is enabled  
 centlat, centlon  -  centre latitude and longitude of the first domain. Note this is not required for nested domains  
 nx                -  number of grid points along x-axis  
@@ -25,6 +28,7 @@ z_origin          -  elevated terrain mean grid position in meters (leave as 0.0
 ll_x              -  lower left corner distance to the first domain in meters along x-axis   
 ll_y              -  lower left corner distance to the first domain in meters along y-axis   
 
+[tif]
 dem               -  digital elevation model tif file name (for topography)  
 bldh              -  building height tif file name  
 bldid             -  building ID tif file name  
@@ -42,6 +46,8 @@ Note that if the provided `empty.tif` causes any error (usually due to insuffici
 ```
 python create_empty.py [input tif file]
 ```
+
+Two namelist examples are given in `create_static` folder - one for the most simple configuration (`namelist.static.simple`) and the other for all the available features at present (`namelist.static.all_feature`).
 
 #### input tif files explained
 We processed our own geotiff files using the GIS tools before using the python scripts here.  
