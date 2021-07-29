@@ -205,9 +205,12 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
     bare_land[building_type>0] = -9999 
     bare_land[pavement_type>0] = -9999 
     bare_land[water_type>0] = -9999 
-    bare_land[vegetation_type>0] = -9999 
-    vegetation_type[bare_land>0] = 1
-    
+    bare_land[vegetation_type>0] = -9999
+    if "empty" not in bldh_tif:
+        vegetation_type[bare_land>0] = 1 # bare land 
+    else:
+        vegetation_type[bare_land>0] = 17  # urban buildup
+        
     # porcess soil
     soil_type = np.zeros_like(lu)
     soil_type[:] = -9999
