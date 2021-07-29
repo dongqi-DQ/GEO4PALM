@@ -4,10 +4,10 @@
 # Script to reproject and resample tif files
 #
 # How to use:
-# python process_tif.py [infile] [out EPSG projection] [outfile prefix] [resolution list]  
+# python prep_tif.py [infile] [out EPSG projection] [outfile prefix] [resolution list]  
 # Example:
 #
-# python process_tif.py chch_dem_1m.tif 2193 chch_dem 10,20
+# python prep_tif.py chch_dem_1m.tif 2193 chch_dem 10,20
 #
 # @originial script by: Jiawei Zhang
 # @modified by: Dongqi Lin
