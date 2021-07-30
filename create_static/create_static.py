@@ -260,7 +260,7 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
         print("Calculating LAD")
         for idx in range(0, zt.shape[1]):
             for idy in range(0, zt.shape[0]):
-                if tree_height[idy, idx] == 0:
+                if tree_height[idy, idx] <= 0:
                     continue
                 else:
                     #  Calculate height of maximum LAD
