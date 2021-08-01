@@ -43,7 +43,7 @@ The **required** fields for tif files are `dem` and `lu`. A lookup table (in `ra
 
 _The `origin_time` setting is similar to `origin_date_time` in [PALM documentation](https://palm.muk.uni-hannover.de/trac/wiki/doc/app/initialization_parameters#origin_date_time). This variable is required in static drivers, but will not be used in PALM simulation. Rather the date time should be specified in PALM's p3d namelist. The sunset/sunrise time is affected by lat/lon attributes in the static driver._
 
-** Note: the roughness length defined in PALM may be too high for some vegetation types. **
+**Note: the roughness length defined in PALM may be too high for some vegetation types.**
 
 For other tif file fileds, if users do not have files available, they should leave the file names empty as `"",`. The script will automatically read the "empty" tif file (`empty.tif`) provided in `raw_static`. 
 
@@ -61,7 +61,7 @@ We processed our own geotiff files using the GIS tools before using the python s
 - `street`refers to street type (available in OSM).  
 - `sfch` refers to surface object height excluding buildings. This is calculated using the difference between digital surface model (DSM) and DEM. Buildings are excluded using building outlines available in OSM.  
 
-Note that building type information is not available in New Zealand, and hence one building type is assigned for all buildings.   
+**Note: building type information is not available in New Zealand, and hence one building type is assigned for all buildings.**   
   
 Variables in the static driver here are not inclusive. Users may refer to PALM input data standard or Heldens et al. (2020).
 
