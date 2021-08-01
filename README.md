@@ -40,6 +40,10 @@ street            -  street type tif file name
 
 The **required** fields for tif files are `dem` and `lu`. A lookup table (in `raw_static` folder) is required to convert land use information to PALM recognisable types. Here we used New Zealand Land Cover Data Base (LCDB) v5.0. Our lookup table `nzlcdb_2_PALM_num.csv` is available in `raw_static` folder. 
 
+---
+Note: the roughness length defined in PALM may be too high for some vegetation types. 
+---
+
 For other tif file fileds, if users do not have files available, they should leave the file names empty as `"",`. The script will automatically read the "empty" tif file (`empty.tif`) provided in `raw_static`. 
 
 Note that if the provided `empty.tif` causes any error (usually due to insufficient grid cells). Users may create their own empty tif file based on their own tif files using `create_empty.py`:
