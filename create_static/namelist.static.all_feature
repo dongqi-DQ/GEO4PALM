@@ -1,6 +1,7 @@
 [case]
 case_name = "static_test_d01", "static_test_d02",  
-
+origin_time = "2021-01-01 00:00:00 +00",          # time in yyyy-mm-dd HH:MM:SS +HH format (+00 as in UTC) 
+ 
 [domain]
 ndomain   = 2,                                     # max number of domains
 centlat   = -43.521399,                           # centre latitude

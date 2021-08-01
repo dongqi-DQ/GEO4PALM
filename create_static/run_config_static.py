@@ -34,6 +34,7 @@ settings_cfg = configparser.ConfigParser(inline_comment_prefixes='#')
 config = configparser.RawConfigParser()
 config.read('namelist.static')
 case_names =  ast.literal_eval(config.get("case", "case_name"))
+origin_time = ast.literal_eval(config.get("case", "origin_time"))[0]
 
 ndomain = ast.literal_eval(config.get("domain", "ndomain"))[0]
 centlat = ast.literal_eval(config.get("domain", "centlat"))
@@ -59,7 +60,8 @@ tif_input_dict = dict(config.items('tif'))
 for i in range(0,ndomain):
     if i == 0:
         case_name_d01 = case_names[i]
-        dom_cfg_d01 = {'centlat': centlat[i],  
+        dom_cfg_d01 = {'origin_time': origin_time,
+                    'centlat': centlat[i],  
                     'centlon': centlon[i],
                     'dx': dx[i],
                     'dy': dy[i],
@@ -90,7 +92,7 @@ for i in range(0,ndomain):
         # generating static drivers for nested domains
         #--------------------------------------------------------------------------------#
         case_name_nest = case_names[i]
-        dom_cfg_nest = {
+        dom_cfg_nest = {'origin_time': origin_time,
                     'dx': dx[i],
                     'dy': dy[i],
                     'dz': dz[i],
