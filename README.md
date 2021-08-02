@@ -92,7 +92,7 @@ python run_config_static.py
 
 The script should print some processing information and create the desired static files, which can be found in `static_files`. Each domain will also have 
 1. its own geotiff file created in `static_files` for georeferences.
-2. its own cfg file created in `cfg_files` for future reference in e.g. the visualisation script, WRF4PALM.
+2. its own cfg file created in `cfg_files` for future reference in e.g. WRF4PALM.
 
 ### visualise domain on OSM
 Users may visualise domain by running `visualise_PALM_domains.py`:
