@@ -1,6 +1,6 @@
 # PALM_static
 
-The geotiff files are important input for static driver. However, it is impossible to process all the geoinformation in a standard way. Here we present scripts to prepare tif files (`prep_static`) and create static files (`create_static`) for PALM simulation. Hopefully these tools can make PALM users' life easier.
+The geotiff files are important input for static driver. However, it is impossible to process all the geoinformation in a standard way. Here we present scripts to prepare tif files (`prep_static`) and create static files (`create_static`) for PALM simulation. Hopefully these tools can make PALM users' lives easier.
 
 ## create PALM static driver
 In `create_static` folder, the main script is `run_config_static.py`. To run this script, these input files are required:  
