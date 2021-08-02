@@ -15,6 +15,8 @@ Users must specify:
 [case]
 case_name         -  case names for all domains  
 origin_time       -  date and time at model start*
+config_proj       -  default is EPSG:4326. This projection uses lat/lon to locate domain. This may not be changed.
+tif_proj          -  projection of input tif files. We recommend users use local projection with unitsin metre, e.g. for New Zealand users, EPSG:2193 is a recommended choice.
 
 [domain]
 ndomain           -  maximum number of domains, when >=2, domain nesting is enabled  
