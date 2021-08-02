@@ -52,19 +52,16 @@ def plot_rectangle(ax, lon_0, lon_1, lat_0, lat_1):
     
 #--------------------------------------------------------------------------------#
 #--------------------------------------------------------------------------------#
-
-# use WGS84 (EPSG:4326) for centlat/centlon 
-config_proj = 'EPSG:4326'
-# local projection (unit: m)
-tif_proj = 'EPSG:2193'
-
 # read namelist
 settings_cfg = configparser.ConfigParser(inline_comment_prefixes='#')
 config = configparser.RawConfigParser()
 config.read('namelist.static')
 case_names =  ast.literal_eval(config.get("case", "case_name"))
 origin_time = ast.literal_eval(config.get("case", "origin_time"))[0]
-
+# use WGS84 (EPSG:4326) for centlat/centlon
+config_proj = ast.literal_eval(config.get("case", "config_proj"))[0]
+# local projection (unit: m)
+tif_proj = ast.literal_eval(config.get("case", "tif_proj"))[0]
 ndomain = ast.literal_eval(config.get("domain", "ndomain"))[0]
 centlat = ast.literal_eval(config.get("domain", "centlat"))
 centlon = ast.literal_eval(config.get("domain", "centlon"))

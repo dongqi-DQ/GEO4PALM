@@ -1,6 +1,8 @@
 [case]
 case_name = "static_test_d01", "static_test_d02",  
 origin_time = "2021-01-01 00:00:00 +00",          # time in yyyy-mm-dd HH:MM:SS +HH format (+00 as in UTC)  
+config_proj = "EPSG:4326", # use WGS84 projection with latitude/longitude to locate domain centre
+tif_proj = "EPSG:2193",    # projection of tif files (local projection with units in m)
 
 [domain]
 ndomain   = 2,                                     # max number of domains
