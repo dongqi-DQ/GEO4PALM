@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #--------------------------------------------------------------------------------#
 # Run this script to visualise the PALM domains on OpenStreet Map
-# This scripts will look for cfg files based on case names given in the namelist
+# based on namelist
 # @author: Dongqi Lin
 #--------------------------------------------------------------------------------#
 import numpy as np 
