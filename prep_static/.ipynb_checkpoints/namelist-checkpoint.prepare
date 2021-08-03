@@ -1,0 +1,18 @@
+[input]
+tif_path = "./tiff/",
+dem = "dem.tif",
+bldh = "",
+bldid = "",
+#if you use shp file, make sure to put all relavent files inside tiff folder,
+#inlcuding shx,xml etc.
+lu = "lcdb-v50-land-cover-database-version-50-mainland-new-zealand.shp", "Class_2018",
+sfch = "",
+pavement = "",
+street = "",
+
+
+[output]
+crs       = "2193",
+prefix   = "casename",
+out_res   = 243, 81,
+resampling = "cubic_spline", "cubic_spline",
