@@ -1,6 +1,6 @@
 # PALM_static
 
-The geotiff files are important input for static driver. However, it is impossible to process all the geoinformation in a standard way. Here we present scripts to prepare tif files (`prep_static`) and create static files (`create_static`) for PALM simulation. Hopefully these tools can make PALM users' life easier.
+The geotiff files are important input for static driver. However, it is impossible to process all the geoinformation in a standard way. Here we present scripts to prepare tif files (`prep_static`) and create static files (`create_static`) for PALM simulation. Hopefully these tools can make PALM users' lives easier.
 
 ## create PALM static driver
 In `create_static` folder, the main script is `run_config_static.py`. To run this script, these input files are required:  
@@ -15,6 +15,8 @@ Users must specify:
 [case]
 case_name         -  case names for all domains  
 origin_time       -  date and time at model start*
+config_proj       -  default is EPSG:4326. This projection uses lat/lon to locate domain. This may not be changed.
+tif_proj          -  projection of input tif files. We recommend users use local projection with unitsin metre, e.g. for New Zealand users, EPSG:2193 is a recommended choice.
 
 [domain]
 ndomain           -  maximum number of domains, when >=2, domain nesting is enabled  
@@ -92,7 +94,7 @@ python run_config_static.py
 
 The script should print some processing information and create the desired static files, which can be found in `static_files`. Each domain will also have 
 1. its own geotiff file created in `static_files` for georeferences.
-2. its own cfg file created in `cfg_files` for future reference in e.g. the visualisation script, WRF4PALM.
+2. its own cfg file created in `cfg_files` for future reference in e.g. WRF4PALM.
 
 ### visualise domain on OSM
 Users may visualise domain by running `visualise_PALM_domains.py`:
