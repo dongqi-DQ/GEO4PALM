@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 from pyproj import Proj
 from static_util.loc_dom import domain_location, domain_nest, write_cfg
+from static_util.check_empty import check_empty
 from create_static import *
 import configparser
 import ast
@@ -74,7 +75,9 @@ for i in range(0,ndomain):
         for keys in tif_input_dict.keys():
             tif_dict_d01[keys] = ast.literal_eval(config.get("tif", keys))[i]
             if len(tif_dict_d01[keys]) ==0:
-                tif_dict_d01[keys] = static_tif_path + "empty.tif"
+                # check whether the empty tiff works; if not create one based on dem
+                tif_dict_d01[keys] = check_empty(static_tif_path + "empty.tif", centlat, centlon, 
+                                                 tif_dict_d01["dem"], config_proj)
             else:
                 tif_dict_d01[keys] = static_tif_path + tif_dict_d01[keys]
         # configure domain location information
