@@ -171,16 +171,23 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
     water_type =  np.array([[cell if cell>0 else -9999 for cell in row] for row in water_lu])
     
     # process pavement
-    pavement_lu = lu2palm(lu, 'pavement')
     pavement_type =  np.array([[cell if cell>0 else -9999 for cell in row] for row in pavement])
-    pavement_type[pavement_lu>0] = 3
-    pavement_type[water_type>0] = -9999
+    if "empty" not in pavement_tif:
+        pavement_lu = lu2palm(lu, 'pavement')
+        pavement_type[pavement_lu>0] = 3
+        pavement_type[water_type>0] = -9999
+    else:
+        pavement_type[:] = -9999
+    
 
     
     # process street
     street_type =  np.array([[cell if cell>0 else -9999 for cell in row] for row in street])
-    street_type[pavement_lu>0] = 17
-    street_type[water_type>0] = -9999
+    if "empty" not in street_tif:
+        street_type[pavement_lu>0] = 17
+        street_type[water_type>0] = -9999
+    else:
+        street_type[:] = -9999
     
     # process building height
     building_height =  np.array([[cell if cell>0 else -9999 for cell in row] for row in bldh])
