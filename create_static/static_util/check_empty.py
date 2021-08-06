@@ -19,7 +19,7 @@ def check_empty(infile, centlat, centlon, dem_tif, config_proj):
         north = ds_geo.y.max()
     
     if ds_geo.rio.crs== CRS.from_string(config_proj):
-        if west<=centlat<=east and south<=centlon<=north:
+        if west<centlat<east and south<centlon<north:
             print("empty.tif is valid")
         else:
             create_empty(infile, dem_tif)
@@ -28,7 +28,7 @@ def check_empty(infile, centlat, centlon, dem_tif, config_proj):
         outProj = Proj(init=str(ds_geo.rio.crs))
 
         tif_centx,tif_centy = transform(inProj,outProj,centlon,centlat)
-        if west<=tif_centx[0]<=east and south<=tif_centy[0]<=north:
+        if west<tif_centx[0]<east and south<tif_centy[0]<north:
             print("empty.tif is valid")
         else:
             create_empty(infile, dem_tif)
