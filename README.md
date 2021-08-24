@@ -89,7 +89,7 @@ ln -sf prep_static/tiff/*.tif create_static/raw_static/.
 ### run the main script
 Now if users have all geotiff files ready, they may run the main script:
 ```
-python run_config_static.py
+python run_config_static.py [namelist_file]
 ```
 
 The script should print some processing information and create the desired static files, which can be found in `static_files`. Each domain will also have 
@@ -99,7 +99,7 @@ The script should print some processing information and create the desired stati
 ### visualise domain on OSM
 Users may visualise domain by running `visualise_PALM_domains.py`:
 ```
-python visulalise_PALM_domains.py
+python visulalise_PALM_domains.py [namelist_file]
 ```
 
 ### flat terrain and precursor run
