@@ -12,6 +12,7 @@ import cartopy.crs as ccrs
 import cartopy.io.img_tiles as cimgt
 from static_util.loc_dom import domain_location, domain_nest
 import six
+import sys
 from PIL import Image
 import pandas as pd
 import configparser
@@ -55,7 +56,8 @@ def plot_rectangle(ax, lon_0, lon_1, lat_0, lat_1):
 # read namelist
 settings_cfg = configparser.ConfigParser(inline_comment_prefixes='#')
 config = configparser.RawConfigParser()
-config.read('namelist.static')
+namelist = sys.argv[1]
+config.read(namelist)
 case_names =  ast.literal_eval(config.get("case", "case_name"))
 origin_time = ast.literal_eval(config.get("case", "origin_time"))[0]
 # use WGS84 (EPSG:4326) for centlat/centlon

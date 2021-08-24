@@ -17,7 +17,7 @@ from create_static import *
 import configparser
 import ast
 from pyproj import Proj, transform
-
+import sys
 import warnings
 ## supress warnings
 ## switch to other actions if needed
@@ -27,7 +27,8 @@ warnings.filterwarnings("ignore")
 # read namelist
 settings_cfg = configparser.ConfigParser(inline_comment_prefixes='#')
 config = configparser.RawConfigParser()
-config.read('namelist.static')
+namelist = sys.argv[1]
+config.read(namelist)
 case_names =  ast.literal_eval(config.get("case", "case_name"))
 origin_time = ast.literal_eval(config.get("case", "origin_time"))[0]
 # use WGS84 (EPSG:4326) for centlat/centlon
