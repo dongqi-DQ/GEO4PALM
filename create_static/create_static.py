@@ -17,11 +17,36 @@ import scipy.integrate as integrate
 from scipy.ndimage.measurements import label
 from static_util.read_geo import readgeotiff
 from static_util.nearest import nearest
-from static_util.palm_lu import lu2palm
+from static_util.palm_lu import lu2palm, get_albedo
 import rasterio
 from rasterio.transform import from_origin
 from rasterio.crs import CRS
-  
+
+def nearest_sst(sst,idx_lat,idx_lon):
+    # find nearest available SST if no SST available at centlat, centlon
+    lat,lon = np.nonzero(sst)
+    min_idx = ((lat - idx_lat)**2 + (lon - idx_lon)**2).argmin()
+    return sst[lat[min_idx], lon[min_idx]]
+
+def get_sst(centlat, centlon, origin_time):
+    # get nearest sst to be used as water temperatuer in water_pars
+    sst_file = "./raw_static/2019_monthly_SST.nc"
+    month = origin_time[5:7]
+    with xr.open_dataset(sst_file) as ds_sst:
+        sst = ds_sst.sel(month=int(month))["sst"]
+        sst_lat = ds_sst["latitude"]
+        sst_lon = ds_sst["longitude"]
+        sst.data[np.isnan(sst.data)] = 0
+    _, idx_lat = nearest(sst_lat, centlat)
+    _, idx_lon = nearest(sst_lon, centlon)
+    
+    if sst[idx_lat,idx_lon].data>0:
+        water_temperature = sst[idx_lat,idx_lon].data
+    else:
+        water_temperature = nearest_sst(sst.data, idx_lat, idx_lon)
+    
+    return water_temperature
+    
 def array_to_raster(array,xmin,ymax,xsize,ysize,proj_str,output_filename):
     ## create reference tif file with original crs for each domain.
     arr = np.flip(array,axis=0)
@@ -78,7 +103,6 @@ def make_3d_from_2d(array_2d,x,y,dz):
                     array_3d[k,m,l] = 0
 
     return array_3d.astype(np.byte), k_tmp
-
 
 def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, tif_dict):
     # read domain info
@@ -171,23 +195,17 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
     water_type =  np.array([[cell if cell>0 else -9999 for cell in row] for row in water_lu])
     
     # process pavement
+    pavement_lu = lu2palm(lu, 'pavement')
     pavement_type =  np.array([[cell if cell>0 else -9999 for cell in row] for row in pavement])
-    if "empty" not in pavement_tif:
-        pavement_lu = lu2palm(lu, 'pavement')
-        pavement_type[pavement_lu>0] = 3
-        pavement_type[water_type>0] = -9999
-    else:
-        pavement_type[:] = -9999
+    pavement_type[pavement_lu>0] = 3
+    pavement_type[water_type>0] = -9999
     
 
     
     # process street
     street_type =  np.array([[cell if cell>0 else -9999 for cell in row] for row in street])
-    if "empty" not in street_tif:
-        street_type[pavement_lu>0] = 17
-        street_type[water_type>0] = -9999
-    else:
-        street_type[:] = -9999
+    street_type[pavement_lu>0] = 17
+    street_type[water_type>0] = -9999
     
     # process building height
     building_height =  np.array([[cell if cell>0 else -9999 for cell in row] for row in bldh])
@@ -217,9 +235,10 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
     if "empty" not in bldh_tif:
         vegetation_type[bare_land>0] = 1 # bare land 
     else:
-        vegetation_type[bare_land>0] = 18  # urban buildup
+        urban_type = 18                   # vegetation type to represent roughness length of urban buildup
+        vegetation_type[bare_land>0] = urban_type  
         
-    # porcess soil
+    # process soil
     soil_type = np.zeros_like(lu)
     soil_type[:] = -9999
     soil_type = lu2palm(lu, 'soil')
@@ -302,6 +321,7 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
                 vegetation_type[idy, idx] = 1
                 soil_type[idy, idx] = 2
     
+    # set up fillvalues
     vegetation_type[vegetation_type == -9999.0] = -127.0
     pavement_type[pavement_type == -9999.0] = -127.0
     street_type[street_type == -9999.0] = -127.0
@@ -310,8 +330,29 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
     soil_type[soil_type == -9999.0] = -127.0
     soil_type[soil_type == 0] = -127.0
     
-
-   
+    # calculate albedo type for vegetation, pavements, buildings, water
+    albedo_type = np.zeros_like(vegetation_type)
+    albedo_pavement = get_albedo(pavement_type, "pavement")
+    albedo_vegetation = get_albedo(vegetation_type, "vegetation")
+    albedo_water = get_albedo(water_type, "water")
+    if "empty" not in bldh_tif:
+        albedo_building = get_albedo(building_type, "building")
+    else:
+        bare_land[vegetation_type!=urban_type] = -9999.0
+        albedo_building = get_albedo(bare_land, "building")
+        albedo_vegetation[albedo_building>0] = 0
+    
+    albedo_type = albedo_pavement + albedo_vegetation + albedo_building + albedo_water
+    albedo_type[albedo_type[:,:]<=0] = -127.0
+    
+    # set up water temperature
+    # other parameters stay the same as default
+    water_temperature = get_sst(centlat, centlon, origin_time)
+    water_pars = np.zeros((7,water_type.shape[0],water_type.shape[1]))
+    water_pars[0,:,:][water_type>0] = water_temperature
+    water_pars[water_pars<=0] = -9999.0
+    
+    
     # process surface fraction
     surface_fraction = np.array([np.zeros_like(lu), np.zeros_like(lu), np.zeros_like(lu)])
     surface_fraction[:] = 0
@@ -358,9 +399,13 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
     nc_vegetation = nc_output.createVariable('vegetation_type', np.byte, ('y', 'x'), fill_value=np.byte(-127), zlib=True)
     nc_pavement = nc_output.createVariable('pavement_type', np.byte, ('y', 'x'), fill_value=np.byte(-127), zlib=True)
     nc_water = nc_output.createVariable('water_type', np.byte, ('y', 'x'), fill_value=np.byte(-127), zlib=True)
+    nc_albedo = nc_output.createVariable('albedo_type', np.byte, ('y', 'x'), fill_value=np.byte(-127), zlib=True)
     nc_soil = nc_output.createVariable('soil_type', np.byte, ('y', 'x'), fill_value=np.byte(-127), zlib=True)
     nc_surface_fraction = nc_output.createVariable('surface_fraction', np.float32, ('nsurface_fraction', 'y', 'x'), fill_value=-9999.0, zlib=True)     
-    
+    nc_output.createDimension('nwater_pars', 7)
+    nc_nwater_pars = nc_output.createVariable('nwater_pars', np.int32, 'nwater_pars')
+    nc_water_pars = nc_output.createVariable('water_pars', np.float32, ('nwater_pars', 'y', 'x'), fill_value=-9999.0, zlib=True)     
+
     nc_vegetation.long_name = 'vegetation_type_classification'
     nc_vegetation.units = ''
 
@@ -371,6 +416,10 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
     nc_water.long_name = 'water_type_classification'
     nc_water.res_orig = np.float32(dx)
     nc_water.units = ''
+    
+    nc_albedo.long_name = 'albedo type classification'
+    nc_albedo.res_orig = np.float32(dx)
+    nc_albedo.units = ''
 
     nc_soil.long_name = 'soil_type_classification'
     nc_soil.res_orig = np.float32(dx)
@@ -380,13 +429,19 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
     nc_surface_fraction.res_orig = np.float32(dx)
     nc_surface_fraction.units = ''
     
+    nc_water_pars.long_name = 'water_parameters'
+    nc_water_pars.res_orig = np.float32(dx)
+
     
     nc_vegetation[:] = vegetation_type
     nc_pavement[:] = pavement_type
     nc_water[:] = water_type
+    nc_albedo[:] = albedo_type
     nc_soil[:] = soil_type
     nc_surface_fraction[:] = surface_fraction
     nc_nsurface_fraction[:] = np.arange(0, n_surface_fraction)
+    nc_nwater_pars[:] =  np.arange(0,7,1)
+    nc_water_pars[:] = water_pars
     
     if "empty" not in sfch_tif:
         nc_lad = nc_output.createVariable('lad', np.float32, ('zlad', 'y', 'x'), fill_value=-9999.0, zlib=True)
