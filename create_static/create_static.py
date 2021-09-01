@@ -340,8 +340,8 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
     else:
         bare_land[vegetation_type!=urban_type] = -9999.0
         albedo_building = get_albedo(bare_land, "building")
-        albedo_vegetation[albedo_building>0] = 0
     
+    albedo_vegetation[albedo_building>0] = 0
     albedo_type = albedo_pavement + albedo_vegetation + albedo_building + albedo_water
     albedo_type[albedo_type[:,:]<=0] = -127.0
     
