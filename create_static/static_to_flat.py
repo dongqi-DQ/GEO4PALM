@@ -28,6 +28,7 @@ def tif_to_flat(infile, soil_type=3, vegetation_type=3, pavement_type=np.nan, wa
         "pavement_type": pavement_type,
         "water_type": water_type,
     }
+    ds = ds.drop(["albedo_type","water_pars"])
 
     for var_name in zero_var_list:
         ds[var_name][:] = 0
