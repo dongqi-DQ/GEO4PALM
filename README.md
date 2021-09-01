@@ -45,7 +45,7 @@ The **required** fields for tif files are `dem` and `lu`. A lookup table (in `ra
 
 _The `origin_time` setting is similar to `origin_date_time` in [PALM documentation](https://palm.muk.uni-hannover.de/trac/wiki/doc/app/initialization_parameters#origin_date_time). This variable is required in static drivers, but will not be used in PALM simulation. Rather the date time should be specified in PALM's p3d namelist. The sunset/sunrise time is affected by lat/lon attributes in the static driver._
 
-**Note: the roughness length defined in PALM may be too high for some vegetation types.**
+**Note: when no urban input is used, the vegetation type is set to 18 and the albedo type is set to 33 for urban area specified in land use files.**
 
 For other tif file fileds, if users do not have files available, they should leave the file names empty as `"",`. The script will automatically read the "empty" tif file (`empty.tif`) provided in `raw_static`. 
 
@@ -70,7 +70,7 @@ Variables in the static driver here are not inclusive. Users may refer to PALM i
 _Heldens, W., Burmeister, C., Kanani-Sühring, F., Maronga, B., Pavlik, D., Sühring, M., Zeidler, J., and Esch, T.: Geospatial input data for the PALM model system 6.0: model requirements, data sources and processing, Geosci. Model Dev., 13, 5833–5873, https://doi.org/10.5194/gmd-13-5833-2020, 2020._
 
 
-### geotiff files requirements
+### geotiff files requirements (To Do: new readme for this section needed)
 - Users may put their geotiff files in `create_static/raw_static`. 
 - The geotiff files must have the same projection. 
 - The geotiff files must have the same resolution as desired in PALM simulation, e.g. for a 10 m simulation, the geotiff files resolution must be 10 m. 
@@ -101,12 +101,16 @@ Users may visualise domain by running `visualise_PALM_domains.py`:
 ```
 python visulalise_PALM_domains.py [namelist_file]
 ```
+This can be done before static files are created.
 
 ### flat terrain and precursor run
 Once a static driver is used, all the PALM domains in the simulation requires static drivers. In case a flat terrain static driver and/or precursor run static driver are required, users may run `static_to_flat.py`. 
 ```
 python static_to_flat.py [static_file] [nx,ny]
 ```
+
+### water temperature
+The water temperature is derived using monthly mean of ERA5 SST data for 2019. The month of the year is derived from `origin_time` in the namelist. The location to take SST data depends on `centlat` and `centlon` in the namelist.
 
 Note that this requires no urban variables (e.g. buildings and streets) in the input static driver. If precursor run is not required, users do not need to specify `nx` and `ny`.
 
