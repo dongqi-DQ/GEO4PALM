@@ -26,6 +26,7 @@ import ast
 import configparser
 import geopandas as gpd
 from geocube.api.core import make_geocube
+from shapely.geometry import Polygon
 
 # read namelist
 settings_cfg = configparser.ConfigParser(inline_comment_prefixes="#")
@@ -84,10 +85,16 @@ for res, rs_method in tqdm(
 
             tmp_dataset = gpd.read_file(tif_path + tmp_infile)
             var_name = ast.literal_eval(config.get("input", other_input))[1]
+            inner_dem_boundary = Polygon([(ds_geo_out.x.min().values, ds_geo_out.y.min().values),\
+                                          (ds_geo_out.x.min().values, ds_geo_out.y.max().values),\
+                                          (ds_geo_out.x.max().values, ds_geo_out.y.max().values),\
+                                          (ds_geo_out.x.max().values, ds_geo_out.y.min().values),\
+                                          (ds_geo_out.x.min().values, ds_geo_out.y.min().values)])
+            tmp_dataset_clip=tmp_dataset.clip(inner_dem_boundary)
             geo_grid = make_geocube(
-                vector_data=tmp_dataset,
+                vector_data=tmp_dataset_clip,
                 measurements=[var_name],
-                resolution=(res/4, res/4),
+                resolution=(res/4.0, res/4.0),
             ) #divide res by 4 to make the reproject more accurate, can be removed if it's too slow.
             geo_grid = geo_grid[var_name]
             geo_grid = geo_grid.reindex(y=geo_grid.y[::-1])

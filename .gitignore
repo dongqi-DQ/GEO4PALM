@@ -1,0 +1,12 @@
+prep_static/tiff/*
+__pycache__/
+create_static/raw_static/*.tif
+.ipynb_checkpoints/
+create_static/cfg_files/*.cfg
+create_static/*.static
+create_static/static_files/*
+prep_static/tiff/*
+create_static/raw_static/old_rocket/
+*.tif
+prep_static/namelist*
+prep_static/namelist.*

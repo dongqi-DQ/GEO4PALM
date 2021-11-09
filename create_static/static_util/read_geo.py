@@ -13,10 +13,10 @@ import rioxarray as rxr
 
 def readgeotiff(file):
     fill_value = -9999
-    ds=rxr.open_rasterio(file)
+    ds=rxr.open_rasterio(file,masked=True)
     lat = ds.y.values
     lon = ds.x.values
-    ds=ds.where(~(ds.isnull() | (ds<=ds.attrs["_FillValue"])),fill_value).squeeze(drop=True)
+    ds=ds.where(~(ds.isnull() | (ds<=fill_value)),fill_value).squeeze(drop=True)
     array_final=np.flip(ds.values,axis=0)
     lat = np.flip(lat)
     return(array_final, lat, lon)
