@@ -118,7 +118,7 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
     z_origin = dom_dict['z_origin']
     y = np.arange(dy/2,dy*(ny+0.5),dy)
     x = np.arange(dx/2,dx*(nx+0.5),dx)
-    z = np.arange(dz/2, dz*nz, dz) + z_origin
+    z = np.arange(dz/2, dz*nz, dz)
     tif_left = dom_dict['west']
     tif_right = dom_dict['east']
     tif_north = dom_dict['north']
@@ -141,15 +141,18 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
 
     # extract topography to match PALM domain
     zt = extract_tiff(dem, lat, lon, dom_dict, tif_left,tif_south,tif_north,tif_projection,case_name,save_tif=True)
+#     # find the lowest terrain height
+#     zt_min = np.nanmin(zt)
+#     dom_dict['z_origin'] = zt_min
+#     z_origin = dom_dict['z_origin']
+    zt = zt - z_origin
     zt[zt < .5] = 0
     print("@@@@zt",zt.shape)
     del dem, lat, lon
 
     print('Number of grid points x, y = ' + str(zt.shape[1]) + ', ' + str(zt.shape[0]))
     
-    # find the lowest terrain height
-    zt_min = np.nanmin(zt)
-    dom_dict['z_origin'] = zt_min
+
     
     # Read land use files
     n_surface_fraction = 3
