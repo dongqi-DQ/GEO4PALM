@@ -37,8 +37,8 @@ def domain_location(config_projection,tif_projection, dom_dict):
 
         tif_centx,tif_centy = transform(inProj,outProj,centlon,centlat)
     
-    tif_west, tif_east = tif_centx-nx*dx/2, tif_centx+nx*dx/2
-    tif_north, tif_south = tif_centy+ny*dy/2, tif_centy-ny*dy/2
+    tif_west, tif_east = tif_centx- (nx-1)*dx/2, tif_centx+(nx-1)*dx/2
+    tif_north, tif_south = tif_centy+(ny-1)*dy/2, tif_centy-(ny-1)*dy/2
     
     # transform back to latitude/logintude to save in cfg for future reference
     tifProj = Proj(init=tif_projection)
@@ -87,12 +87,12 @@ def domain_nest(tif_projection, west, south, llx, lly, dom_dict):
     dy = dom_dict['dy']
     
     nest_west = west + llx
-    nest_east = west + llx + dx*nx
+    nest_east = west + llx + dx*(nx-1)
     nest_south = south + lly
-    nest_north = south + lly + dy*ny
+    nest_north = south + lly + dy*(ny-1)
 
-    nest_cent_lon = nest_west + dx*nx/2
-    nest_cent_lat = nest_south + dy*ny/2
+    nest_cent_lon = nest_west + dx*(nx-1)/2.0
+    nest_cent_lat = nest_south + dy*(ny-1)/2.0
     # transform back to latitude/logintude to save in cfg for future reference
     tifProj = Proj(init=tif_projection)
     wgsProj = Proj(init='EPSG:4326')
