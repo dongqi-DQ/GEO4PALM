@@ -272,7 +272,7 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
     # process lad
     # remove cars and some other "noise"
         tree_height = np.copy(sfch_tmp)
-        tree_height[tree_height<=3] = -9999
+        tree_height[tree_height<=1.5] = -9999
     # remove single points in the domain
         n_thresh = 1
         labeled_array, num_features = label(tree_height)
@@ -281,13 +281,14 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
         shp = tree_height.shape
         mask = np.in1d(labeled_array, noise_idx).reshape(shp)
         tree_height[mask] = -9999
-    # generate 3d variables for LAD
+    # generate 3d variables for LAD        
         tree_3d, zlad = make_3d_from_2d(tree_height, x, y, dz)
         tree_3d = tree_3d.astype(np.float)
         tree_3d[tree_3d==0] = -9999
     # specify parameters for LAD calculation
-        tree_lai = 5
-        lad_max_height = 0.025
+        tree_lai_max = 5
+        scale_height=np.nanquantile(np.where(tree_height>0,tree_height,np.nan),0.9) # use the top 10% quantile to scale the lai
+        lad_max_height = 0.4
         ml_n_low = 0.5
         ml_n_high = 6.0
         
@@ -298,21 +299,22 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
                     continue
                 else:
                     #  Calculate height of maximum LAD
+                    tree_lai_scaled = tree_lai_max* tree_height[idy, idx]/scale_height
                     z_lad_max = lad_max_height * tree_height[idy, idx]
 
                     #  Calculate the maximum LAD after Lalic and Mihailovic (2004)
                     lad_max_part_1 = integrate.quad(lambda z: ( ( tree_height[idy, idx]- z_lad_max ) / ( tree_height[idy, idx] - z ) ) ** (ml_n_high) * np.exp( ml_n_high * (1.0 - ( tree_height[idy, idx] - z_lad_max ) / ( tree_height[idy, idx] - z ) ) ), 0.0, z_lad_max)
                     lad_max_part_2 = integrate.quad(lambda z: ( ( tree_height[idy, idx] - z_lad_max ) / ( tree_height[idy, idx] - z ) ) ** (ml_n_low) * np.exp( ml_n_low * (1.0 - ( tree_height[idy, idx] - z_lad_max ) / ( tree_height[idy, idx] - z ) ) ), z_lad_max, tree_height[idy, idx])
 
-                    lad_max = tree_lai / (lad_max_part_1[0] + lad_max_part_2[0])
+                    lad_max = tree_lai_scaled / (lad_max_part_1[0] + lad_max_part_2[0])
 
                     lad_profile     =  np.zeros_like(zlad)
-                    for k in range(1,len(lad_profile)-1):
-                        if z[k] > 0.0 and z[k] < z_lad_max:
+                    for k in range(1,len(lad_profile)):
+                        if zlad[k] > 0.0 and zlad[k] < z_lad_max:
                             n = ml_n_high
                         else:
                             n = ml_n_low
-                        lad_profile[k] =  lad_max * ( ( tree_height[idy, idx] - z_lad_max ) / ( tree_height[idy, idx] - z[k] ) ) ** (n) * np.exp( n * (1.0 - ( tree_height[idy, idx] - z_lad_max ) / ( tree_height[idy, idx] - z[k] ) ) )
+                        lad_profile[k] =  lad_max * ( ( tree_height[idy, idx] - z_lad_max ) / ( tree_height[idy, idx] - zlad[k] ) ) ** (n) * np.exp( n * (1.0 - ( tree_height[idy, idx] - z_lad_max ) / ( tree_height[idy, idx] - zlad[k] ) ) )
                     tree_3d[:, idy, idx] = lad_profile[:]
         ####### end of LAD calculation
         # convert nans to -9999
