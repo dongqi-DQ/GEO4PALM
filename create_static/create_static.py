@@ -68,7 +68,6 @@ def extract_tiff(array, lat,lon, dom_dict,west_loc,south_loc,north_loc,proj_str,
     
     nx = dom_dict['nx']
     ny = dom_dict['ny']
-    
      # find the nearest index
     xmin, west_idx  = nearest(lon,west_loc)
     south_idx       = nearest(lat,south_loc)[1]
@@ -158,41 +157,66 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
     n_surface_fraction = 3
     
     print('read LCDB')
-    lu_geo, lat, lon = readgeotiff(lu_tif)
-    lu = extract_tiff(lu_geo, lat, lon, dom_dict, tif_left,tif_south,tif_north,tif_projection,case_name)
-    del lu_geo, lat, lon
-    gc.collect()
+    if 'empty.tif' in lu_tif:
+        lu = np.zeros_like(zt)
+        lu[:] = np.nan
+    else:
+        lu_geo, lat, lon = readgeotiff(lu_tif)
+        lu = extract_tiff(lu_geo, lat, lon, dom_dict, tif_left,tif_south,tif_north,tif_projection,case_name)
+        del lu_geo, lat, lon
+        gc.collect()
     
     print('read building ID')
-    bldid_geo, lat, lon = readgeotiff(bldid_tif)
-    bldid = extract_tiff(bldid_geo, lat, lon, dom_dict, tif_left,tif_south,tif_north,tif_projection,case_name)
-    del bldid_geo, lat, lon
-    gc.collect()
+    if 'empty.tif' in bldid_tif:
+        bldid = np.zeros_like(zt)
+        bldid[:] = np.nan
+    else:
+        bldid_geo, lat, lon = readgeotiff(bldid_tif)
+        bldid = extract_tiff(bldid_geo, lat, lon, dom_dict, tif_left,tif_south,tif_north,tif_projection,case_name)
+        del bldid_geo, lat, lon
+        gc.collect()
     
     print('read building height')
-    bldh_geo, lat, lon = readgeotiff(bldh_tif)
-    bldh = extract_tiff(bldh_geo, lat, lon, dom_dict, tif_left,tif_south,tif_north,tif_projection,case_name)
-    del bldh_geo, lat, lon
-    gc.collect()
+    if 'empty.tif' in bldh_tif:
+        bldh = np.zeros_like(zt)
+        bldh[:] = np.nan
+    else:
+        bldh_geo, lat, lon = readgeotiff(bldh_tif)
+        bldh = extract_tiff(bldh_geo, lat, lon, dom_dict, tif_left,tif_south,tif_north,tif_projection,case_name)
+        del bldh_geo, lat, lon
+        gc.collect()
     
     print('read surface height (excluding buildings)')
-    sfch_geo, lat, lon = readgeotiff(sfch_tif)
-    sfch_tmp = extract_tiff(sfch_geo, lat, lon, dom_dict, tif_left,tif_south,tif_north,tif_projection,case_name)
-    del sfch_geo, lat, lon
-    gc.collect()
+    if 'empty.tif' in sfch_tif:
+        sfch_tmp = np.zeros_like(zt)
+        sfch_tmp[:] = np.nan
+    else:
+        sfch_geo, lat, lon = readgeotiff(sfch_tif)
+        sfch_tmp = extract_tiff(sfch_geo, lat, lon, dom_dict, tif_left,tif_south,tif_north,tif_projection,case_name)
+        del sfch_geo, lat, lon
+        gc.collect()
     
     print('read pavement')
-    pavement_geo, lat, lon = readgeotiff(pavement_tif)
-    pavement = extract_tiff(pavement_geo, lat, lon, dom_dict, tif_left,tif_south,tif_north,tif_projection,case_name)
-    del pavement_geo, lat, lon    
-    gc.collect()
     
-    print('read street')    
-    street_geo, lat, lon = readgeotiff(street_tif)
-    street = extract_tiff(street_geo, lat, lon, dom_dict, tif_left,tif_south,tif_north,tif_projection,case_name)
-    del street_geo, lat, lon    
-    gc.collect()
+    if 'empty.tif' in pavement_tif:
+        pavement = np.zeros_like(zt)
+        pavement[:] = np.nan
+    else:
+        pavement_geo, lat, lon = readgeotiff(pavement_tif)
+        pavement = extract_tiff(pavement_geo, lat, lon, dom_dict, tif_left,tif_south,tif_north,tif_projection,case_name)
+        del pavement_geo, lat, lon    
+        gc.collect()
     
+    print('read street')
+    if 'empty.tif' in street_tif:
+        street = np.zeros_like(zt)
+        street[:] = np.nan
+    else:
+        street_geo, lat, lon = readgeotiff(street_tif)
+        street = extract_tiff(street_geo, lat, lon, dom_dict, tif_left,tif_south,tif_north,tif_projection,case_name)
+        del street_geo, lat, lon    
+        gc.collect()
+
     # process water type
     water_lu = lu2palm(lu, 'water')
     water_type =  np.array([[cell if cell>0 else -9999 for cell in row] for row in water_lu])
@@ -201,6 +225,7 @@ def generate_palm_static(case_name, config_projection,tif_projection, dom_dict, 
     pavement_lu = lu2palm(lu, 'pavement')
     pavement_type =  np.array([[cell if cell>0 else -9999 for cell in row] for row in pavement])
     # if pavement tif input is not empty
+
     if "empty" not in bldh_tif:
         pavement_type[pavement_lu>0] = 3
     else:

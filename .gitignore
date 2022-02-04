@@ -5,6 +5,7 @@ create_static/raw_static/*.tif
 create_static/cfg_files/*.cfg
 create_static/*.static
 create_static/static_files/*
+create_static/raw_static/nzlcdb_2_PALM_num-noveg.csv
 prep_static/tiff/*
 create_static/raw_static/old_rocket/
 *.tif
