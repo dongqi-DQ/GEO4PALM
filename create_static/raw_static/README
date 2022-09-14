@@ -1,6 +1,0 @@
-Put your land use lookup table here
-Put your tif files here
-
-Or link from prep_static/tiff
-$$ ln -sf ../../prep_static/tiff/*.tif .
-
