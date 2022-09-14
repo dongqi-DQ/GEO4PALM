@@ -1,0 +1,30 @@
+OSM_road_type,buffer_width,PALM_pavement_type,street_type
+cycleway,2.5,2,2
+footway,2.5,5,3
+living_street,5.5,5,6
+path,1.5,1,4
+primary,7.5,2,13
+primary_link,7.5,2,14
+residential,5.5,2,8
+secondary,6.5,2,11
+secondary_link,6.5,2,12
+service,5.5,2,7
+tertiary,5.5,2,9
+tertiary_link,5.5,2,10
+track,2.6,1,5
+track_grade1, 2.6, 3,5
+track_grade2, 2.6, 9,5
+track_grade3, 2.2, 9,5
+track_grade4, 2.0, 10,5
+track_grade5, 1.7, 10,5
+trunk,8,2,15
+trunk_link,8,2,16
+unclassified,5.5,2,1
+unknown,5.5,2,1
+motorway,10,2,17
+motorway_link,10,2,18
+pedestrian, 2.5,3,3
+steps, 2.5, 5, 1
+bridleway, 2.2, 10,5
+
+

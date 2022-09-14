@@ -1,0 +1,44 @@
+[case]
+case_name = "prefix",   # prefix for a case
+origin_time = "2021-01-01 00:00:00 +00",          # time in yyyy-mm-dd HH:MM:SS +HH format (+00 as in UTC)  
+config_proj = "EPSG:2193", # projection for PALM
+default_proj = "EPSG:4326", # projection of lat/lon to find domain location
+
+[domain]
+ndomain   = 8,                                     # max number of domains
+centlat   = -43.590008,                           # centre latitude
+centlon   = 172.713367,                           # centre longitude
+nx        = 144,      108,     132,     216,      162,      162,      162,      162,
+ny        = 144,      108,      96,     216,      162,      162,      162,      162,
+nz        = 32,        20,      24,      36,       81,       81,       81,       81,
+dx        = 729.0,  729.0,   243.0,    81.0,     27.0,     27.0,      9.0,      9.0,
+dy        = 729.0,  729.0,   243.0,    81.0,     27.0,     27.0,      9.0,      9.0,
+dz        = 162.0,  162.0,    54.0,    18.0,      6.0,      6.0,      2.0,      2.0,
+z_origin  = 0.0,      0.0,     0.0,     0.0,      0.0,      0.0,      0.0,      0.0,
+ll_x      = 0.0,  13122.0, 29160.0, 32076.0,  35721.0,  42282.0,  37179.0,  43740.0,
+ll_y      = 0.0,  13122.0, 48843.0, 51759.0,  61236.0,  56862.0,  62694.0,  58320.0,
+
+
+[geotif] 
+sst       = "online", "online", "online","online","online","online","online","online",
+dem       = "online", "online", "online","online","online","online","online","online",
+lu        = "online", "online", "online","online","online","online","online","online",
+resample_method = "nearest", "nearest", "nearest", "nearest","nearest", "nearest","nearest", "nearest",
+# if NASA API is used format in YYYY-MM-DD
+# SST date should be the same as the orignin_time
+
+## No need to change start/end dates for NASA SRTMGL1_NC.003 
+dem_start_date = '2000-02-12',
+dem_end_date = '2000-02-20',
+## start/end dates for land use data set
+lu_start_date = '2020-10-01',
+lu_end_date = '2020-10-30',
+
+[urban]
+bldh     = "", "", "", "online","online","online","online","online",
+bldid    = "", "", "", "online","online","online","online","online",
+pavement = "", "", "", "online","online","online","online","online",
+street   = "", "", "", "online","online","online","online","online",
+
+[plant]
+sfch = "","","", "online","online","online","online","online",
