@@ -73,7 +73,8 @@ def process_osm_building(bld_file, config_proj, case_name, tmp_path, idomain, dx
             elif type(gpd_file.loc[i,"level"]) is not type(None):
                 gpd_file.loc[i,"new_height"] = float(gpd_file.loc[i,"level"])*3
             else:
-                gpd_file.loc[i,"new_height"] = 0
+                # if no building height is given then set as 3 m
+                gpd_file.loc[i,"new_height"] = 3 
         # make building height geocube
         bldh_geogrid = make_geocube(vector_data=gpd_file, measurements=["new_height"], resolution = (dx, dy), output_crs=config_proj)
         # make building ID geocube

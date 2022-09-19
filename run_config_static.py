@@ -20,7 +20,6 @@ from util.get_osm import *
 from util.get_sst import download_sst
 from util.get_geo_nasa import *
 from util.loc_dom import domain_location, domain_nest, write_cfg
-from util.check_empty import check_empty
 from util.create_static import *
 from util.pre_process_tif import *
 from util.pre_process_tif import main_process as process_main
