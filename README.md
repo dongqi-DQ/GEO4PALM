@@ -1,22 +1,21 @@
 # PALM_static
+**under development**
 
-The geotiff files are important input for static driver. However, it is impossible to process all the geoinformation in a standard way. Here we present scripts to prepare tif files (`prep_static`) and create static files (`create_static`) for PALM simulation. Hopefully these tools can make PALM users' lives easier.
+The geotiff files are important input for static driver. However, it is impossible to process all the geoinformation in a standard way. Here we present scripts to genearte static drivers for PALM simulation. We provide an interface for users to download geospatial data globally, while users can also provide their own geospatial data in `tif` format. The script will prepare all input files for the configured simulation domains and then generate static drivers. Hopefully these tools can make PALM users' lives easier.
 
-## create PALM static driver
-In `create_static` folder, the main script is `run_config_static.py`. To run this script, these input files are required:  
-1. namelist.static
-2. geotiff files for each domain
+## How to run?
+The main script is `run_config_static.py`. To run this script, a namelist file is required. The namelist for each case should be  `JOBS/case_name/INPUT/namelist.static-case_name`.
 
 ### namelist 
-The namelist requires PALM domain configuration and geotiff filenames from users. The domain configuration is similar to variables used in PALM.  
+The namelist requires PALM domain configuration and geotiff filenames from users. The domain configuration is similar to variables used in PALM. 
 
 Users must specify:
 ```
 [case]
-case_name         -  case names for all domains  
+case_name         -  name of the case 
 origin_time       -  date and time at model start*
-config_proj       -  default is EPSG:4326. This projection uses lat/lon to locate domain. This may not be changed.
-tif_proj          -  projection of input tif files. We recommend users use local projection with unitsin metre, e.g. for New Zealand users, EPSG:2193 is a recommended choice.
+default_proj      -  default is EPSG:4326. This projection uses lat/lon to locate domain. This may not be changed.
+config_proj          -  projection of input tif files. We recommend users use local projection with units in metre, e.g. for New Zealand users, EPSG:2193 is a recommended choice.
 
 [domain]
 ndomain           -  maximum number of domains, when >=2, domain nesting is enabled  
@@ -31,15 +30,33 @@ z_origin          -  elevated terrain mean grid position in meters (leave as 0.0
 ll_x              -  lower left corner distance to the first domain in meters along x-axis   
 ll_y              -  lower left corner distance to the first domain in meters along y-axis   
 
-[tif]
-dem               -  digital elevation model tif file name (for topography)  
-bldh              -  building height tif file name  
-bldid             -  building ID tif file name  
-lu                -  land use classification tif file name  
-sfch              -  surface objects height (excluding buildings) tif file name  
-pavement          -  pavement type tif file name  
-street            -  street type tif file name  
+[geotif]          -  required input from user; can be provided by users in the INPUT folder or "online"
+sst               -  input for water temperature
+dem               -  digital elevation model input for topography
+lu                -  land use classification  
+resample_method   -  method to resample geotiff files for interpolation/extrapolation
+
+# if NASA API is used format in YYYY-MM-DD
+# SST date should be the same as the orignin_time
+
+## No need to change start/end dates for NASA SRTMGL1_NC.003 
+dem_start_date = '2000-02-12',  
+dem_end_date = '2000-02-20',
+## start/end dates for land use data set
+lu_start_date = '2020-10-01',
+lu_end_date = '2020-10-30',
+
+[urban]             - input for urban canopy model; can leave as "" if this feature is not included in the simulations, or provided by user; or online from OSM
+bldh                - input for building height 
+bldid               - input for building ID
+pavement            - input for pavement type
+street              - input for building ID
+
+[plant]           - input for plant canopy model; can leave as "" if this feature is not included in the simulations, or provided by user
+sfch              - input for plant height; this is for leave area density (LAD)
 ```
+
+**below needs to be edited (20/09/2022)**
 
 The **required** fields for tif files are `dem` and `lu`. A lookup table (in `raw_static` folder) is required to convert land use information to PALM recognisable types. Here we used New Zealand Land Cover Data Base (LCDB) v5.0. Our lookup table `nzlcdb_2_PALM_num.csv` is available in `raw_static` folder. 
 
