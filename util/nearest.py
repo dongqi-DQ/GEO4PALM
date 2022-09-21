@@ -8,6 +8,7 @@
 # @modified by: Dongqi Lin 
 #--------------------------------------------------------------------------------#
 
+import numpy as np
 
 def nearest(array, value):
     
@@ -21,7 +22,6 @@ def nearest(array, value):
     
     '''
     
-    import numpy as np
     
     nearest_index = np.where(np.abs(array-value) == np.nanmin(np.abs(array-value)))
     nearest_index = int(nearest_index[0])

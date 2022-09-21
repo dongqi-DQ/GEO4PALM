@@ -16,6 +16,8 @@ import warnings
 ## supress warnings
 ## switch to other actions if needed
 warnings.filterwarnings("ignore")
+warnings.simplefilter('ignore')
+
 def download_sst(case_name, origin_time, static_tif_path):
     print("Retrieving SST data from OPeNDAP")
     opendap_url = "https://podaac-opendap.jpl.nasa.gov/opendap/allData/ghrsst/data/L4/GLOB/UKMO/OSTIA"

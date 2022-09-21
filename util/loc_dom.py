@@ -17,6 +17,7 @@ import warnings
 ## supress warnings
 ## switch to other actions if needed
 warnings.filterwarnings("ignore")
+warnings.simplefilter('ignore')
 
 def convert_wgs_to_utm(lon, lat):
     '''

@@ -31,7 +31,7 @@ from glob import glob
 from util.loc_dom import convert_wgs_to_utm
 import warnings
 warnings.filterwarnings("ignore")
-
+warnings.simplefilter('ignore')
 #--------------------------------------------------------------------------------#
 #--------------------------------------------------------------------------------#
 # read namelist

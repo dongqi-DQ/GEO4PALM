@@ -27,7 +27,7 @@ import warnings
 ## supress warnings
 ## switch to other actions if needed
 warnings.filterwarnings("ignore")
-
+warnings.simplefilter('ignore')
 def get_map_image(self, tile):
     if six.PY3:
         from urllib.request import urlopen, Request
@@ -99,8 +99,8 @@ for i in range(0,ndomain):
     if i == 0:
         case_name_d01 = case_name+f"_N{i:02d}"
         dom_cfg_d01 = {'origin_time': origin_time,
-                    'centlat': centlat[i],  
-                    'centlon': centlon[i],
+                    'centlat': centlat,  
+                    'centlon': centlon,
                     'dx': dx[i],
                     'dy': dy[i],
                     'dz': dz[i],

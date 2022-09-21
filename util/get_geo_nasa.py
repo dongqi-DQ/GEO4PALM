@@ -24,7 +24,7 @@ import warnings
 ## supress warnings
 ## switch to other actions if needed
 warnings.filterwarnings("ignore")
-
+warnings.simplefilter('ignore')
 #--------------------------------------------------------------------------------#
 #--------------------------------------------------------------------------------#
 def date_validate(date_text,fmt='%Y-%m-%d'):

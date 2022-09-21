@@ -23,7 +23,9 @@ import rasterio
 from rasterio.transform import from_origin
 from rasterio.crs import CRS
 import os
-
+import warnings
+warnings.filterwarnings("ignore")
+warnings.simplefilter('ignore')
     
 def array_to_raster(array,xmin,ymax,xsize,ysize,proj_str,output_filename):
     ## create reference tif file with original crs for each domain.

@@ -16,6 +16,9 @@ import warnings
 ## supress warnings
 ## switch to other actions if needed
 warnings.filterwarnings("ignore")
+warnings.simplefilter('ignore')
+
+
 def get_osm_building(centlat, centlon, area_radius, static_tif_path, case_name, idomain):
     out_file = f"{static_tif_path}{case_name}_osm_building_N{idomain+1:02d}.gpkg"
     if not os.path.exists(out_file):
