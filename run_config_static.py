@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import requests
+import math
 import getpass, pprint, time, os, cgi, json
 import geopandas as gpd
 import osmnx as ox
@@ -21,7 +22,7 @@ from geocube.api.core import make_geocube
 from util.get_osm import *
 from util.get_sst import download_sst
 from util.get_geo_nasa import *
-from util.loc_dom import domain_location, domain_nest, write_cfg
+from util.loc_dom import convert_wgs_to_utm,domain_location, domain_nest, write_cfg
 from util.create_static import *
 from util.pre_process_tif import *
 import configparser
@@ -52,8 +53,8 @@ default_proj = ast.literal_eval(config.get("case", "default_proj"))[0]
 
 ## [domain configuration]
 ndomain = ast.literal_eval(config.get("domain", "ndomain"))[0]
-centlat = ast.literal_eval(config.get("domain", "centlat"))
-centlon = ast.literal_eval(config.get("domain", "centlon"))
+centlat = ast.literal_eval(config.get("domain", "centlat"))[0]
+centlon = ast.literal_eval(config.get("domain", "centlon"))[0]
 dx = ast.literal_eval(config.get("domain", "dx"))
 dy = ast.literal_eval(config.get("domain", "dy"))
 dz = ast.literal_eval(config.get("domain", "dz"))
@@ -100,6 +101,13 @@ if not os.path.exists(tmp_path):
 if not os.path.exists(output_path):
     print("Create output folder")
     os.makedirs(output_path)
+    
+## check if UTM projection is given
+if len(config_proj)==0:
+    print("UTM projection not given, identifying...")
+    config_proj_code = convert_wgs_to_utm(centlon, centlat)
+    config_proj = f"EPSG:{config_proj_code}"
+    print(config_proj)
 ## these dictionanries only pass keys 
 tif_geotif_dict = dict(config.items('geotif'))
 tif_urban_dict = dict(config.items('urban'))
@@ -109,8 +117,8 @@ for i in range(0,ndomain):
     if i == 0:
         case_name_d01 = case_name+"_N01"
         dom_cfg_d01 = {'origin_time': origin_time,
-                    'centlat': centlat[i],  
-                    'centlon': centlon[i],
+                    'centlat': centlat,  
+                    'centlon': centlon,
                     'dx': dx[i],
                     'dy': dy[i],
                     'dz': dz[i],
@@ -158,21 +166,23 @@ for i in range(0,ndomain):
             end_date_dict["Land_Use"] = lu_end_date
         ## download data for NASA AρρEEARS API only
         if tif_dict_d01["dem"]=="online" or tif_dict_d01["lu"]=="online":
+            area_radius = np.max([dx[i]*nx[i], dy[i]*ny[0]])/2 # units=metre
+            default_buffer_ratio = 1.2 # used to multiply area_radius avoid areas becoming smaller than required after reproject
+            api = 'https://appeears.earthdatacloud.nasa.gov/api/'  # Set the AρρEEARS API to a variable
+            task_type = 'area'   # this is the only type used in this script
             # check if the files are already there
-            if os.path.exists(glob(static_tif_path+case_name+"_DEM_*")[0]) or os.path.exists(glob(static_tif_path+case_name+"_Land_Use_*")[0]):
+            if len(glob(static_tif_path+case_name+"_DEM_*"))>0 or len(glob(static_tif_path+case_name+"_Land_Use_*"))>0:
                 # asking if need to download data
                 if input("Data directories exist, do you wish to continue download? [y/N]") == "y":
-                    area_radius = np.max([dx[i]*nx[i], dy[i]*ny[0]])/2 # units=metre
-                    default_buffer_ratio = 1.2 # used to multiply area_radius avoid areas becoming smaller than required after reproject
-                    api = 'https://appeears.earthdatacloud.nasa.gov/api/'  # Set the AρρEEARS API to a variable
-                    task_type = 'area'   # this is the only type used in this script
-
-                    download_nasa_main(api, geodata_name_dict, centlon[i], centlat[i], area_radius, default_proj, task_type,\
+                    download_nasa_main(api, geodata_name_dict, centlon, centlat, area_radius, default_proj, task_type,\
+                           default_buffer_ratio, start_date_dict,end_date_dict, output_format_dict,case_name,static_tif_path)
+            else:
+                download_nasa_main(api, geodata_name_dict, centlon, centlat, area_radius, default_proj, task_type,\
                            default_buffer_ratio, start_date_dict,end_date_dict, output_format_dict,case_name,static_tif_path)
         if tif_dict_d01["bldh"]=="online" or tif_dict_d01["bldid"]=="online":
-            get_osm_building(centlat[i], centlon[i], area_radius, static_tif_path, case_name, i)
+            get_osm_building(centlat, centlon, area_radius, static_tif_path, case_name, i)
         if tif_dict_d01["pavement"]=="online":
-            get_osm_street(centlat[i], centlon[i], area_radius, static_tif_path, case_name, i)
+            get_osm_street(centlat, centlon, area_radius, static_tif_path, case_name, i)
     ## for child domains 
     else:    
         #--------------------------------------------------------------------------------#

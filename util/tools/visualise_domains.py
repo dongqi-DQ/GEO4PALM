@@ -17,7 +17,7 @@ import six
 import sys
 ## make file directories recognisable
 sys.path.append('.')
-from util.loc_dom import domain_location, domain_nest
+from util.loc_dom import convert_wgs_to_utm,domain_location, domain_nest
 
 from PIL import Image
 import pandas as pd
@@ -83,7 +83,10 @@ nz = ast.literal_eval(config.get("domain", "nz"))
 z_origin = ast.literal_eval(config.get("domain", "z_origin"))
 ll_x = ast.literal_eval(config.get("domain", "ll_x"))
 ll_y = ast.literal_eval(config.get("domain", "ll_y"))
-
+## check if UTM projection is given
+if len(config_proj)==0:
+    config_proj_code = convert_wgs_to_utm(centlon, centlat)
+    config_proj = f"EPSG:{config_proj_code}"
 #--------------------------------------------------------------------------------#
 #--------------------------------------------------------------------------------#
 plt.figure(figsize=(9,9))

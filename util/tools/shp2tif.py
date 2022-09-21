@@ -28,6 +28,7 @@ import geopandas as gpd
 from geocube.api.core import make_geocube
 from shapely.geometry import Polygon
 from glob import glob
+from util.loc_dom import convert_wgs_to_utm
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -49,6 +50,10 @@ default_proj = ast.literal_eval(config.get("case", "default_proj"))[0]
 
 dx = ast.literal_eval(config.get("domain", "dx"))
 
+## check if UTM projection is given
+if len(config_proj)==0:
+    config_proj_code = convert_wgs_to_utm(centlon, centlat)
+    config_proj = f"EPSG:{config_proj_code}"
 #--------------------------------------------------------------------------------#
 #--------------------------------------------------------------------------------#
 # read shp file location

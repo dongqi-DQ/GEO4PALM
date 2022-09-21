@@ -225,7 +225,7 @@ def check_download_folder(path_dir):
     return download_task_bool
 #--------------------------------------------------------------------------------#
 #--------------------------------------------------------------------------------#
-def submit_tasks(geodata_name_dict,start_date_dict,end_date_dict,output_format_dict,task_name_prefix,output_dir,req_proj_name,crop_area_jason_input,api,head):
+def submit_tasks(geodata_name_dict,start_date_dict,end_date_dict,output_format_dict,task_name_prefix, task_type, output_dir,req_proj_name,crop_area_jason_input,api,head):
     ###preparing and submitting tasks
     task_response_list = list()
     for geodata_type in geodata_name_dict:
@@ -344,7 +344,7 @@ def download_nasa_main(api, geodata_name_dict, centlon, centlat, area_radius, de
     check_time_range(geodata_name_dict,product_response,start_date_dict,end_date_dict)
 
     task_response_list=submit_tasks(geodata_name_dict,start_date_dict,end_date_dict,output_format_dict,\
-                                    case_name,static_tif_path,req_proj_name,crop_area_jason_input,api,head)
+                                    case_name, task_type, static_tif_path,req_proj_name,crop_area_jason_input,api,head)
 
     check_tasks_status(task_response_list,api,head,60.0)
 

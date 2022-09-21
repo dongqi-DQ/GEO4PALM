@@ -11,11 +11,26 @@
 
 import pandas as pd
 from pyproj import Proj,Transformer
-
+import math
 import warnings
 ## supress warnings
 ## switch to other actions if needed
 warnings.filterwarnings("ignore")
+
+def convert_wgs_to_utm(lon, lat):
+    '''
+    Function to identify UTM projection code
+    https://stackoverflow.com/a/40140326/4556479
+    '''
+    utm_band = str((math.floor((lon + 180) / 6 ) % 60) + 1)
+    if len(utm_band) == 1:
+        utm_band = '0'+utm_band
+    if lat >= 0:
+        epsg_code = '326' + utm_band
+    else:
+        epsg_code = '327' + utm_band
+    return epsg_code
+
 def domain_location(default_projection,config_projection, dom_dict):
     '''
     Identify west, east, south, and north boundaries of doamin based on lat/lon at
