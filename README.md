@@ -83,7 +83,7 @@ For urban and plant canopy tif file fileds, if users do not have files available
 A namelist example is given in `JOBS/prefix/INPUT/` folder [To Do: probably need to give two examples - with/without urban canopy]
 
 #### input tif files explained
-GEO4PALM only supports input files in tif format. We provide a small tool to convert shp files to tif files [To Do: shp2tif.py]. 
+GEO4PALM only supports input files in tif format. We provide a small tool to convert shp files to tif files `shp2tif.py`. 
 
 Users do not have to provide tif files with specific resolution for the configured domains. We have a prepareation interface that will process all INPUT tif and store temporary tif files for each simulation domain in TMP. All static driver files will be stored in OUTPUT.
 
@@ -103,15 +103,15 @@ If "online" is used for `dem` and/or `lu`, the script will guide the user throug
 
 
 
-### visualise domain on OSM [To Do: need to modify the script and put it in tools]
-Users may visualise domain by running `visualise_PALM_domains.py`:
+### visualise domain on OSM 
+Users may visualise domain by running `visualise_domains.py`:
 ```
 python visulalise_PALM_domains.py [namelist_file]
 ```
 This can be done before static files are created.
 
-### flat terrain and precursor run [To Do: need to test the tools]
-Once a static driver is used, all the PALM domains in the simulation requires static drivers. In case a flat terrain static driver and/or precursor run static driver are required, users may run `static_to_flat.py`. 
+### flat terrain and precursor run 
+Once a static driver is used, all the PALM domains in the simulation requires static drivers. In case a flat terrain static driver and/or precursor run static driver are required, users may run `static2flat.py`. 
 ```
 python static_to_flat.py [static_file] [nx,ny]
 ```
