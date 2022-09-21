@@ -127,7 +127,7 @@ def process_osm_pavement_street(osm_file, tif_type, config_proj, case_name, tmp_
 #--------------------------------------------------------------------------------#
 #--------------------------------------------------------------------------------#
 # main processing 
-def main_process(prefix):
+def process_all(prefix):
     # read namelist
     settings_cfg = configparser.ConfigParser(inline_comment_prefixes='#')
     config = configparser.RawConfigParser()
@@ -237,4 +237,4 @@ def main_process(prefix):
             process_tif(sfch_file, "SFCH", config_proj, case_name, tmp_path, i, dx[i], "nearest")
             
 if __name__ == "__main__":
-    main_process(sys.argv[1])
+    process_all(sys.argv[1])

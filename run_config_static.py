@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import requests
 import getpass, pprint, time, os, cgi, json
 import geopandas as gpd
@@ -22,10 +24,10 @@ from util.get_geo_nasa import *
 from util.loc_dom import domain_location, domain_nest, write_cfg
 from util.create_static import *
 from util.pre_process_tif import *
-from util.pre_process_tif import main_process as process_main
 import configparser
 import ast
 import sys
+from glob import glob
 from urllib.request import urlretrieve
 import warnings
 ## supress warnings
@@ -156,13 +158,17 @@ for i in range(0,ndomain):
             end_date_dict["Land_Use"] = lu_end_date
         ## download data for NASA AρρEEARS API only
         if tif_dict_d01["dem"]=="online" or tif_dict_d01["lu"]=="online":
-            area_radius = np.max([dx[i]*nx[i], dy[i]*ny[0]])/2 # units=metre
-            default_buffer_ratio = 1.2 # used to multiply area_radius avoid areas becoming smaller than required after reproject
-            api = 'https://appeears.earthdatacloud.nasa.gov/api/'  # Set the AρρEEARS API to a variable
-            task_type = 'area'   # this is the only type used in this script
-            
-            download_nasa_main(api, geodata_name_dict, centlon[i], centlat[i], area_radius, default_proj, task_type,\
-                       default_buffer_ratio, start_date_dict,end_date_dict, output_format_dict,case_name,static_tif_path)
+            # check if the files are already there
+            if os.path.exists(glob(static_tif_path+case_name+"_DEM_*")[0]) or os.path.exists(glob(static_tif_path+case_name+"_Land_Use_*")[0]):
+                # asking if need to download data
+                if input("Data directories exist, do you wish to continue download? [y/N]") == "y":
+                    area_radius = np.max([dx[i]*nx[i], dy[i]*ny[0]])/2 # units=metre
+                    default_buffer_ratio = 1.2 # used to multiply area_radius avoid areas becoming smaller than required after reproject
+                    api = 'https://appeears.earthdatacloud.nasa.gov/api/'  # Set the AρρEEARS API to a variable
+                    task_type = 'area'   # this is the only type used in this script
+
+                    download_nasa_main(api, geodata_name_dict, centlon[i], centlat[i], area_radius, default_proj, task_type,\
+                           default_buffer_ratio, start_date_dict,end_date_dict, output_format_dict,case_name,static_tif_path)
         if tif_dict_d01["bldh"]=="online" or tif_dict_d01["bldid"]=="online":
             get_osm_building(centlat[i], centlon[i], area_radius, static_tif_path, case_name, i)
         if tif_dict_d01["pavement"]=="online":
@@ -203,7 +209,7 @@ for i in range(0,ndomain):
 #--------------------------------------------------------------------------------#
 #--------------------------------------------------------------------------------#
 # preprocess tif files 
-process_main(prefix)
+process_all(prefix)
 
 #--------------------------------------------------------------------------------#
 #--------------------------------------------------------------------------------#
