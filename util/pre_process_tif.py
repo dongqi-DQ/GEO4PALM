@@ -62,6 +62,9 @@ def process_osm_building(bld_file, config_proj, case_name, tmp_path, idomain, dx
         if "level" not in gpd_file.keys():
             gpd_file = gpd_file.assign(level=gpd_file["osmid"])
             gpd_file["level"] = np.nan
+        if "height" not in gpd_file.keys():
+            gpd_file = gpd_file.assign(height=gpd_file["osmid"])
+            gpd_file["height"] = np.nan
         ## calculate building height from OSM data
         ## note that if OSM do not have height data, the height will be 0 m
         for i in range(0,len(gpd_file["height"])):
