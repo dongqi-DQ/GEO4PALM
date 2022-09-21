@@ -6,6 +6,7 @@
 import rioxarray as rxr
 from rasterio.crs import CRS
 from rasterio.enums import Resampling
+from util.loc_dom import convert_wgs_to_utm
 import sys
 import ast
 import configparser
@@ -143,8 +144,8 @@ def process_all(prefix):
 
     ## [domain configuration]
     ndomain = ast.literal_eval(config.get("domain", "ndomain"))[0]
-    centlat = ast.literal_eval(config.get("domain", "centlat"))
-    centlon = ast.literal_eval(config.get("domain", "centlon"))
+    centlat = ast.literal_eval(config.get("domain", "centlat"))[0]
+    centlon = ast.literal_eval(config.get("domain", "centlon"))[0]
     dx = ast.literal_eval(config.get("domain", "dx"))
     dy = ast.literal_eval(config.get("domain", "dy"))
     dz = ast.literal_eval(config.get("domain", "dz"))
@@ -154,7 +155,10 @@ def process_all(prefix):
     z_origin = ast.literal_eval(config.get("domain", "z_origin"))
     ll_x = ast.literal_eval(config.get("domain", "ll_x"))
     ll_y = ast.literal_eval(config.get("domain", "ll_y"))
-
+    ## check if UTM projection is given
+    if len(config_proj)==0:
+        config_proj_code = convert_wgs_to_utm(centlon, centlat)
+        config_proj = f"EPSG:{config_proj_code}"
     ## [required tif files]
     sst = ast.literal_eval(config.get("geotif", "sst"))
     dem = ast.literal_eval(config.get("geotif", "dem"))

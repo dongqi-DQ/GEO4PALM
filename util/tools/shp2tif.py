@@ -47,6 +47,9 @@ origin_time = ast.literal_eval(config.get("case", "origin_time"))[0]
 config_proj = ast.literal_eval(config.get("case", "config_proj"))[0]
 # use WGS84 (EPSG:4326) for centlat/centlon
 default_proj = ast.literal_eval(config.get("case", "default_proj"))[0] 
+## [domain]
+centlat = ast.literal_eval(config.get("domain", "centlat"))[0]
+centlon = ast.literal_eval(config.get("domain", "centlon"))[0]
 
 dx = ast.literal_eval(config.get("domain", "dx"))
 

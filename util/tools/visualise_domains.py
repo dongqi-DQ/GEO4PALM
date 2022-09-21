@@ -72,8 +72,8 @@ default_proj = ast.literal_eval(config.get("case", "default_proj"))[0]
 # local projection (unit: m)
 config_proj = ast.literal_eval(config.get("case", "config_proj"))[0]
 ndomain = ast.literal_eval(config.get("domain", "ndomain"))[0]
-centlat = ast.literal_eval(config.get("domain", "centlat"))
-centlon = ast.literal_eval(config.get("domain", "centlon"))
+centlat = ast.literal_eval(config.get("domain", "centlat"))[0]
+centlon = ast.literal_eval(config.get("domain", "centlon"))[0]
 dx = ast.literal_eval(config.get("domain", "dx"))
 dy = ast.literal_eval(config.get("domain", "dy"))
 dz = ast.literal_eval(config.get("domain", "dz"))
