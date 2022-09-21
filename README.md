@@ -3,6 +3,11 @@
 
 The geotiff files are important input for static driver. However, it is impossible to process all the geoinformation in a standard way. Here we present scripts to genearte static drivers for PALM simulation. We provide an interface for users to download geospatial data globally, while users can also provide their own geospatial data in `tif` format. The script will prepare all input files for the configured simulation domains and then generate static drivers. Hopefully these tools can make PALM users' lives easier.
 
+
+Note: Users need to be registered to download data from NASA Earthdata Enter NASA Earthdata 
+(Register here if you haven't, https://www.earthdata.nasa.gov/eosdis/science-system-description/eosdis-components/earthdata-login)
+
+
 ## How to run?
 The main script is `run_config_static.py`. To run this script, a namelist file is required. The namelist for each case should be  `JOBS/case_name/INPUT/namelist.static-case_name`.
 
