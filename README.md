@@ -3,6 +3,11 @@
 
 The geotiff files are important input for static driver. However, it is impossible to process all the geoinformation in a standard way. Here we present scripts to genearte static drivers for PALM simulation. We provide an interface for users to download geospatial data globally, while users can also provide their own geospatial data in `tif` format. The script will prepare all input files for the configured simulation domains and then generate static drivers. Hopefully these tools can make PALM users' lives easier.
 
+
+Note: Users need to be registered to download data from NASA Earthdata Enter NASA Earthdata 
+(Register here if you haven't, https://www.earthdata.nasa.gov/eosdis/science-system-description/eosdis-components/earthdata-login)
+
+
 ## How to run?
 The main script is `run_config_static.py`. To run this script, a namelist file is required. The namelist for each case should be  `JOBS/case_name/INPUT/namelist.static-case_name`.
 
@@ -78,7 +83,7 @@ For urban and plant canopy tif file fileds, if users do not have files available
 A namelist example is given in `JOBS/prefix/INPUT/` folder [To Do: probably need to give two examples - with/without urban canopy]
 
 #### input tif files explained
-GEO4PALM only supports input files in tif format. We provide a small tool to convert shp files to tif files [To Do: shp2tif.py]. 
+GEO4PALM only supports input files in tif format. We provide a small tool to convert shp files to tif files `shp2tif.py`. 
 
 Users do not have to provide tif files with specific resolution for the configured domains. We have a prepareation interface that will process all INPUT tif and store temporary tif files for each simulation domain in TMP. All static driver files will be stored in OUTPUT.
 
@@ -98,15 +103,15 @@ If "online" is used for `dem` and/or `lu`, the script will guide the user throug
 
 
 
-### visualise domain on OSM [To Do: need to modify the script and put it in tools]
-Users may visualise domain by running `visualise_PALM_domains.py`:
+### visualise domain on OSM 
+Users may visualise domain by running `visualise_domains.py`:
 ```
 python visulalise_PALM_domains.py [namelist_file]
 ```
 This can be done before static files are created.
 
-### flat terrain and precursor run [To Do: need to test the tools]
-Once a static driver is used, all the PALM domains in the simulation requires static drivers. In case a flat terrain static driver and/or precursor run static driver are required, users may run `static_to_flat.py`. 
+### flat terrain and precursor run 
+Once a static driver is used, all the PALM domains in the simulation requires static drivers. In case a flat terrain static driver and/or precursor run static driver are required, users may run `static2flat.py`. 
 ```
 python static_to_flat.py [static_file] [nx,ny]
 ```
