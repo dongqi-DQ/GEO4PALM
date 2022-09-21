@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#--------------------------------------------------------------------------------#
+# Script for downloading SST data from opendap
+# Here we use UKMO daily SST data (availability: 2006 to present)
+# 
+# @author: Dongqi Lin
+#--------------------------------------------------------------------------------#
 from urllib.request import urlretrieve
 from datetime import datetime
 import os

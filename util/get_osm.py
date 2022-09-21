@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#--------------------------------------------------------------------------------#
+# Script for downloading data from OpenStreetMap using osmnx
+# - building data
+# - street/pavement data
+#
+# @author: Dongqi Lin
+#--------------------------------------------------------------------------------#
 import osmnx as ox
 import rasterio
 from geocube.api.core import make_geocube

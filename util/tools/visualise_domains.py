@@ -5,7 +5,7 @@
 # based on namelist
 # How to run:
 # python visualise_domains.py [case_name]
-# @Author: Dongqi Lin
+# @author: Dongqi Lin
 #--------------------------------------------------------------------------------#
 import numpy as np 
 import matplotlib as mpl        

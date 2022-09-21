@@ -12,7 +12,7 @@
 #
 # - variable_name is the field in shp file that the user desires to convert to tif file
 #
-# @ Authors: Dongqi Lin and Jiawei Zhang
+# @author: Dongqi Lin, Jiawei Zhang
 # --------------------------------------------------------------------------------#
 
 

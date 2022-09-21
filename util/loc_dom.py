@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #--------------------------------------------------------------------------------#
-# Locate domain centre 
-# write configuration file
-# calculate coordinates for domain nesting
-#
+# Fucntions to:
+# - identify UTM zone
+# - find domain location
+# - calculate coordinates for domain nesting
+# 
 # @author: Dongqi Lin, Jiawei Zhang 
 #--------------------------------------------------------------------------------#
 
@@ -59,9 +60,9 @@ def domain_location(default_projection,config_projection, dom_dict):
     tif_north, tif_south = tif_centy+(ny-1)*dy/2, tif_centy-(ny-1)*dy/2
     
     # transform back to latitude/logintude to save in cfg for future reference
-    tifProj = Proj(init=config_projection)
-    wgsProj = Proj(init='EPSG:4326')
-    t = Transformer.from_proj(tifProj, wgsProj)
+    config_proj = Proj(init=config_projection)
+    wgs_proj = Proj(init='EPSG:4326')
+    t = Transformer.from_proj(config_proj, wgs_proj)
     lon_w, lat_s = t.transform(tif_west,tif_south)
     lon_e, lat_n = t.transform(tif_east,tif_north)
     
@@ -75,19 +76,13 @@ def domain_location(default_projection,config_projection, dom_dict):
     dom_dict['lat_n'] = lat_n
     return dom_dict
 
-def write_cfg(case_name, dom_dict):
-    cfg = pd.DataFrame() 
-    for names, values in dom_dict.items():
-        cfg[names] = [values]
-    cfg.to_csv('./cfg_files/'+ case_name + '.cfg', index=None)
-    print('cfg file is ready: '+case_name)
     
-def domain_nest(tif_projection, west, south, llx, lly, dom_dict):
+def domain_nest(config_projection, west, south, llx, lly, dom_dict):
     '''
 
     Parameters
     ----------
-    tif_projection: desired projection with unit in m
+    config_projection: desired projection with unit in m
     west : longitude of west (left) boundary
     south : latitude of south boundary
     llx : distance between nest domains at lower left corner (x-axis)
@@ -113,9 +108,9 @@ def domain_nest(tif_projection, west, south, llx, lly, dom_dict):
     nest_cent_lon = nest_west + dx*(nx-1)/2.0
     nest_cent_lat = nest_south + dy*(ny-1)/2.0
     # transform back to latitude/logintude to save in cfg for future reference
-    tifProj = Proj(init=tif_projection)
-    wgsProj = Proj(init='EPSG:4326')
-    t = Transformer.from_proj(tifProj, wgsProj)
+    config_proj = Proj(init=config_projection)
+    wgs_proj = Proj(init='EPSG:4326')
+    t = Transformer.from_proj(config_proj, wgs_proj)
     cent_lon, cent_lat = t.transform(nest_cent_lon,nest_cent_lat)
     lon_w, lat_s = t.transform(nest_west,nest_south)
     lon_e, lat_n = t.transform(nest_east,nest_north)

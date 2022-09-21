@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # --------------------------------------------------------------------------------#
 # Script to reproject and resample tif files
+# @autho: Dongqi Lin, Jiawei Zhang
 # --------------------------------------------------------------------------------#
 import rioxarray as rxr
 from rasterio.crs import CRS
@@ -176,8 +177,6 @@ def process_all(prefix):
 
     ## [tif files for plant canopy]
     sfch = ast.literal_eval(config.get("plant", "sfch"))
-
-
 
     # specify the directory of tif files
     # users can provide their own tif files

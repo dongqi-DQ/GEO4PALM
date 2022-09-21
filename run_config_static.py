@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#--------------------------------------------------------------------------------#
+# This is the main run script
+# How to run:
+# python run_config_static.py case_name
+# 
+# User input files should be in JOBS/case_name/INPUT/
+#
+# @author: Dongqi Lin, Jiawei Zhang 
+#--------------------------------------------------------------------------------#
+
 import requests
 import math
 import getpass, pprint, time, os, cgi, json
@@ -22,7 +32,7 @@ from geocube.api.core import make_geocube
 from util.get_osm import *
 from util.get_sst import download_sst
 from util.get_geo_nasa import *
-from util.loc_dom import convert_wgs_to_utm,domain_location, domain_nest, write_cfg
+from util.loc_dom import convert_wgs_to_utm,domain_location, domain_nest
 from util.create_static import *
 from util.pre_process_tif import *
 import configparser

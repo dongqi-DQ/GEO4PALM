@@ -3,7 +3,7 @@
 #--------------------------------------------------------------------------------#
 # Read geotiff files and convert to PALM static file
 # 
-# @authors: Dongqi Lin, Jiawei Zhang
+# @author: Dongqi Lin, Jiawei Zhang
 #--------------------------------------------------------------------------------#
 
 import numpy as np

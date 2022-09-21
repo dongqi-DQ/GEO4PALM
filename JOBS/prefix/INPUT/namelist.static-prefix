@@ -1,7 +1,7 @@
 [case]
 case_name = "prefix",   # prefix for a case
 origin_time = "2021-01-01 00:00:00 +00",          # time in yyyy-mm-dd HH:MM:SS +HH format (+00 as in UTC)  
-config_proj = "EPSG:2193", # projection for PALM
+config_proj = "", # projection for PALM
 default_proj = "EPSG:4326", # projection of lat/lon to find domain location
 
 [domain]

@@ -3,7 +3,7 @@
 #--------------------------------------------------------------------------------#
 # Function to convert land cover / land use maps to PALM (v6.0) classification
 # Users are required to define the classification conversion in a csv file 
-# (see raw_static/nzlcdb_2_PALM_num.csv for more information)
+# (see util/lu_2_PALM_num.csv for more information)
 # Conversion depends on the original maps
 # @author: Dongqi Lin, Jiawei Zhang
 # Acknowledgement: Some parts of the land use classification function 

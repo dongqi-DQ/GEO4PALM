@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#--------------------------------------------------------------------------------#
+# Script for downloading data from NASA Earthdata 
+# - DEM data
+# - Land use data
+#
+# @author: Dongqi Lin, Jiawei Zhang 
+#--------------------------------------------------------------------------------#
 import requests
 import getpass, pprint, time, os, cgi, json
 import geopandas as gpd
