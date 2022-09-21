@@ -7,5 +7,8 @@ JOBS/*/INPUT/*.nc
 JOBS/*/INPUT/*.gpkg
 JOBS/*/INPUT/*.003
 JOBS/*/INPUT/*.006
+JOBS/*/INPUT/*.tif
+JOBS/*/INPUT/*shp
+JOBS/*/INPUT/*SHP
 .ipynb_checkpoints/
 *.ipynb
