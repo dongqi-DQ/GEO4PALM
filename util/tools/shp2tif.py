@@ -4,7 +4,7 @@
 # Script to convert shp files to tif files
 #
 # How to use:
-# python sh2tif.py [case_name] [shp file folder] [variable_name] 
+# python shp2tif.py [case_name] [shp file folder] [variable_name] 
 # 
 # Note:
 # - shp file folder needs to be inside the case_name/INPUT directory

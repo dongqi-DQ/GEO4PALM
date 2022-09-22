@@ -34,7 +34,7 @@ def download_sst(case_name, origin_time, static_tif_path):
         urlretrieve(url, dst)
         print(f"SST file downloaded to {static_tif_path}")
     else:
-        print("SST file exist")
+        print("SST file exists")
 
 def nearest_sst(sst,idx_lat,idx_lon):
     # find nearest available SST if no SST available at centlat, centlon

@@ -30,15 +30,15 @@ def process_tif(tif_file, tif_type, config_proj, case_name, tmp_path, idomain, d
     '''
     Function to process tif files
     '''
-    ds_geo = rxr.open_rasterio(tif_file)
-    crs_output = CRS.from_string(config_proj)
-    # Identify whether reprojection is needed
-    if ds_geo.rio.crs == crs_output:
-        ds_geo_tmp = ds_geo
-    else:
-        ds_geo_tmp = ds_geo.rio.reproject(crs_output)
     out_file = f"{tmp_path}{case_name}_{tif_type}_N{idomain+1:02d}.tif"
     if not os.path.exists(out_file):
+        ds_geo = rxr.open_rasterio(tif_file)
+        crs_output = CRS.from_string(config_proj)
+        # Identify whether reprojection is needed
+        if ds_geo.rio.crs == crs_output:
+            ds_geo_tmp = ds_geo
+        else:
+            ds_geo_tmp = ds_geo.rio.reproject(crs_output)
         print(f"Processing {tif_type} tif file for Domain N{idomain+1:02d}")
         ds_geo_out = ds_geo_tmp.rio.reproject(crs_output, dx, resampling=Resampling[method])
         # match projection with DEM
@@ -200,47 +200,52 @@ def process_all(prefix):
         ## DEM
         if dem[i] == "online":
             dem_file = glob(f"{static_tif_path}{case_name}_DEM*/*DEM*.tif")[0]
+        # if local file provided
         else:
-            dem_file = dem[i]
+            dem_file = static_tif_path+dem[i]
         process_tif(dem_file, "DEM", config_proj, case_name, tmp_path, i, dx[i], resample_method[i])
         ## Land Use
         if lu[i] == "online":
             lu_file = glob(f"{static_tif_path}{case_name}_Land_Use*/*LC_Type*.tif")[0]
+        # if local file provided
         else:
-            lu_file = lu[i]
+            lu_file = static_tif_path+lu[i]
         process_tif(lu_file, "LU", config_proj, case_name, tmp_path, i, dx[i], resample_method[i])
         ## water temperature (if provided by user)
         if sst[i] != "online" and sst[i]!="":
-            sst_file = sst[i]
+            sst_file = static_tif_path+sst[i]
             process_tif(sst_file, "SST", config_proj, case_name, tmp_path, i, dx[i], resample_method[i])
         # OSM buildings
         if bldh[i]=="online":
             bld_file = f"{static_tif_path}{case_name}_osm_building_N{i+1:02d}.gpkg"
             process_osm_building(bld_file, config_proj, case_name, tmp_path, i, dx[i], dy[i])
+        # if local file provided
         elif bldh[i]!="online" and bldh[i]!="":
-            bld_file = bldh[i]
+            bld_file = static_tif_path+bldh[i]
             process_tif(bld_file, "BLDH", config_proj, case_name, tmp_path, i, dx[i], "nearest")
         # building ID - if not from OSM
         if bldid[i]!="online" and bldid[i]!="":
-            bldid_file = bldid[i]
+            bldid_file = static_tif_path+bldid[i]
             process_tif(bldid_file, "BLDID", config_proj, case_name, tmp_path, i, dx[i], "nearest")
         # OSM pavement type 
         if pavement[i] == "online":
             pavement_file = f"{static_tif_path}{case_name}_osm_street_N{i+1:02d}.gpkg"
             process_osm_pavement_street(pavement_file, "pavement", config_proj, case_name, tmp_path, i, dx[i], dy[i])
+        # if local file provided
         elif pavement[i]!="online" and pavement[i]!="":
-            pavement_file = pavement[i]
+            pavement_file = static_tif_path+pavement[i]
             process_tif(pavement_file, "pavement", config_proj, case_name, tmp_path, i, dx[i], "nearest")
         # OSM street type
         if street[i] == "online":
             street_file = f"{static_tif_path}{case_name}_osm_street_N{i+1:02d}.gpkg"
             process_osm_pavement_street(street_file, "street", config_proj, case_name, tmp_path, i, dx[i], dy[i])
+        # if local file provided
         elif street[i]!="online" and street[i]!="":
-            street_file = street[i]
+            street_file = static_tif_path+street[i]
             process_tif(street_file, "street", config_proj, case_name, tmp_path, i, dx[i], "nearest")
-        # Surface height - for trees
+        # Surface height - for trees; if local file provided
         if sfch[i]!="online" and sfch[i]!="":
-            sfch_file = sfch[i]
+            sfch_file = static_tif_path+sfch[i]
             process_tif(sfch_file, "SFCH", config_proj, case_name, tmp_path, i, dx[i], "nearest")
             
 if __name__ == "__main__":
