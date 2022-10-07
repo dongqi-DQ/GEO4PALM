@@ -19,6 +19,7 @@ from glob import glob
 from rasterio.enums import Resampling
 import pandas as pd
 import numpy as np
+import pickle
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -26,7 +27,7 @@ warnings.simplefilter('ignore')
 
 
 
-def process_tif(tif_file, tif_type, config_proj, case_name, tmp_path, idomain, dx, method):
+def process_tif(tif_file, tif_type, config_proj, case_name, tmp_path, idomain, dx, method, dom_cfg_dict):
     '''
     Function to process tif files
     '''
@@ -40,6 +41,14 @@ def process_tif(tif_file, tif_type, config_proj, case_name, tmp_path, idomain, d
         else:
             ds_geo_tmp = ds_geo.rio.reproject(crs_output)
         print(f"Processing {tif_type} tif file for Domain N{idomain+1:02d}")
+        ## clip tif file to save RAM
+        try:
+            buffer = 4 
+            ds_geo_tmp = ds_geo_tmp.rio.clip_box(minx=dom_cfg_dict["west"]-buffer*dx,miny=dom_cfg_dict["south"]-buffer*dx,
+                                                 maxx=dom_cfg_dict["east"]+buffer*dx, maxy=dom_cfg_dict["north"]+buffer*dx)
+        except:
+            raise SystemExit("Domain out of bounds, please check your tif files")
+   
         ds_geo_out = ds_geo_tmp.rio.reproject(crs_output, dx, resampling=Resampling[method])
         # match projection with DEM
         if tif_type!="DEM":
@@ -196,25 +205,30 @@ def process_all(prefix):
     tif_geotif_dict = dict(config.items('geotif'))
     tif_urban_dict = dict(config.items('urban'))
     tif_plant_dict = dict(config.items('plant'))
+    
+            
     for i in range(0,ndomain):
+        ## read dictionary
+        with open(f'{tmp_path}{case_name}_cfg_N0{i+1}.pickle', 'rb') as dicts:
+            dom_cfg_dict = pickle.load(dicts)
         ## DEM
         if dem[i] == "online":
             dem_file = glob(f"{static_tif_path}{case_name}_DEM*/*DEM*.tif")[0]
         # if local file provided
         else:
             dem_file = static_tif_path+dem[i]
-        process_tif(dem_file, "DEM", config_proj, case_name, tmp_path, i, dx[i], resample_method[i])
+        process_tif(dem_file, "DEM", config_proj, case_name, tmp_path, i, dx[i], resample_method[i], dom_cfg_dict)
         ## Land Use
         if lu[i] == "online":
             lu_file = glob(f"{static_tif_path}{case_name}_Land_Use*/*LC_Type*.tif")[0]
         # if local file provided
         else:
             lu_file = static_tif_path+lu[i]
-        process_tif(lu_file, "LU", config_proj, case_name, tmp_path, i, dx[i], resample_method[i])
+        process_tif(lu_file, "LU", config_proj, case_name, tmp_path, i, dx[i], resample_method[i], dom_cfg_dict)
         ## water temperature (if provided by user)
         if sst[i] != "online" and sst[i]!="":
             sst_file = static_tif_path+sst[i]
-            process_tif(sst_file, "SST", config_proj, case_name, tmp_path, i, dx[i], resample_method[i])
+            process_tif(sst_file, "SST", config_proj, case_name, tmp_path, i, dx[i], resample_method[i], dom_cfg_dict)
         # OSM buildings
         if bldh[i]=="online":
             bld_file = f"{static_tif_path}{case_name}_osm_building_N{i+1:02d}.gpkg"
@@ -222,11 +236,11 @@ def process_all(prefix):
         # if local file provided
         elif bldh[i]!="online" and bldh[i]!="":
             bld_file = static_tif_path+bldh[i]
-            process_tif(bld_file, "BLDH", config_proj, case_name, tmp_path, i, dx[i], "nearest")
+            process_tif(bld_file, "BLDH", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
         # building ID - if not from OSM
         if bldid[i]!="online" and bldid[i]!="":
             bldid_file = static_tif_path+bldid[i]
-            process_tif(bldid_file, "BLDID", config_proj, case_name, tmp_path, i, dx[i], "nearest")
+            process_tif(bldid_file, "BLDID", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
         # OSM pavement type 
         if pavement[i] == "online":
             pavement_file = f"{static_tif_path}{case_name}_osm_street_N{i+1:02d}.gpkg"
@@ -234,19 +248,19 @@ def process_all(prefix):
         # if local file provided
         elif pavement[i]!="online" and pavement[i]!="":
             pavement_file = static_tif_path+pavement[i]
-            process_tif(pavement_file, "pavement", config_proj, case_name, tmp_path, i, dx[i], "nearest")
+            process_tif(pavement_file, "pavement", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
         # OSM street type
         if street[i] == "online":
             street_file = f"{static_tif_path}{case_name}_osm_street_N{i+1:02d}.gpkg"
-            process_osm_pavement_street(street_file, "street", config_proj, case_name, tmp_path, i, dx[i], dy[i])
+            process_osm_pavement_street(street_file, "street", config_proj, case_name, tmp_path, i, dx[i], dy[i], dom_cfg_dict)
         # if local file provided
         elif street[i]!="online" and street[i]!="":
             street_file = static_tif_path+street[i]
-            process_tif(street_file, "street", config_proj, case_name, tmp_path, i, dx[i], "nearest")
+            process_tif(street_file, "street", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
         # Surface height - for trees; if local file provided
         if sfch[i]!="online" and sfch[i]!="":
             sfch_file = static_tif_path+sfch[i]
-            process_tif(sfch_file, "SFCH", config_proj, case_name, tmp_path, i, dx[i], "nearest")
+            process_tif(sfch_file, "SFCH", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
             
 if __name__ == "__main__":
     process_all(sys.argv[1])

@@ -193,6 +193,9 @@ for i in range(0,ndomain):
             get_osm_building(centlat, centlon, area_radius, static_tif_path, case_name, i)
         if tif_dict_d01["pavement"]=="online":
             get_osm_street(centlat, centlon, area_radius, static_tif_path, case_name, i)
+        # save domain configuration for later - creating static drivers
+        with open(f'{tmp_path}{case_name}_cfg_N0{i+1}.pickle', 'wb') as dicts:
+            pickle.dump(dom_cfg_d01, dicts, protocol=pickle.HIGHEST_PROTOCOL)
     ## for child domains 
     else:    
         #--------------------------------------------------------------------------------#
