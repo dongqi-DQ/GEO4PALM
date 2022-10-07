@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # --------------------------------------------------------------------------------#
 # Script to reproject and resample tif files
-# @autho: Dongqi Lin, Jiawei Zhang
+# @author: Dongqi Lin, Jiawei Zhang
 # --------------------------------------------------------------------------------#
 import rioxarray as rxr
 from rasterio.crs import CRS
@@ -24,8 +24,6 @@ import warnings
 
 warnings.filterwarnings("ignore")
 warnings.simplefilter('ignore')
-
-
 
 def process_tif(tif_file, tif_type, config_proj, case_name, tmp_path, idomain, dx, method, dom_cfg_dict):
     '''
