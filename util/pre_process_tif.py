@@ -31,7 +31,7 @@ def process_tif(tif_file, tif_type, config_proj, case_name, tmp_path, idomain, d
     '''
     out_file = f"{tmp_path}{case_name}_{tif_type}_N{idomain+1:02d}.tif"
     if not os.path.exists(out_file):
-        ds_geo = rxr.open_rasterio(tif_file)
+        ds_geo = rxr.open_rasterio(tif_file,cache=False)
         crs_output = CRS.from_string(config_proj)
         # Identify whether reprojection is needed
         if ds_geo.rio.crs == crs_output:
@@ -46,13 +46,12 @@ def process_tif(tif_file, tif_type, config_proj, case_name, tmp_path, idomain, d
                                                  maxx=dom_cfg_dict["east"]+buffer*dx, maxy=dom_cfg_dict["north"]+buffer*dx)
         except:
             raise SystemExit("Domain out of bounds, please check your tif files")
-   
         ds_geo_out = ds_geo_tmp.rio.reproject(crs_output, dx, resampling=Resampling[method])
         # match projection with DEM
         if tif_type!="DEM":
             ds_dem = rxr.open_rasterio(out_file.replace(tif_type,"DEM"))
             ds_geo_out = ds_geo_out.rio.reproject_match(ds_dem)
-        ds_geo_out.rio.to_raster(out_file)
+        ds_geo_out.rio.to_raster(out_file,windowed=True)
         print(f"{tif_type} tif file processed to {tmp_path}")
     else:
         print(f"{tif_type} tif file for Domain N{idomain+1:02d} exists")
@@ -250,7 +249,7 @@ def process_all(prefix):
         # OSM street type
         if street[i] == "online":
             street_file = f"{static_tif_path}{case_name}_osm_street_N{i+1:02d}.gpkg"
-            process_osm_pavement_street(street_file, "street", config_proj, case_name, tmp_path, i, dx[i], dy[i], dom_cfg_dict)
+            process_osm_pavement_street(street_file, "street", config_proj, case_name, tmp_path, i, dx[i], dy[i])
         # if local file provided
         elif street[i]!="online" and street[i]!="":
             street_file = static_tif_path+street[i]
