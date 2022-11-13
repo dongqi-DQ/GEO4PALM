@@ -35,6 +35,7 @@ from util.get_geo_nasa import *
 from util.loc_dom import convert_wgs_to_utm,domain_location, domain_nest
 from util.create_static import *
 from util.pre_process_tif import *
+from util.get_esa_world import *
 import configparser
 import ast
 import sys
@@ -161,21 +162,21 @@ for i in range(0,ndomain):
         output_format_dict  = {}
         start_date_dict = {}
         end_date_dict = {}
-        if tif_dict_d01["dem"]=="online":
+        if tif_dict_d01["dem"]=="nasa":
             geodata_name_dict["DEM"] = ["SRTMGL1_NC.003",]
             output_format_dict["DEM"] = "geotiff"
             # NASA DEM data only available for these dates
             start_date_dict["DEM"] = dem_start_date
             end_date_dict["DEM"] = dem_end_date
-        if tif_dict_d01["lu"]=="online":
+        if tif_dict_d01["lu"]=="nasa":
             # https://lpdaac.usgs.gov/documents/101/MCD12_User_Guide_V6.pdf
             geodata_name_dict["Land_Use"] = ["MCD12Q1.006",]
             output_format_dict["Land_Use"] = "geotiff"
             # User to choose the start/end date
             start_date_dict["Land_Use"] = lu_start_date
             end_date_dict["Land_Use"] = lu_end_date
-        ## download data for NASA AρρEEARS API only
-        if tif_dict_d01["dem"]=="online" or tif_dict_d01["lu"]=="online":
+        ## download data for NASA AρρEEARS API 
+        if tif_dict_d01["dem"]=="nasa" or tif_dict_d01["lu"]=="nasa":
             area_radius = np.max([dx[i]*nx[i], dy[i]*ny[0]])/2 # units=metre
             default_buffer_ratio = 1.2 # used to multiply area_radius avoid areas becoming smaller than required after reproject
             api = 'https://appeears.earthdatacloud.nasa.gov/api/'  # Set the AρρEEARS API to a variable
@@ -183,12 +184,17 @@ for i in range(0,ndomain):
             # check if the files are already there
             if len(glob(static_tif_path+case_name+"_DEM_*"))>0 or len(glob(static_tif_path+case_name+"_Land_Use_*"))>0:
                 # asking if need to download data
-                if input("Data directories exist, do you wish to continue download? [y/N]") == "y":
+                if input("NASA data directories exist, do you wish to continue download? [y/N]") == "y":
                     download_nasa_main(api, geodata_name_dict, centlon, centlat, area_radius, default_proj, task_type,\
                            default_buffer_ratio, start_date_dict,end_date_dict, output_format_dict,case_name,static_tif_path)
             else:
                 download_nasa_main(api, geodata_name_dict, centlon, centlat, area_radius, default_proj, task_type,\
                            default_buffer_ratio, start_date_dict,end_date_dict, output_format_dict,case_name,static_tif_path)
+        ## download data for ESA world land use 
+        if tif_dict_d01["lu"]=="esa":
+            # https://esa-worldcover.org/en/data-access
+            check_esa_download(static_tif_path, dom_cfg_d01['lon_w'], dom_cfg_d01['lon_e'], dom_cfg_d01['lat_s'], dom_cfg_d01['lat_n'])
+        ## If need to downlaod data from OSM
         if tif_dict_d01["bldh"]=="online" or tif_dict_d01["bldid"]=="online":
             get_osm_building(centlat, centlon, area_radius, static_tif_path, case_name, i)
         if tif_dict_d01["pavement"]=="online":
@@ -215,6 +221,8 @@ for i in range(0,ndomain):
         dom_cfg_nest = domain_nest(config_proj, dom_cfg_d01['west'], dom_cfg_d01['south'], ll_x_nest, ll_y_nest,dom_cfg_nest)
 
         tif_dict_nest = {}
+        for keys in tif_geotif_dict.keys():
+            tif_dict_nest[keys] = ast.literal_eval(config.get("geotif", keys))[i]
         for keys in tif_urban_dict.keys():
             tif_dict_nest[keys] = ast.literal_eval(config.get("urban", keys))[i]
         for keys in tif_plant_dict.keys():

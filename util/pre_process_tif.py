@@ -209,15 +209,17 @@ def process_all(prefix):
         with open(f'{tmp_path}{case_name}_cfg_N0{i+1}.pickle', 'rb') as dicts:
             dom_cfg_dict = pickle.load(dicts)
         ## DEM
-        if dem[i] == "online":
+        if dem[i] == "nasa":
             dem_file = glob(f"{static_tif_path}{case_name}_DEM*/*DEM*.tif")[0]
         # if local file provided
         else:
             dem_file = static_tif_path+dem[i]
         process_tif(dem_file, "DEM", config_proj, case_name, tmp_path, i, dx[i], resample_method[i], dom_cfg_dict)
         ## Land Use
-        if lu[i] == "online":
+        if lu[i] == "nasa":
             lu_file = glob(f"{static_tif_path}{case_name}_Land_Use*/*LC_Type*.tif")[0]
+        elif lu[i] =="esa":
+            lu_file = glob(f"{static_tif_path}{case_name}ESA_WorldCover_merged*.tif")[0]
         # if local file provided
         else:
             lu_file = static_tif_path+lu[i]
