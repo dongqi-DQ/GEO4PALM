@@ -14,6 +14,9 @@ import rioxarray as rxr
 from rioxarray import merge
 import rasterio 
 from glob import glob
+import warnings
+warnings.filterwarnings("ignore")
+warnings.simplefilter('ignore')
 
 def merge_esa_tif(files,static_tif_path):
     elements = []

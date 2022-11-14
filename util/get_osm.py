@@ -21,7 +21,9 @@ warnings.simplefilter('ignore')
 
 def get_osm_building(centlat, centlon, area_radius, static_tif_path, case_name, idomain):
     out_file = f"{static_tif_path}{case_name}_osm_building_N{idomain+1:02d}.gpkg"
-    if not os.path.exists(out_file):
+    if os.path.exists(out_file):
+        ex = input("OSM building file exists, continue downloading? (y/N)")
+    if not os.path.exists(out_file) or ex=="y":
         print("Retrieving OSM building data...")
         bld = ox.geometries.geometries_from_point((centlat,centlon), tags={"building":True}, dist=area_radius)
         if bld.size==0:
@@ -39,7 +41,9 @@ def get_osm_building(centlat, centlon, area_radius, static_tif_path, case_name, 
 
 def get_osm_street(centlat, centlon, area_radius, static_tif_path, case_name, idomain):
     out_file = f"{static_tif_path}{case_name}_osm_street_N{idomain+1:02d}.gpkg"
-    if not os.path.exists(out_file):
+    if os.path.exists(out_file):
+        ex = input("OSM street/pavement file exists, continue downloading? (y/N)")
+    if not os.path.exists(out_file) or ex=="y":
         cf = '["highway"]'
         G = ox.graph_from_point((centlat, centlon), dist=area_radius, dist_type='bbox', network_type="all_private", custom_filter=cf)
         if G.size==0:

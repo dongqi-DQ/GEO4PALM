@@ -402,7 +402,7 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
     nc_output.attrs['origin_z'] = z_origin
     nc_output.attrs['origin_x'] = tif_left
     nc_output.attrs['origin_y'] = tif_south
-    nc_output.attrs['rotation_angle'] = np.float(0)
+    nc_output.attrs['rotation_angle'] = float(0)
     nc_output.attrs['origin_time'] = origin_time
     nc_output.attrs['Conventions'] = 'CF-1.7'
     if os.path.exists(bldh_tif):
@@ -494,7 +494,7 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
 
         nc_buildings_2d = nc_output.createVariable('buildings_2d', np.float32, ('y', 'x'), fill_value=-9999.0,zlib=True)
 
-        nc_building_id = nc_output.createVariable('building_id', np.int32, ('y', 'x'), fill_value=np.int(-9999), zlib=True)
+        nc_building_id = nc_output.createVariable('building_id', np.int32, ('y', 'x'), fill_value=int(-9999), zlib=True)
 
         nc_buildings_3d = nc_output.createVariable('buildings_3d', np.byte, ('z', 'y', 'x'), fill_value=np.byte(-127), zlib=True)
         
