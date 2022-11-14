@@ -66,6 +66,7 @@ sfch              - input for plant height; this is for leave area density (LAD)
 To convert land use classifcation to PALM-recognisable types, a lookup table (in `util/lu_csv` folder) is required. Here we provided the lookup tables for 
 - New Zealand Land Cover Data Base (LCDB) v5.0: `nzlcdb_2_PALM_num.csv` 
 - Collection 6 MODIS Land Cover Type 1: `NASA_LC_type1_PALM_num.csv`
+- ESA WorldCover 2020 v1: `esa_2020v1_lu.csv`
 
 Before running the code (hereafter GEO4PALM?), link the corresponding csv file to `util/lu_2_PALM_num.csv`:
 ```
@@ -99,7 +100,7 @@ Once the namelist and all tif input from users are ready. One can run the script
 ```
 python run_config_static.py case_name
 ```
-If "online" is used for `dem` and/or `lu`, the script will guide the user through the NASA AρρEEARS API. [To Do: users should be able to provide some auth file so they don't have to type username and password every time] 
+If "nasa" is used for `dem` and/or `lu`, the script will guide the user through the NASA AρρEEARS API. If "esa" is included for `dem` and/or `lu`, then the script will guide the user through ESA's Terrascope API. [To Do: users should be able to provide some auth file so they don't have to type username and password every time] 
 
 
 
