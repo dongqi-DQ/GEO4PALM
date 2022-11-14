@@ -30,112 +30,103 @@ def process_tif(tif_file, tif_type, config_proj, case_name, tmp_path, idomain, d
     Function to process tif files
     '''
     out_file = f"{tmp_path}{case_name}_{tif_type}_N{idomain+1:02d}.tif"
-    if not os.path.exists(out_file):
-        ds_geo = rxr.open_rasterio(tif_file,cache=False)
-        crs_output = CRS.from_string(config_proj)
-        # Identify whether reprojection is needed
-        if ds_geo.rio.crs == crs_output:
-            ds_geo_tmp = ds_geo
-        else:
-            ds_geo_tmp = ds_geo.rio.reproject(crs_output)
-        print(f"Processing {tif_type} tif file for Domain N{idomain+1:02d}")
-        ## clip tif file to save RAM
-        try:
-            buffer = 4 
-            ds_geo_tmp = ds_geo_tmp.rio.clip_box(minx=dom_cfg_dict["west"]-buffer*dx,miny=dom_cfg_dict["south"]-buffer*dx,
-                                                 maxx=dom_cfg_dict["east"]+buffer*dx, maxy=dom_cfg_dict["north"]+buffer*dx)
-        except:
-            raise SystemExit("Domain out of bounds, please check your tif files")
-        ds_geo_out = ds_geo_tmp.rio.reproject(crs_output, dx, resampling=Resampling[method])
-        # match projection with DEM
-        if tif_type!="DEM":
-            ds_dem = rxr.open_rasterio(out_file.replace(tif_type,"DEM"))
-            ds_geo_out = ds_geo_out.rio.reproject_match(ds_dem)
-        ds_geo_out.rio.to_raster(out_file,windowed=True)
-        print(f"{tif_type} tif file processed to {tmp_path}")
+    ds_geo = rxr.open_rasterio(tif_file,cache=False)
+    crs_output = CRS.from_string(config_proj)
+    # Identify whether reprojection is needed
+    if ds_geo.rio.crs == crs_output:
+        ds_geo_tmp = ds_geo
     else:
-        print(f"{tif_type} tif file for Domain N{idomain+1:02d} exists")
+        ds_geo_tmp = ds_geo.rio.reproject(crs_output)
+    print(f"Processing {tif_type} tif file for Domain N{idomain+1:02d}")
+    ## clip tif file to save RAM
+    try:
+        buffer = 4 
+        ds_geo_tmp = ds_geo_tmp.rio.clip_box(minx=dom_cfg_dict["west"]-buffer*dx,miny=dom_cfg_dict["south"]-buffer*dx,
+                                             maxx=dom_cfg_dict["east"]+buffer*dx, maxy=dom_cfg_dict["north"]+buffer*dx)
+    except:
+        raise SystemExit("Domain out of bounds, please check your tif files")
+    ds_geo_out = ds_geo_tmp.rio.reproject(crs_output, dx, resampling=Resampling[method])
+    # match projection with DEM
+    if tif_type!="DEM":
+        ds_dem = rxr.open_rasterio(out_file.replace(tif_type,"DEM"))
+        ds_geo_out = ds_geo_out.rio.reproject_match(ds_dem)
+    ds_geo_out.rio.to_raster(out_file,windowed=True)
+    print(f"{tif_type} tif file processed to {tmp_path}")
         
 def process_osm_building(bld_file, config_proj, case_name, tmp_path, idomain, dx, dy):
     '''
     Function to process OSM building info
     '''
     bldh_out_file = f"{tmp_path}{case_name}_BLDH_N{idomain+1:02d}.tif"
-    if not os.path.exists(bldh_out_file):
-        print(f"Processing building tif file for Domain N{idomain+1:02d}")
-        gpd_file = gpd.read_file(bld_file)
-        gpd_file = gpd_file.assign(new_height=gpd_file["osmid"])
-        gpd_file["osmid"] = gpd_file["osmid"].astype('float32')
-        gpd_file["new_height"] = gpd_file["new_height"].astype('float32')
-        if "level" not in gpd_file.keys():
-            gpd_file = gpd_file.assign(level=gpd_file["osmid"])
-            gpd_file["level"] = np.nan
-        if "height" not in gpd_file.keys():
-            gpd_file = gpd_file.assign(height=gpd_file["osmid"])
-            gpd_file["height"] = np.nan
-        ## calculate building height from OSM data
-        ## note that if OSM do not have height data, the height will be 0 m
-        for i in range(0,len(gpd_file["height"])):
-            if type(gpd_file.loc[i,"height"]) is not type(None):
-                try:
-                    gpd_file.loc[i,"new_height"]  = float(gpd_file.loc[i,"height"])
-                except:
-                    # in case units are included
-                    gpd_file.loc[i,"new_height"]  = float(gpd_file.loc[i,"height"][:-1])
-            elif type(gpd_file.loc[i,"level"]) is not type(None):
-                gpd_file.loc[i,"new_height"] = float(gpd_file.loc[i,"level"])*3
-            else:
-                # if no building height is given then set as 3 m
-                gpd_file.loc[i,"new_height"] = 3 
-        # make building height geocube
-        bldh_geogrid = make_geocube(vector_data=gpd_file, measurements=["new_height"], resolution = (dx, dy), output_crs=config_proj)
-        # make building ID geocube
-        osmid_geogrid = make_geocube(vector_data=gpd_file, measurements=["osmid"], resolution = (dx, dy), output_crs=config_proj)
+    print(f"Processing building tif file for Domain N{idomain+1:02d}")
+    gpd_file = gpd.read_file(bld_file)
+    gpd_file = gpd_file.assign(new_height=gpd_file["osmid"])
+    gpd_file["osmid"] = gpd_file["osmid"].astype('float32')
+    gpd_file["new_height"] = gpd_file["new_height"].astype('float32')
+    if "level" not in gpd_file.keys():
+        gpd_file = gpd_file.assign(level=gpd_file["osmid"])
+        gpd_file["level"] = np.nan
+    if "height" not in gpd_file.keys():
+        gpd_file = gpd_file.assign(height=gpd_file["osmid"])
+        gpd_file["height"] = np.nan
+    ## calculate building height from OSM data
+    ## note that if OSM do not have height data, the height will be 0 m
+    for i in range(0,len(gpd_file["height"])):
+        if type(gpd_file.loc[i,"height"]) is not type(None):
+            try:
+                gpd_file.loc[i,"new_height"]  = float(gpd_file.loc[i,"height"])
+            except:
+                # in case units are included
+                gpd_file.loc[i,"new_height"]  = float(gpd_file.loc[i,"height"][:-1])
+        elif type(gpd_file.loc[i,"level"]) is not type(None):
+            gpd_file.loc[i,"new_height"] = float(gpd_file.loc[i,"level"])*3
+        else:
+            # if no building height is given then set as 3 m
+            gpd_file.loc[i,"new_height"] = 3 
+    # make building height geocube
+    bldh_geogrid = make_geocube(vector_data=gpd_file, measurements=["new_height"], resolution = (dx, dy), output_crs=config_proj)
+    # make building ID geocube
+    osmid_geogrid = make_geocube(vector_data=gpd_file, measurements=["osmid"], resolution = (dx, dy), output_crs=config_proj)
 
-        # match projection with DEM
-        ds_dem = rxr.open_rasterio(bldh_out_file.replace("BLDH","DEM"))
-        bldh_geogrid = bldh_geogrid.reindex(y=bldh_geogrid.y[::-1]).rio.reproject_match(ds_dem)
-        osmid_geogrid = osmid_geogrid.reindex(y=osmid_geogrid.y[::-1]).rio.reproject_match(ds_dem)
-        # save files 
-        bldh_geogrid.rio.to_raster(bldh_out_file)
-        osmid_geogrid.rio.to_raster(bldh_out_file.replace("BLDH","BLDID"))
-        print(f"Building tif files processed to {tmp_path}")
-    else:
-        print(f"Building tif file for Domain N{idomain+1:02d} exists")
+    # match projection with DEM
+    ds_dem = rxr.open_rasterio(bldh_out_file.replace("BLDH","DEM"))
+    bldh_geogrid = bldh_geogrid.reindex(y=bldh_geogrid.y[::-1]).rio.reproject_match(ds_dem)
+    osmid_geogrid = osmid_geogrid.reindex(y=osmid_geogrid.y[::-1]).rio.reproject_match(ds_dem)
+    # save files 
+    bldh_geogrid.rio.to_raster(bldh_out_file)
+    osmid_geogrid.rio.to_raster(bldh_out_file.replace("BLDH","BLDID"))
+    print(f"Building tif files processed to {tmp_path}")
         
 def process_osm_pavement_street(osm_file, tif_type, config_proj, case_name, tmp_path, idomain, dx, dy):
     '''
     Function to process OSM street/pavement info
     '''
     osm_out_file = f"{tmp_path}{case_name}_{tif_type}_N{idomain+1:02d}.tif"
-    if not os.path.exists(osm_out_file):
-        print(f"Processing {tif_type} tif file for Domain N{idomain+1:02d}")
-        gdf = gpd.read_file(osm_file)
-        # read OSM PALM street/pavement type convertion lookup table
-        df_palm = pd.read_csv('./util/OSM2PALM.txt')
-        # read PALM classification to dictionarys
-        palm_dict = {}
-        for i in range(0,df_palm.shape[0]):
-            name = df_palm['OSM_road_type'][i]
-            palm_dict[name] = (df_palm['buffer_width'][i], df_palm['PALM_pavement_type'][i], df_palm['street_type'][i])
-        gdf["buffer"]=0
-        gdf['pavement'] = np.nan
-        gdf['street'] = np.nan
-        for name, (buffer, pavement, street) in palm_dict.items():
-            gdf.loc[gdf["highway"].eq(name), "buffer"] = buffer
-            gdf.loc[gdf["highway"].eq(name), "pavement"] = pavement
-            gdf.loc[gdf["highway"].eq(name), "street"] = street
-        # convert to UTM projection
-        utm_gdf = gdf.to_crs(config_proj)
-        utm_gdf['geometry'] = utm_gdf.apply(lambda x: x.geometry.buffer(x.buffer), axis=1)
-        # read DEM tif to match projection
-        ds_dem = rxr.open_rasterio(osm_out_file.replace(tif_type,"DEM"))
-        osm_grid = make_geocube(vector_data=utm_gdf, measurements=[tif_type], resolution = (dx, dy), output_crs=config_proj)
-        osm_grid = osm_grid.reindex(y=osm_grid.y[::-1]).rio.reproject_match(ds_dem)
-        osm_grid.rio.to_raster(osm_out_file)
-        print(f"{tif_type} tif files processed to {tmp_path}")
-    else:
-        print(f"{tif_type} tif file for Domain N{idomain+1:02d} exists")
+    print(f"Processing {tif_type} tif file for Domain N{idomain+1:02d}")
+    gdf = gpd.read_file(osm_file)
+    # read OSM PALM street/pavement type convertion lookup table
+    df_palm = pd.read_csv('./util/OSM2PALM.txt')
+    # read PALM classification to dictionarys
+    palm_dict = {}
+    for i in range(0,df_palm.shape[0]):
+        name = df_palm['OSM_road_type'][i]
+        palm_dict[name] = (df_palm['buffer_width'][i], df_palm['PALM_pavement_type'][i], df_palm['street_type'][i])
+    gdf["buffer"]=0
+    gdf['pavement'] = np.nan
+    gdf['street'] = np.nan
+    for name, (buffer, pavement, street) in palm_dict.items():
+        gdf.loc[gdf["highway"].eq(name), "buffer"] = buffer
+        gdf.loc[gdf["highway"].eq(name), "pavement"] = pavement
+        gdf.loc[gdf["highway"].eq(name), "street"] = street
+    # convert to UTM projection
+    utm_gdf = gdf.to_crs(config_proj)
+    utm_gdf['geometry'] = utm_gdf.apply(lambda x: x.geometry.buffer(x.buffer), axis=1)
+    # read DEM tif to match projection
+    ds_dem = rxr.open_rasterio(osm_out_file.replace(tif_type,"DEM"))
+    osm_grid = make_geocube(vector_data=utm_gdf, measurements=[tif_type], resolution = (dx, dy), output_crs=config_proj)
+    osm_grid = osm_grid.reindex(y=osm_grid.y[::-1]).rio.reproject_match(ds_dem)
+    osm_grid.rio.to_raster(osm_out_file)
+    print(f"{tif_type} tif files processed to {tmp_path}")
 #--------------------------------------------------------------------------------#
 #--------------------------------------------------------------------------------#
 # main processing 
