@@ -219,7 +219,7 @@ def process_all(prefix):
         if lu[i] == "nasa":
             lu_file = glob(f"{static_tif_path}{case_name}_Land_Use*/*LC_Type*.tif")[0]
         elif lu[i] =="esa":
-            lu_file = glob(f"{static_tif_path}{case_name}ESA_WorldCover_merged*.tif")[0]
+            lu_file = glob(f"{static_tif_path}ESA_WorldCover_merged*.tif")[0]
         # if local file provided
         else:
             lu_file = static_tif_path+lu[i]

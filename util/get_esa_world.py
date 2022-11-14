@@ -62,7 +62,7 @@ def download_esa_main(static_tif_path, west, east, south, north):
     print("ESA WorldCover data download done")
     
     ### merge downloaeded data
-    files = glob(directory+"ESA*/*MAP.tif")
+    files = glob(directory+"ESA*/*Map.tif")
     print("merge ESA data")
     merge_esa_tif(files,static_tif_path)
     print("Done")

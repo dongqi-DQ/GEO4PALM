@@ -221,8 +221,6 @@ for i in range(0,ndomain):
         dom_cfg_nest = domain_nest(config_proj, dom_cfg_d01['west'], dom_cfg_d01['south'], ll_x_nest, ll_y_nest,dom_cfg_nest)
 
         tif_dict_nest = {}
-        for keys in tif_geotif_dict.keys():
-            tif_dict_nest[keys] = ast.literal_eval(config.get("geotif", keys))[i]
         for keys in tif_urban_dict.keys():
             tif_dict_nest[keys] = ast.literal_eval(config.get("urban", keys))[i]
         for keys in tif_plant_dict.keys():
