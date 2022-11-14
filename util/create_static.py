@@ -117,7 +117,8 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
     # Read topography file
     dem, lat, lon = readgeotiff(dem_tif)
     dem[dem < 0] = 0
-    print("@@@@dem",dem.shape)
+    ## debugging message
+    # print("@@@@dem",dem.shape)
 
 
     # extract topography to match PALM domain
@@ -125,7 +126,8 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
 
     zt = zt - z_origin
     zt[zt < .5] = 0
-    print("@@@@zt",zt.shape)
+    ## debugging message
+    # print("@@@@zt",zt.shape)
     del dem, lat, lon
 
     print('Number of grid points x, y = ' + str(zt.shape[1]) + ', ' + str(zt.shape[0]))
