@@ -148,6 +148,7 @@ for i in range(0,ndomain):
             tif_dict_d01[keys] = ast.literal_eval(config.get("plant", keys))[i]
         # configure domain location information
         dom_cfg_d01 = domain_location(default_proj, config_proj,  dom_cfg_d01)
+        area_radius = np.max([dx[i]*nx[i], dy[i]*ny[0]])/2 # units=metre
         # generate static driver 
 #         dom_cfg_d01 = generate_palm_static(case_name_d01, config_proj, tif_proj, dom_cfg_d01, tif_dict_d01)
         
@@ -177,7 +178,6 @@ for i in range(0,ndomain):
             end_date_dict["Land_Use"] = lu_end_date
         ## download data for NASA AρρEEARS API 
         if ("nasa" in tif_geotif_dict['dem']) or ("nasa" in tif_geotif_dict['lu']):
-            area_radius = np.max([dx[i]*nx[i], dy[i]*ny[0]])/2 # units=metre
             default_buffer_ratio = 1.2 # used to multiply area_radius avoid areas becoming smaller than required after reproject
             api = 'https://appeears.earthdatacloud.nasa.gov/api/'  # Set the AρρEEARS API to a variable
             task_type = 'area'   # this is the only type used in this script
