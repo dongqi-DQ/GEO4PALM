@@ -54,7 +54,7 @@ def login_earthdata(api):
                 user_credential = True
                 print("User credental successfully verified!")
             else:
-                print("User credential not valide. Please re-entere.")
+                print("User credential not valid. Please re-enter.")
         except:
             if "message" in res_token:
                 print(res_token["message"])

@@ -37,31 +37,37 @@ def download_esa_main(static_tif_path, west, east, south, north):
     buffer = 0.2
     ### Authenticate to the Terrascope platform (registration required) 
     # create catalogue object and authenticate interactively with a browser 
-    username = input('Enter ESA Login Username: \n(Register here if you haven\'t, '\
-                         'https://esa-worldcover.org/en'\
-                         '\nUsername:') 
+    user_credential = False
+    while not user_credential:
+        username = input('Enter ESA Login Username: \n(Register here if you haven\'t, '\
+                             'https://esa-worldcover.org/en'\
+                             '\nUsername:') 
 
-    password = getpass.getpass(prompt = 'Enter ESA Login Password: ') 
+        password = getpass.getpass(prompt = 'Enter ESA Login Password: ') 
 
 
-    # authenticate with username and password 
-    catalogue = Catalogue().authenticate_non_interactive(username, password) 
+        # authenticate with username and password 
+        catalogue = Catalogue().authenticate_non_interactive(username, password) 
 
-    ### Filter catalogue 
-    # search for all products in the WorldCover collection 
-    # products = catalogue.get_products("urn:eop:VITO:ESA_WorldCover_10m_2020_V1") 
+        ### Filter catalogue 
+        # search for all products in the WorldCover collection 
+        # products = catalogue.get_products("urn:eop:VITO:ESA_WorldCover_10m_2020_V1") 
 
-    # or filter to a desired geometry, by providing it as an argument to get_products 
-    # xmin, ymin, xmax, ymax
-    bounds = ( west-buffer, south-buffer, east+buffer, north+buffer)#(3, 33, 15, 45) 
-    geometry = Polygon.from_bounds(*bounds) 
-    products = catalogue.get_products("urn:eop:VITO:ESA_WorldCover_10m_2020_V1", geometry=geometry) 
+        # or filter to a desired geometry, by providing it as an argument to get_products 
+        # xmin, ymin, xmax, ymax
+        bounds = ( west-buffer, south-buffer, east+buffer, north+buffer)#(3, 33, 15, 45) 
+        geometry = Polygon.from_bounds(*bounds) 
+        products = catalogue.get_products("urn:eop:VITO:ESA_WorldCover_10m_2020_V1", geometry=geometry) 
 
-    ### Download 
-    # download the products to the given directory 
-    directory = f"{static_tif_path}ESA_cache/"
-    print("start downloading ESA WorldCover data")
-    catalogue.download_products(products, directory) 
+        ### Download 
+        # download the products to the given directory 
+        directory = f"{static_tif_path}ESA_cache/"
+        print("start downloading ESA WorldCover data")
+        try:
+            catalogue.download_products(products, directory) 
+            user_credential = True
+        except:
+            print("User credential not valid. Please re-enter.")
     print("ESA WorldCover data download done")
     
     ### merge downloaeded data
