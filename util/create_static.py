@@ -52,9 +52,10 @@ def extract_tiff(array, lat,lon, dom_dict,west_loc,south_loc,north_loc,proj_str,
     xmin, west_idx  = nearest(lon,west_loc)
     south_idx       = nearest(lat,south_loc)[1]
     ymax            = nearest(lat,north_loc)[0]
-    print("south",south_loc,"west", west_loc)
-    print("lon_min",lon[0],"lon_max",lon[-1])
-    print("lat_min",lat[0],"lat_max",lat[-1])
+    ## debugging messages
+    # print("south",south_loc,"west", west_loc)
+    # print("lon_min",lon[0],"lon_max",lon[-1])
+    # print("lat_min",lat[0],"lat_max",lat[-1])
     array_palm = array[south_idx:south_idx+ny,west_idx:west_idx+nx]
     xsize = lon[-1]-lon[-2]
     ysize = lat[-1]-lat[-2]
