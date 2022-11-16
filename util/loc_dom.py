@@ -8,16 +8,19 @@
 # 
 # @author: Dongqi Lin, Jiawei Zhang 
 #--------------------------------------------------------------------------------#
-
-
-import pandas as pd
-from pyproj import Proj,Transformer
-import math
 import warnings
 ## supress warnings
 ## switch to other actions if needed
 warnings.filterwarnings("ignore")
-warnings.simplefilter('ignore')
+warnings.simplefilter("ignore")
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.simplefilter("ignore", category=FutureWarning)
+
+import pandas as pd
+from pyproj import Proj,Transformer
+import math
+
+
 
 def convert_wgs_to_utm(lon, lat):
     '''

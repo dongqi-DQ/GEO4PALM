@@ -7,16 +7,21 @@
 #
 # @author: Dongqi Lin
 #--------------------------------------------------------------------------------#
-import osmnx as ox
-import rasterio
-from geocube.api.core import make_geocube
-import os 
-import sys
 import warnings
 ## supress warnings
 ## switch to other actions if needed
 warnings.filterwarnings("ignore")
-warnings.simplefilter('ignore')
+warnings.simplefilter("ignore")
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.simplefilter("ignore", category=FutureWarning)
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore",category=UserWarning)
+    import osmnx as ox
+    import rasterio
+from geocube.api.core import make_geocube
+import os 
+import sys
+
 
 
 def get_osm_building(centlat, centlon, area_radius, static_tif_path, case_name, idomain):

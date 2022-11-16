@@ -5,7 +5,11 @@
 # 
 # @author: Dongqi Lin, Jiawei Zhang
 #--------------------------------------------------------------------------------#
-
+import warnings
+warnings.filterwarnings("ignore")
+warnings.simplefilter("ignore")
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.simplefilter("ignore", category=FutureWarning)
 import numpy as np
 import xarray as xr
 import time
@@ -19,13 +23,14 @@ from util.read_geo import readgeotiff
 from util.nearest import nearest
 from util.palm_lu import lu2palm, get_albedo
 from util.get_sst import nearest_sst, get_nearest_sst 
-import rasterio
-from rasterio.transform import from_origin
-from rasterio.crs import CRS
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore",category=UserWarning)
+    import rasterio
+    from rasterio.transform import from_origin
+    from rasterio.crs import CRS
 import os
-import warnings
-warnings.filterwarnings("ignore")
-warnings.simplefilter('ignore')
+
+
     
 def array_to_raster(array,xmin,ymax,xsize,ysize,proj_str,output_filename):
     ## create reference tif file with original crs for each domain.

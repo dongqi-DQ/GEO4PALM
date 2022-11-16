@@ -9,17 +9,25 @@
 #
 # @author: Dongqi Lin, Jiawei Zhang 
 #--------------------------------------------------------------------------------#
-
+import warnings
+## supress warnings
+## switch to other actions if needed
+warnings.filterwarnings("ignore")
+warnings.simplefilter("ignore")
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.simplefilter("ignore", category=FutureWarning)
 import requests
 import math
 import getpass, pprint, time, os, cgi, json
-import geopandas as gpd
-import osmnx as ox
-import rasterio
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore",category=UserWarning)
+    import geopandas as gpd
+    import osmnx as ox
+    from pyproj import Proj, Transformer, CRS
+    import rasterio
 from geocube.api.core import make_geocube
 from datetime import datetime, timezone
 import pandas as pd
-from pyproj import Proj, Transformer, CRS
 from shapely.geometry import box, Point
 from pathlib import Path
 import os
@@ -41,11 +49,8 @@ import ast
 import sys
 from glob import glob
 from urllib.request import urlretrieve
-import warnings
-## supress warnings
-## switch to other actions if needed
-warnings.filterwarnings("ignore")
-warnings.simplefilter('ignore')
+
+
 pd.options.mode.chained_assignment = None
 #--------------------------------------------------------------------------------#
 #--------------------------------------------------------------------------------#

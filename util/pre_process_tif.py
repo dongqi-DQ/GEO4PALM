@@ -4,26 +4,30 @@
 # Script to reproject and resample tif files
 # @author: Dongqi Lin, Jiawei Zhang
 # --------------------------------------------------------------------------------#
+import warnings
+warnings.filterwarnings("ignore")
+warnings.simplefilter("ignore")
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.simplefilter("ignore", category=FutureWarning)
 import rioxarray as rxr
-from rasterio.crs import CRS
-from rasterio.enums import Resampling
+
 from util.loc_dom import convert_wgs_to_utm
 import sys
 import ast
 import configparser
-import geopandas as gpd
-from geocube.api.core import make_geocube
-from shapely.geometry import Polygon
 import os
 from glob import glob
-from rasterio.enums import Resampling
-import pandas as pd
 import numpy as np
 import pickle
-import warnings
-
-warnings.filterwarnings("ignore")
-warnings.simplefilter('ignore')
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore",category=UserWarning)
+    import geopandas as gpd
+    from geocube.api.core import make_geocube
+    from shapely.geometry import Polygon
+    from rasterio.crs import CRS
+    from rasterio.enums import Resampling
+    from rasterio.enums import Resampling
+import pandas as pd
 pd.options.mode.chained_assignment = None
 
 def process_tif(tif_file, tif_type, config_proj, case_name, tmp_path, idomain, dx, method, dom_cfg_dict):
