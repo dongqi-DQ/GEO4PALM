@@ -255,11 +255,15 @@ process_all(prefix)
 for i in range(0,ndomain):
     if i==0:
         static_driver_file = output_path + case_name + f'_static_N{i+1:02d}'
-        if not os.path.exists(static_driver_file):
+        if os.path.exists(static_driver_file):
+            ex = input(f"static driver file exists for N{i+1:02d}, continue? [y/N]")
+        if not os.path.exists(static_driver_file) or ex=="y":
             dom_cfg_d01 = generate_palm_static(case_name,tmp_path, i, config_proj, dom_cfg_d01)
     else:
         static_driver_file = output_path + case_name + f'_static_N{i+1:02d}'
-        if not os.path.exists(static_driver_file):
+        if os.path.exists(static_driver_file):
+            ex = input(f"static driver file exists for N{i+1:02d}, continue? [y/N]")
+        if not os.path.exists(static_driver_file) or ex=="y":
             with open(f'{tmp_path}{case_name}_cfg_N0{i+1}.pickle', 'rb') as dicts:
                  dom_cfg_nest = pickle.load(dicts)
             dom_cfg_nest = generate_palm_static(case_name,tmp_path, i, config_proj, dom_cfg_nest)

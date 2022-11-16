@@ -64,9 +64,9 @@ def domain_location(default_projection,config_projection, dom_dict):
     tif_north, tif_south = tif_centy+(ny-1)*dy/2, tif_centy-(ny-1)*dy/2
     
     # transform back to latitude/logintude to save in cfg for future reference
-    config_proj = Proj(init=config_projection)
-    wgs_proj = Proj(init='EPSG:4326')
-    t = Transformer.from_proj(config_proj, wgs_proj)
+    config_proj = Proj(config_projection)
+    wgs_proj = Proj('EPSG:4326')
+    t = Transformer.from_proj(config_proj, wgs_proj, always_xy=True)
     lon_w, lat_s = t.transform(tif_west,tif_south)
     lon_e, lat_n = t.transform(tif_east,tif_north)
     
@@ -112,9 +112,9 @@ def domain_nest(config_projection, west, south, llx, lly, dom_dict):
     nest_cent_lon = nest_west + dx*(nx-1)/2.0
     nest_cent_lat = nest_south + dy*(ny-1)/2.0
     # transform back to latitude/logintude to save in cfg for future reference
-    config_proj = Proj(init=config_projection)
-    wgs_proj = Proj(init='EPSG:4326')
-    t = Transformer.from_proj(config_proj, wgs_proj)
+    config_proj = Proj(config_projection)
+    wgs_proj = Proj('EPSG:4326')
+    t = Transformer.from_proj(config_proj, wgs_proj, always_xy=True)
     cent_lon, cent_lat = t.transform(nest_cent_lon,nest_cent_lat)
     lon_w, lat_s = t.transform(nest_west,nest_south)
     lon_e, lat_n = t.transform(nest_east,nest_north)
