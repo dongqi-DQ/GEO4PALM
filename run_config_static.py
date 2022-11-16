@@ -46,6 +46,7 @@ import warnings
 ## switch to other actions if needed
 warnings.filterwarnings("ignore")
 warnings.simplefilter('ignore')
+pd.options.mode.chained_assignment = None
 #--------------------------------------------------------------------------------#
 #--------------------------------------------------------------------------------#
 # read namelist

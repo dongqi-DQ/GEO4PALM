@@ -24,6 +24,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 warnings.simplefilter('ignore')
+pd.options.mode.chained_assignment = None
 
 def process_tif(tif_file, tif_type, config_proj, case_name, tmp_path, idomain, dx, method, dom_cfg_dict):
     '''
