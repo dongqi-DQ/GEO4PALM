@@ -26,7 +26,9 @@ with warnings.catch_warnings():
     from shapely.geometry import Polygon
     from rasterio.crs import CRS
     from rasterio.enums import Resampling
-    from rasterio.enums import Resampling
+    from rasterio import logging
+    log = logging.getLogger()
+    log.setLevel(logging.ERROR)
 import pandas as pd
 pd.options.mode.chained_assignment = None
 

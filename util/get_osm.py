@@ -18,6 +18,9 @@ with warnings.catch_warnings():
     warnings.filterwarnings("ignore",category=UserWarning)
     import osmnx as ox
     import rasterio
+    from rasterio import logging
+    log = logging.getLogger()
+    log.setLevel(logging.ERROR)
 from geocube.api.core import make_geocube
 import os 
 import sys

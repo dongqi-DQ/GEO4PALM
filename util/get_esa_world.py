@@ -79,7 +79,7 @@ def download_esa_main(static_tif_path, west, east, south, north):
 def check_esa_download(static_tif_path, west, east, south, north):
     esa_tif_file = f"{static_tif_path}ESA_WorldCover_merged_10m.tif"
     if os.path.exists(esa_tif_file):
-        if input("ESA tif file exists, continue download? (y/N)")=="y":
+        if input("ESA tif file exists, continue download? [y/N]")=="y":
             download_esa_main(static_tif_path, west, east, south, north)
     else:
         download_esa_main(static_tif_path, west, east, south, north)

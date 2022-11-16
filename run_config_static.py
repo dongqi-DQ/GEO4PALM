@@ -25,6 +25,9 @@ with warnings.catch_warnings():
     import osmnx as ox
     from pyproj import Proj, Transformer, CRS
     import rasterio
+    from rasterio import logging
+    log = logging.getLogger()
+    log.setLevel(logging.ERROR)
 from geocube.api.core import make_geocube
 from datetime import datetime, timezone
 import pandas as pd

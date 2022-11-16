@@ -28,6 +28,9 @@ with warnings.catch_warnings():
     import rasterio
     from rasterio.transform import from_origin
     from rasterio.crs import CRS
+    from rasterio import logging
+    log = logging.getLogger()
+    log.setLevel(logging.ERROR)
 import os
 
 
