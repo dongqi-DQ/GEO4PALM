@@ -79,7 +79,21 @@ def process_osm_building(bld_file, config_proj, case_name, tmp_path, idomain, dx
                 # in case units are included
                 gpd_file.loc[i,"new_height"]  = float(gpd_file.loc[i,"height"][:-1])
         elif type(gpd_file.loc[i,"level"]) is not type(None):
-            gpd_file.loc[i,"new_height"] = float(gpd_file.loc[i,"level"])*3
+            try:
+                gpd_file.loc[i,"new_height"] = float(gpd_file.loc[i,"level"])*3
+            except:
+                ## several different types of data may be included in levels
+                if "1-" in gpd_file.loc[i,"level"]:
+                    if len(gpd_file.loc[i,"level"])==2:
+                        gpd_file.loc[i,"new_height"] = 1
+                    else:
+                        gpd_file.loc[i,"new_height"] = float(gpd_file.loc[i,"level"][-1])*3
+                if "," in gpd_file.loc[i,"level"]:
+                    max_lvl = np.max([int(s.strip()) for s in gpd_file.loc[i,"level"].split(',')])
+                    gpd_file.loc[i,"new_height"] = max_lvl*3
+                if ";" in gpd_file.loc[i,"level"]:
+                    max_lvl = np.max([int(s.strip()) for s in gpd_file.loc[i,"level"].split(';')])
+                    gpd_file.loc[i,"new_height"] = max_lvl*3
         else:
             # if no building height is given then set as 3 m
             gpd_file.loc[i,"new_height"] = 3 
