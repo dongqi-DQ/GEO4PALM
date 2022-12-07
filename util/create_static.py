@@ -238,6 +238,10 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
     building_id[building_height==-9999] = -9999
     
     building_type =  np.array([[3 if cell>0 else -9999 for cell in row] for row in building_id])
+    
+    ## match building height with building ID
+    building_height[building_id==-9999] = -9999
+    
     # if the buildings input is provided
     if os.path.exists(bldh_tif):
         buildings_3d, zbld = make_3d_from_2d(building_height, x, y, dz)
