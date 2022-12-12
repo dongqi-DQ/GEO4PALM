@@ -351,6 +351,7 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
                 soil_type[idy, idx] = 2
     
     # set up fillvalues
+    vegetation_type[building_type>0] = -9999
     vegetation_type[vegetation_type == -9999.0] = -127.0
     pavement_type[pavement_type == -9999.0] = -127.0
     street_type[street_type == -9999.0] = -127.0
