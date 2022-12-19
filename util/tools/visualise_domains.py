@@ -143,4 +143,5 @@ for i in range(0,ndomain):
 ax.set_extent(extent)
 
 ax.add_image(request, 12)
+
 plt.show()
