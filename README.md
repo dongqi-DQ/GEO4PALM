@@ -5,7 +5,7 @@ GEO4PALM is a Python tool that lets PALM users to download and preprocess geospa
 ## Getting Started
 
 ### Don't have your own data sets? 
-___
+
 GEO4PALM provides several interfaces for the basic features of PALM static driver including:
 
 1. NASA Earthdata digital elevation model (DEM; 30 m resolution; global)
@@ -14,7 +14,7 @@ GEO4PALM provides several interfaces for the basic features of PALM static drive
 4. OpenStreetMap (OSM) buildings and pavements/streets
 
 ### How do I download data using GEO4PALM?
-___
+
 In the GEO4PALM input namelist, users can either specify the input geospatial data filename or specify:
 1. `"nasa",` to download and process data via NASA Earthdata interface
 3. `"esa",` to donwload and process data via ESA WorldCover interface
@@ -26,17 +26,17 @@ In the GEO4PALM input namelist, users can either specify the input geospatial da
 3. Registration not required for OSM data. We use [OSMnx](https://github.com/gboeing/osmnx) package
 
 ### Have questions or issues?
-___
+
 You are welcome to ask it on the GitHub issue system. 
 
 ### How to run?
-___
+
 Download the entire code to your local directory.
 
 In the master directory, you will find the main script `run_config_static.py`. To run this script, a namelist file is required. The namelist for each case should be `$master_directory/JOBS/case_name/INPUT/namelist.static-case_name`.
 
-#### preparing namelist 
-___
+#### Preparing namelist 
+
 The namelist requires PALM domain configuration and geotiff filenames from users. The domain configuration is similar to variables used in PALM. 
 
 Users must specify:
@@ -88,8 +88,8 @@ sfch              - input for plant height; this is for leave area density (LAD)
 ```
 _**Note**: The `origin_time` setting is similar to `origin_date_time` in [PALM documentation](https://palm.muk.uni-hannover.de/trac/wiki/doc/app/initialization_parameters#origin_date_time). This variable is required in static drivers, but will not be used in PALM simulation. Rather the date time should be specified in PALM's p3d namelist. The sunset/sunrise time is affected by lat/lon attributes in the static driver._
 
-#### preparing lookup table for land use typology
-___
+#### Preparing lookup table for land use typology
+
 To convert land use classifcation to PALM-recognisable types, a lookup table (see files in `util/lu_csv` folder) is required. Here we provided the lookup tables for 
 - New Zealand Land Cover Data Base (LCDB) v5.0: `nzlcdb_2_PALM_num.csv` 
 - Collection 6 MODIS Land Cover Type 1: `NASA_LC_type1_PALM_num.csv`
@@ -101,13 +101,14 @@ Before running GEO4PALM, link the corresponding csv file to `util/lu_2_PALM_num.
 ln -sf lu_csv/your_csv lu_2_PALM_num.csv
 ```
 
-#### urban surface and plant canopy
-___
+#### Urban surface and plant canopy
+
 For urban and plant canopy tif file fileds, if users do not have files available, they should leave the file names empty as `"",`. If a user desires to use data from OSM (OpenStreetMap), please leave the field as `"osm",`. Building footprint, building height, building ID, pavement type, and street type will be derived from OSM data. For buildings with no height information available, a dummy value of 3 m is given.
 
 A namelist example is given in `JOBS/Christchurch/INPUT/` folder 
 
-#### input tif files explained
+#### Input tif files explained
+
 GEO4PALM only supports input files in tif format. All tif files must be put in `$master_directory/INPUT/` with filename specified in the namelist for the desired field and simulation domain. GEO4PALM has no requirements on data source, projection, and file size. Users do not need to preprocess tif files into specific resolution or projection for the configured domains. GEO4PALM will process all INPUT tif and store temporary tif files for each simulation domain in `$master_directory/TMP`. All static driver files will be stored in `$master_directory/OUTPUT`. All the input files specified in the namelist will be processed by GEO4PALM into PALM static driver based on the projection and grid spacing given in the namelist. 
 
 For those who have shp files, we provide a small tool to convert shp files to tif files `shp2tif.py`. 
@@ -126,7 +127,8 @@ python shp2tif.py  [case_name] [shp file path] [variable_name]
 _Heldens, W., Burmeister, C., Kanani-Sühring, F., Maronga, B., Pavlik, D., Sühring, M., Zeidler, J., and Esch, T.: Geospatial input data for the PALM model system 6.0: model requirements, data sources and processing, Geosci. Model Dev., 13, 5833–5873, https://doi.org/10.5194/gmd-13-5833-2020, 2020._
 
 
-### run the main script
+### Run the main script
+
 Once the namelist and all tif input from users are ready. One can run the script:
 ```
 python run_config_static.py case_name
@@ -134,7 +136,7 @@ python run_config_static.py case_name
 
 _If "nasa" is used for `dem` and/or `lu`, the script will guide the user through the NASA AρρEEARS API. If "esa" is included for `dem` and/or `lu`, then the script will guide the user through ESA's Terrascope API._
 
-### visualise domain on OSM 
+### Visualise domain on OSM 
 Users may visualise domain by running `visualise_domains.py` or `visualise_terrain.py`:
 ```
 python visulalise_domains.py [namelist_file]
@@ -145,7 +147,7 @@ python visulalise_terrain.py [namelist_file]
 ```
 This can be done before static files are created. The two scripts are similar, while the former displays domains using `IPython` (pop-up Python image window) and the later displays domains in a web browser. As the domain visualisation images are downloaded from two different online sources, the downloading speed may vary between the two scripts. Users can opt between the two based on their own preferences. 
 
-### flat terrain and precursor run 
+### Flat terrain and precursor run 
 Once a static driver is used, all the PALM domains in the simulation requires static drivers. In case a flat terrain static driver and/or precursor run static driver are required, users may run `static2flat.py`. 
 ```
 python static2flat.py [static_file] [nx,ny]
@@ -153,7 +155,7 @@ python static2flat.py [static_file] [nx,ny]
 Note that this requires no urban variables (e.g. buildings and streets) in the input static driver. If precursor run is not required, users do not need to specify `nx` and `ny`. This script can be found in `$master_directory/util/tools/`
 
 
-### water temperature
+### Water temperature
 If "online" is used for `sst`, the water temperature is derived from UKMO daily SST data downloaded from OPeNDAP. The SST at the nearest grid point will be used for water temperature. The day of the year is derived from `origin_time` in the namelist. The location to take SST data depends on `centlat` and `centlon` in the namelist.
 
 
