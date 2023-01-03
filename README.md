@@ -1,17 +1,39 @@
 # GEO4PALM
-**This documentation is now under development (20/09/2022)**
 
-The geotiff files are important input for static driver. However, it is impossible to process all the geoinformation in a standard way. Here we present scripts to genearte static drivers for PALM simulation. We provide an interface for users to download geospatial data globally, while users can also provide their own geospatial data in `tif` format. The script will prepare all input files for the configured simulation domains and then generate static drivers. Hopefully these tools can make PALM users' lives easier.
+GEO4PALM is a Python tool that lets PALM users to download and preprocess geospatial data easier. GEO4PALM accepts all geospatial input files in geotiff or shp format. Once users have their own input data ready, GEO4PALM can convert such input data into PALM static driver. 
 
+## Getting Started
 
-Note: Users need to be registered to download data from NASA Earthdata Enter NASA Earthdata 
-(Register here if you haven't, https://www.earthdata.nasa.gov/eosdis/science-system-description/eosdis-components/earthdata-login)
+### Don't have your own data sets? 
 
+GEO4PALM provides several interfaces for the basic features of PALM static driver including:
 
-## How to run?
-The main script is `run_config_static.py`. To run this script, a namelist file is required. The namelist for each case should be  `JOBS/case_name/INPUT/namelist.static-case_name`.
+1. NASA Earthdata digital elevation model (DEM; 30 m resolution; global)
+2. NASA land use classification data sets (resolution may vary depeonding on the data set selected)
+3. ESA WorldCover land use classification (10 m resolution; global)
+4. OpenStreetMap (OSM) buildings and pavements/streets
 
-### namelist 
+### How do I download data using GEO4PALM?
+In the GEO4PALM input namelist, users can either specify the input geospatial data filename or specify:
+1. `"nasa",` to download and process data via NASA Earthdata interface
+3. `"esa",` to donwload and process data via ESA WorldCover interface
+4. `"osm",` to download and process data via OSMnx
+
+**Note:**
+1. Register to download data from NASA Earthdata [here](https://www.earthdata.nasa.gov/eosdis/science-system-description/eosdis-components/earthdata-login) if you haven't
+2. Register to download data from ESA WorldCover [here](https://esa-worldcover.org/en!) if you haven't
+3. Registration not required for OSM data. We use [OSMnx](https://github.com/gboeing/osmnx) package
+
+### Have questions or issues?
+
+You are welcome to ask it on the GitHub issue system. 
+
+### How to run?
+Download the entire code to your local directory.
+
+In the master directory, you will find the main script `run_config_static.py`. To run this script, a namelist file is required. The namelist for each case should be `$master_directory/JOBS/case_name/INPUT/namelist.static-case_name`.
+
+#### preparing namelist 
 The namelist requires PALM domain configuration and geotiff filenames from users. The domain configuration is similar to variables used in PALM. 
 
 Users must specify:
@@ -20,7 +42,8 @@ Users must specify:
 case_name         -  name of the case 
 origin_time       -  date and time at model start*
 default_proj      -  default is EPSG:4326. This projection uses lat/lon to locate domain. This may not be changed.
-config_proj          -  projection of input tif files. We recommend users use local projection with units in metre, e.g. for New Zealand users, EPSG:2193 is a recommended choice.
+config_proj       -  projection of input tif files. GEO4PALM will automatically assign the UTM zone if not provided.
+                     We recommend users use local projection with units in metre, e.g. for New Zealand users, EPSG:2193 is a recommended choice.
 
 [domain]
 ndomain           -  maximum number of domains, when >=2, domain nesting is enabled  
@@ -51,46 +74,50 @@ dem_end_date = '2000-02-20',
 lu_start_date = '2020-10-01',
 lu_end_date = '2020-10-30',
 
-[urban]             - input for urban canopy model; can leave as "" if this feature is not included in the simulations, or provided by user; or online from OSM
-bldh                - input for building height 
-bldid               - input for building ID
-pavement            - input for pavement type
-street              - input for building ID
+[urban]           - input for urban canopy model; can leave as "" if this feature is not included in the simulations, or provided by user; or online from OSM
+bldh              - input for building height 
+bldid             - input for building ID
+pavement          - input for pavement type
+street            - input for building ID
 
 [plant]           - input for plant canopy model; can leave as "" if this feature is not included in the simulations, or provided by user
 sfch              - input for plant height; this is for leave area density (LAD)
 ```
+_**Note**: The `origin_time` setting is similar to `origin_date_time` in [PALM documentation](https://palm.muk.uni-hannover.de/trac/wiki/doc/app/initialization_parameters#origin_date_time). This variable is required in static drivers, but will not be used in PALM simulation. Rather the date time should be specified in PALM's p3d namelist. The sunset/sunrise time is affected by lat/lon attributes in the static driver._
 
-**below needs to be edited (20/09/2022)**
+#### preparing lookup table for land use typology
 
-To convert land use classifcation to PALM-recognisable types, a lookup table (in `util/lu_csv` folder) is required. Here we provided the lookup tables for 
+To convert land use classifcation to PALM-recognisable types, a lookup table (see files in `util/lu_csv` folder) is required. Here we provided the lookup tables for 
 - New Zealand Land Cover Data Base (LCDB) v5.0: `nzlcdb_2_PALM_num.csv` 
 - Collection 6 MODIS Land Cover Type 1: `NASA_LC_type1_PALM_num.csv`
 - ESA WorldCover 2020 v1: `esa_2020v1_lu.csv`
 
-Before running the code (hereafter GEO4PALM?), link the corresponding csv file to `util/lu_2_PALM_num.csv`:
+Before running GEO4PALM, link the corresponding csv file to `util/lu_2_PALM_num.csv`:
 ```
 # In util/
 ln -sf lu_csv/your_csv lu_2_PALM_num.csv
 ```
 
-_The `origin_time` setting is similar to `origin_date_time` in [PALM documentation](https://palm.muk.uni-hannover.de/trac/wiki/doc/app/initialization_parameters#origin_date_time). This variable is required in static drivers, but will not be used in PALM simulation. Rather the date time should be specified in PALM's p3d namelist. The sunset/sunrise time is affected by lat/lon attributes in the static driver._
+#### urban surface and plant canopy
+For urban and plant canopy tif file fileds, if users do not have files available, they should leave the file names empty as `"",`. If a user desires to use data from OSM (OpenStreetMap), please leave the field as `"osm",`. Building footprint, building height, building ID, pavement type, and street type will be derived from OSM data. For buildings with no height information available, a dummy value of 3 m is given.
 
-**Note: when no urban input is used, the vegetation type is set to 18 and the albedo type is set to 33 for urban area specified in land use files.**
-
-For urban and plant canopy tif file fileds, if users do not have files available, they should leave the file names empty as `"",`. If a user desires to use data from OSM (OpenStreetMap), please leave the field as "online". Building footprint, building height, building ID, pavement type, and street type will be derived from OSM data. For buildings with no height information available, a dummy value of 3 m is given.
-
-
-A namelist example is given in `JOBS/prefix/INPUT/` folder [To Do: probably need to give two examples - with/without urban canopy]
+A namelist example is given in `JOBS/Christchurch/INPUT/` folder 
 
 #### input tif files explained
-GEO4PALM only supports input files in tif format. We provide a small tool to convert shp files to tif files `shp2tif.py`. 
+GEO4PALM only supports input files in tif format. All tif files must be put in `$master_directory/INPUT/` with filename specified in the namelist for the desired field and simulation domain. GEO4PALM has no requirements on data source, projection, and file size. Users do not need to preprocess tif files into specific resolution or projection for the configured domains. GEO4PALM will process all INPUT tif and store temporary tif files for each simulation domain in `$master_directory/TMP`. All static driver files will be stored in `$master_directory/OUTPUT`. All the input files specified in the namelist will be processed by GEO4PALM into PALM static driver based on the projection and grid spacing given in the namelist. 
 
-Users do not have to provide tif files with specific resolution for the configured domains. We have a prepareation interface that will process all INPUT tif and store temporary tif files for each simulation domain in TMP. All static driver files will be stored in OUTPUT.
+For those who have shp files, we provide a small tool to convert shp files to tif files `shp2tif.py`. 
 
-**Note: at present one building type is assigned for all buildings.**   
-  
-Variables in the static driver here may not be inclusive. Users may refer to PALM input data standard or Heldens et al. (2020).
+_How to use `shp2tif.py`?_
+```
+python shp2tif.py  [case_name] [shp file path] [variable_name]
+```
+
+`shp2tif.py` converts shp file into the finest resolution configured in the namelist.
+**Note:** 
+1. Converting big shp files may require a large amount of RAM.
+2. At present only one building type is assigned for all buildings. Users are welcome to modify GEO4PALM if various building types are required.   
+3. Variables in the static driver here may not be inclusive. Users may refer to PALM input data standard or Heldens et al. (2020).
 
 _Heldens, W., Burmeister, C., Kanani-Sühring, F., Maronga, B., Pavlik, D., Sühring, M., Zeidler, J., and Esch, T.: Geospatial input data for the PALM model system 6.0: model requirements, data sources and processing, Geosci. Model Dev., 13, 5833–5873, https://doi.org/10.5194/gmd-13-5833-2020, 2020._
 
@@ -100,32 +127,34 @@ Once the namelist and all tif input from users are ready. One can run the script
 ```
 python run_config_static.py case_name
 ```
-If "nasa" is used for `dem` and/or `lu`, the script will guide the user through the NASA AρρEEARS API. If "esa" is included for `dem` and/or `lu`, then the script will guide the user through ESA's Terrascope API. [To Do: users should be able to provide some auth file so they don't have to type username and password every time] 
 
-
+_If "nasa" is used for `dem` and/or `lu`, the script will guide the user through the NASA AρρEEARS API. If "esa" is included for `dem` and/or `lu`, then the script will guide the user through ESA's Terrascope API._
 
 ### visualise domain on OSM 
-Users may visualise domain by running `visualise_domains.py`:
+Users may visualise domain by running `visualise_domains.py` or `visualise_terrain.py`:
 ```
-python visulalise_PALM_domains.py [namelist_file]
+python visulalise_domains.py [namelist_file]
 ```
-This can be done before static files are created.
+or 
+```
+python visulalise_terrain.py [namelist_file]
+```
+This can be done before static files are created. The two scripts are similar, while the former displays domains using `IPython` (pop-up Python image window) and the later displays domains in a web browser. As the domain visualisation images are downloaded from two different online sources, the downloading speed may vary between the two scripts. Users can opt between the two based on their own preferences. 
 
 ### flat terrain and precursor run 
 Once a static driver is used, all the PALM domains in the simulation requires static drivers. In case a flat terrain static driver and/or precursor run static driver are required, users may run `static2flat.py`. 
 ```
-python static_to_flat.py [static_file] [nx,ny]
+python static2flat.py [static_file] [nx,ny]
 ```
-Note that this requires no urban variables (e.g. buildings and streets) in the input static driver. If precursor run is not required, users do not need to specify `nx` and `ny`.
+Note that this requires no urban variables (e.g. buildings and streets) in the input static driver. If precursor run is not required, users do not need to specify `nx` and `ny`. This script can be found in `$master_directory/util/tools/`
 
 
 ### water temperature
-If "online" is used for `sst`, the water temperature is derived from UKMO daily SST data downloaded from OPeNDAP. The nearest SST will be used for water temperature. The day of the year is derived from `origin_time` in the namelist. The location to take SST data depends on `centlat` and `centlon` in the namelist.
-
+If "online" is used for `sst`, the water temperature is derived from UKMO daily SST data downloaded from OPeNDAP. The SST at the nearest grid point will be used for water temperature. The day of the year is derived from `origin_time` in the namelist. The location to take SST data depends on `centlat` and `centlon` in the namelist.
 
 
 --------------------------------------------------------------------------------------------  
-We have been trying to add more comments and more instructions of the scripts. However, if there is anything unclear, please do not hesitate to contact us. 
+We have been trying to add more comments and more instructions of the scripts. However, the documentation may not be sufficiently inclusive. If there is anything unclear, please do not hesitate to contact us. 
 
 Dongqi Lin (dongqi.lin@canterbury.ac.nz)  
 Jiawei Zhang (Jiawei.Zhang@scionresearch.com)  
@@ -134,15 +163,5 @@ Jiawei Zhang (Jiawei.Zhang@scionresearch.com)
 
 --------------------------------------------------------------------------------------------
 ## End of README
-
-
-
-
-
-
-
-
-
-
 
 
