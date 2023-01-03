@@ -212,9 +212,9 @@ for i in range(0,ndomain):
             # https://esa-worldcover.org/en/data-access
             check_esa_download(static_tif_path, dom_cfg_d01['lon_w'], dom_cfg_d01['lon_e'], dom_cfg_d01['lat_s'], dom_cfg_d01['lat_n'])
         ## If need to downlaod data from OSM
-        if tif_dict_d01["bldh"]=="online" or tif_dict_d01["bldid"]=="online":
+        if tif_dict_d01["bldh"]=="osm" or tif_dict_d01["bldid"]=="osm":
             get_osm_building(centlat, centlon, area_radius, static_tif_path, case_name, i)
-        if tif_dict_d01["pavement"]=="online":
+        if tif_dict_d01["pavement"]=="osm":
             get_osm_street(centlat, centlon, area_radius, static_tif_path, case_name, i)
         # save domain configuration for later - creating static drivers
         with open(f'{tmp_path}{case_name}_cfg_N0{i+1}.pickle', 'wb') as dicts:
@@ -244,9 +244,9 @@ for i in range(0,ndomain):
             tif_dict_nest[keys] = ast.literal_eval(config.get("plant", keys))[i]
         area_radius_nest = np.max([dx[i]*nx[i], dy[i]*ny[i]])/2 # units=metre
 
-        if tif_dict_nest["bldh"]=="online" or tif_dict_nest["bldid"]=="online":
+        if tif_dict_nest["bldh"]=="osm" or tif_dict_nest["bldid"]=="osm":
                 get_osm_building(dom_cfg_nest["centlat"], dom_cfg_nest["centlon"], area_radius_nest, static_tif_path, case_name, i)
-        if tif_dict_nest["pavement"]=="online":
+        if tif_dict_nest["pavement"]=="osm":
                 get_osm_street(dom_cfg_nest["centlat"], dom_cfg_nest["centlon"], area_radius_nest, static_tif_path, case_name, i)
         # save domain configuration for later - creating static drivers
         with open(f'{tmp_path}{case_name}_cfg_N0{i+1}.pickle', 'wb') as dicts:
