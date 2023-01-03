@@ -193,9 +193,17 @@ for i in range(0,ndomain):
             # check if the files are already there
             if len(glob(static_tif_path+case_name+"_DEM_*"))>0 or len(glob(static_tif_path+case_name+"_Land_Use_*"))>0:
                 # asking if need to download data
-                if input("NASA data directories exist, do you wish to continue download? [y/N]") == "y":
-                    download_nasa_main(api, geodata_name_dict, centlon, centlat, area_radius, default_proj, task_type,\
-                           default_buffer_ratio, start_date_dict,end_date_dict, output_format_dict,case_name,static_tif_path)
+                while True:
+                    user_input = input("NASA data directories exist, do you wish to continue download? [y/N]")
+                    if user_input.lower() == "y":
+                        download_nasa_main(api, geodata_name_dict, centlon, centlat, area_radius, default_proj, task_type,\
+                               default_buffer_ratio, start_date_dict,end_date_dict, output_format_dict,case_name,static_tif_path)
+                        break
+                    elif user_input.lower().lower() == "n":
+                        break
+                    else:
+                        print('Please answer y or n')
+                        continue
             else:
                 download_nasa_main(api, geodata_name_dict, centlon, centlat, area_radius, default_proj, task_type,\
                            default_buffer_ratio, start_date_dict,end_date_dict, output_format_dict,case_name,static_tif_path)
@@ -256,13 +264,31 @@ for i in range(0,ndomain):
     if i==0:
         static_driver_file = output_path + case_name + f'_static_N{i+1:02d}'
         if os.path.exists(static_driver_file):
-            ex = input(f"static driver file exists for N{i+1:02d}, continue? [y/N]")
+            while True:
+                user_input = input(f"static driver file exists for N{i+1:02d}, continue? [y/N]")
+                if user_input.lower() == "y":
+                    ex = "y"
+                    break
+                elif user_input.lower()=="n":
+                    break
+                else:
+                    print('Please answer y or n')
+                    continue
         if not os.path.exists(static_driver_file) or ex=="y":
             dom_cfg_d01 = generate_palm_static(case_name,tmp_path, i, config_proj, dom_cfg_d01)
     else:
         static_driver_file = output_path + case_name + f'_static_N{i+1:02d}'
         if os.path.exists(static_driver_file):
-            ex = input(f"static driver file exists for N{i+1:02d}, continue? [y/N]")
+            while True:
+                user_input = input(f"static driver file exists for N{i+1:02d}, continue? [y/N]")
+                if user_input.lower() == "y":
+                    ex = "y"
+                    break
+                elif user_input.lower()=="n":
+                    break
+                else:
+                    print('Please answer y or n')
+                    continue
         if not os.path.exists(static_driver_file) or ex=="y":
             with open(f'{tmp_path}{case_name}_cfg_N0{i+1}.pickle', 'rb') as dicts:
                  dom_cfg_nest = pickle.load(dicts)
