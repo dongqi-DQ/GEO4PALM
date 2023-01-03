@@ -5,7 +5,7 @@ GEO4PALM is a Python tool that lets PALM users to download and preprocess geospa
 ## Getting Started
 
 ### Don't have your own data sets? 
-
+___
 GEO4PALM provides several interfaces for the basic features of PALM static driver including:
 
 1. NASA Earthdata digital elevation model (DEM; 30 m resolution; global)
@@ -14,6 +14,7 @@ GEO4PALM provides several interfaces for the basic features of PALM static drive
 4. OpenStreetMap (OSM) buildings and pavements/streets
 
 ### How do I download data using GEO4PALM?
+___
 In the GEO4PALM input namelist, users can either specify the input geospatial data filename or specify:
 1. `"nasa",` to download and process data via NASA Earthdata interface
 3. `"esa",` to donwload and process data via ESA WorldCover interface
@@ -25,15 +26,17 @@ In the GEO4PALM input namelist, users can either specify the input geospatial da
 3. Registration not required for OSM data. We use [OSMnx](https://github.com/gboeing/osmnx) package
 
 ### Have questions or issues?
-
+___
 You are welcome to ask it on the GitHub issue system. 
 
 ### How to run?
+___
 Download the entire code to your local directory.
 
 In the master directory, you will find the main script `run_config_static.py`. To run this script, a namelist file is required. The namelist for each case should be `$master_directory/JOBS/case_name/INPUT/namelist.static-case_name`.
 
 #### preparing namelist 
+___
 The namelist requires PALM domain configuration and geotiff filenames from users. The domain configuration is similar to variables used in PALM. 
 
 Users must specify:
@@ -86,7 +89,7 @@ sfch              - input for plant height; this is for leave area density (LAD)
 _**Note**: The `origin_time` setting is similar to `origin_date_time` in [PALM documentation](https://palm.muk.uni-hannover.de/trac/wiki/doc/app/initialization_parameters#origin_date_time). This variable is required in static drivers, but will not be used in PALM simulation. Rather the date time should be specified in PALM's p3d namelist. The sunset/sunrise time is affected by lat/lon attributes in the static driver._
 
 #### preparing lookup table for land use typology
-
+___
 To convert land use classifcation to PALM-recognisable types, a lookup table (see files in `util/lu_csv` folder) is required. Here we provided the lookup tables for 
 - New Zealand Land Cover Data Base (LCDB) v5.0: `nzlcdb_2_PALM_num.csv` 
 - Collection 6 MODIS Land Cover Type 1: `NASA_LC_type1_PALM_num.csv`
@@ -99,6 +102,7 @@ ln -sf lu_csv/your_csv lu_2_PALM_num.csv
 ```
 
 #### urban surface and plant canopy
+___
 For urban and plant canopy tif file fileds, if users do not have files available, they should leave the file names empty as `"",`. If a user desires to use data from OSM (OpenStreetMap), please leave the field as `"osm",`. Building footprint, building height, building ID, pavement type, and street type will be derived from OSM data. For buildings with no height information available, a dummy value of 3 m is given.
 
 A namelist example is given in `JOBS/Christchurch/INPUT/` folder 
