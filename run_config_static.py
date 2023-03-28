@@ -270,6 +270,7 @@ for i in range(0,ndomain):
                     ex = "y"
                     break
                 elif user_input.lower()=="n":
+                    ex = "n"
                     break
                 else:
                     print('Please answer y or n')
@@ -285,6 +286,7 @@ for i in range(0,ndomain):
                     ex = "y"
                     break
                 elif user_input.lower()=="n":
+                    ex = "n"
                     break
                 else:
                     print('Please answer y or n')

@@ -36,6 +36,7 @@ def get_osm_building(centlat, centlon, area_radius, static_tif_path, case_name, 
                 ex = "y"
                 break
             elif user_input.lower()=="n":
+                ex = "n"
                 break
             else:
                 print('Please answer y or n')
@@ -65,6 +66,7 @@ def get_osm_street(centlat, centlon, area_radius, static_tif_path, case_name, id
                 ex = "y"
                 break
             elif user_input.lower()=="n":
+                ex = "n"
                 break
             else:
                 print('Please answer y or n')

@@ -241,35 +241,35 @@ def process_all(prefix):
             sst_file = static_tif_path+sst[i]
             process_tif(sst_file, "SST", config_proj, case_name, tmp_path, i, dx[i], resample_method[i], dom_cfg_dict)
         # OSM buildings
-        if bldh[i]=="online":
+        if bldh[i]=="osm":
             bld_file = f"{static_tif_path}{case_name}_osm_building_N{i+1:02d}.gpkg"
             process_osm_building(bld_file, config_proj, case_name, tmp_path, i, dx[i], dy[i])
         # if local file provided
-        elif bldh[i]!="online" and bldh[i]!="":
+        elif bldh[i]!="osm" and bldh[i]!="":
             bld_file = static_tif_path+bldh[i]
             process_tif(bld_file, "BLDH", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
         # building ID - if not from OSM
-        if bldid[i]!="online" and bldid[i]!="":
+        if bldid[i]!="osm" and bldid[i]!="":
             bldid_file = static_tif_path+bldid[i]
             process_tif(bldid_file, "BLDID", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
         # OSM pavement type 
-        if pavement[i] == "online":
+        if pavement[i] == "osm":
             pavement_file = f"{static_tif_path}{case_name}_osm_street_N{i+1:02d}.gpkg"
             process_osm_pavement_street(pavement_file, "pavement", config_proj, case_name, tmp_path, i, dx[i], dy[i])
         # if local file provided
-        elif pavement[i]!="online" and pavement[i]!="":
+        elif pavement[i]!="osm" and pavement[i]!="":
             pavement_file = static_tif_path+pavement[i]
             process_tif(pavement_file, "pavement", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
         # OSM street type
-        if street[i] == "online":
+        if street[i] == "osm":
             street_file = f"{static_tif_path}{case_name}_osm_street_N{i+1:02d}.gpkg"
             process_osm_pavement_street(street_file, "street", config_proj, case_name, tmp_path, i, dx[i], dy[i])
         # if local file provided
-        elif street[i]!="online" and street[i]!="":
+        elif street[i]!="osm" and street[i]!="":
             street_file = static_tif_path+street[i]
             process_tif(street_file, "street", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
         # Surface height - for trees; if local file provided
-        if sfch[i]!="online" and sfch[i]!="":
+        if sfch[i]!="osm" and sfch[i]!="":
             sfch_file = static_tif_path+sfch[i]
             process_tif(sfch_file, "SFCH", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
             
