@@ -72,10 +72,12 @@ def process_osm_building(bld_file, config_proj, case_name, tmp_path, idomain, dx
     gpd_file["new_height"] = gpd_file["new_height"].astype('float32')
     if "level" not in gpd_file.keys():
         gpd_file = gpd_file.assign(level=gpd_file["osmid"])
-        gpd_file["level"] = np.nan
+        gpd_file["level"] = None
     if "height" not in gpd_file.keys():
         gpd_file = gpd_file.assign(height=gpd_file["osmid"])
-        gpd_file["height"] = np.nan
+        gpd_file["height"] = None
+    ## First, set all building height to 3 m when building exists
+    gpd_file.loc[gpd_file["osmid"] > 0, 'new_height'] = 3
     ## calculate building height from OSM data
     ## note that if OSM do not have height data, the height will be 0 m
     for i in range(0,len(gpd_file["height"])):
@@ -101,7 +103,7 @@ def process_osm_building(bld_file, config_proj, case_name, tmp_path, idomain, dx
                 if ";" in gpd_file.loc[i,"level"]:
                     max_lvl = np.max([int(s.strip()) for s in gpd_file.loc[i,"level"].split(';')])
                     gpd_file.loc[i,"new_height"] = max_lvl*3
-        else:
+        elif type(gpd_file.loc[i,"height"]) is type(None) or gpd_file.loc[i,"level"] is type(None) and gpd_file["osmid"] > 0:
             # if no building height is given then set as 3 m
             gpd_file.loc[i,"new_height"] = 3 
     # make building height geocube
