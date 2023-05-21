@@ -65,25 +65,28 @@ def setup_earthdata_login_auth(endpoint):
 
 
 def download_sst(case_name, origin_time, static_tif_path):
+    ## a new function to download SST
+    ## further optimisation may be needed
     print("Retrieving SST data from OPeNDAP")
-    ## get identification info
-    edl="urs.earthdata.nasa.gov"
-
-    setup_earthdata_login_auth(edl)
-    #CMR Link to use
-    #https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C1625128926-GHRC_CLOUD&temporal=2019-01-01T10:00:00Z,2019-12-31T23:59:59Z
-    sst_dt = origin_time
-    r = requests.get(f'https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C1996881146-POCLOUD&temporal={sst_dt[:10]}T{sst_dt[11:19]}Z,{sst_dt[:10]}T{sst_dt[11:19]}Z&pageSize=365')
-    response_body = r.json()
-
-    for itm in response_body['items']:
-        for urls in itm['umm']['RelatedUrls']:
-            if urls['URL'].endswith(".nc") and urls['URL'].startswith("https"):
-                data_url = urls['URL']
     dst = f"{static_tif_path}{case_name}-SST.nc"
+
     ## check if SST file is there
     if not os.path.exists(dst):
         print(f"Downloading SST file to {static_tif_path}...")
+         ## get identification info
+        edl="urs.earthdata.nasa.gov"
+
+        setup_earthdata_login_auth(edl)
+        #CMR Link to use
+        #https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C1625128926-GHRC_CLOUD&temporal=2019-01-01T10:00:00Z,2019-12-31T23:59:59Z
+        sst_dt = origin_time
+        r = requests.get(f'https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C1996881146-POCLOUD&temporal={sst_dt[:10]}T{sst_dt[11:19]}Z,{sst_dt[:10]}T{sst_dt[11:19]}Z&pageSize=365')
+        response_body = r.json()
+
+        for itm in response_body['items']:
+            for urls in itm['umm']['RelatedUrls']:
+                if urls['URL'].endswith(".nc") and urls['URL'].startswith("https"):
+                    data_url = urls['URL']
         urlretrieve(data_url, dst)
         print(f"SST file downloaded to {static_tif_path}")
     else:
@@ -91,6 +94,20 @@ def download_sst(case_name, origin_time, static_tif_path):
             user_input = input("SST data exists, do you wish to continue download? [y/N]")
             if user_input.lower() == "y":
                 print(f"Downloading SST file to {static_tif_path}...")
+                         ## get identification info
+                edl="urs.earthdata.nasa.gov"
+
+                setup_earthdata_login_auth(edl)
+                #CMR Link to use
+                #https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C1625128926-GHRC_CLOUD&temporal=2019-01-01T10:00:00Z,2019-12-31T23:59:59Z
+                sst_dt = origin_time
+                r = requests.get(f'https://cmr.earthdata.nasa.gov/search/granules.umm_json?collection_concept_id=C1996881146-POCLOUD&temporal={sst_dt[:10]}T{sst_dt[11:19]}Z,{sst_dt[:10]}T{sst_dt[11:19]}Z&pageSize=365')
+                response_body = r.json()
+
+                for itm in response_body['items']:
+                    for urls in itm['umm']['RelatedUrls']:
+                        if urls['URL'].endswith(".nc") and urls['URL'].startswith("https"):
+                            data_url = urls['URL']
                 urlretrieve(data_url, dst)
                 print(f"SST file downloaded to {static_tif_path}")
                 break
