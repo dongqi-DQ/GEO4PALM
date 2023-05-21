@@ -157,7 +157,7 @@ for i in range(0,ndomain):
             tif_dict_d01[keys] = ast.literal_eval(config.get("plant", keys))[i]
         # configure domain location information
         dom_cfg_d01 = domain_location(default_proj, config_proj,  dom_cfg_d01)
-        area_radius = np.max([dx[i]*nx[i], dy[i]*ny[0]])/2 # units=metre
+        area_radius = np.max([dx[i]*nx[i], dy[i]*ny[0]])/1.5 # units=metre
         # generate static driver 
 #         dom_cfg_d01 = generate_palm_static(case_name_d01, config_proj, tif_proj, dom_cfg_d01, tif_dict_d01)
         
