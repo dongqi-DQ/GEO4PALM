@@ -157,7 +157,7 @@ for i in range(0,ndomain):
             tif_dict_d01[keys] = ast.literal_eval(config.get("plant", keys))[i]
         # configure domain location information
         dom_cfg_d01 = domain_location(default_proj, config_proj,  dom_cfg_d01)
-        area_radius = np.max([dx[i]*nx[i], dy[i]*ny[0]])/1.5 # units=metre
+        area_radius = np.max([dx[i]*nx[i], dy[i]*ny[0]])*1.2 # units=metre
         # generate static driver 
 #         dom_cfg_d01 = generate_palm_static(case_name_d01, config_proj, tif_proj, dom_cfg_d01, tif_dict_d01)
         
@@ -242,7 +242,7 @@ for i in range(0,ndomain):
             tif_dict_nest[keys] = ast.literal_eval(config.get("urban", keys))[i]
         for keys in tif_plant_dict.keys():
             tif_dict_nest[keys] = ast.literal_eval(config.get("plant", keys))[i]
-        area_radius_nest = np.max([dx[i]*nx[i], dy[i]*ny[i]])/2 # units=metre
+        area_radius_nest = np.max([dx[i]*nx[i], dy[i]*ny[i]])*1.2 # units=metre
 
         if tif_dict_nest["bldh"]=="osm" or tif_dict_nest["bldid"]=="osm":
                 get_osm_building(dom_cfg_nest["centlat"], dom_cfg_nest["centlon"], area_radius_nest, static_tif_path, case_name, i)
