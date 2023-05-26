@@ -9,6 +9,7 @@
 import urllib
 from urllib import request, parse
 from urllib.request import urlretrieve
+from urllib.error import HTTPError
 from http.cookiejar import CookieJar
 import json
 import getpass
@@ -48,9 +49,10 @@ def setup_earthdata_login_auth(endpoint):
     except (FileNotFoundError, TypeError):
         # FileNotFound = There's no .netrc file
         # TypeError = The endpoint isn't in the netrc file, causing the above to try unpacking None
-        print('Please provide your Earthdata Login credentials to allow data access')
-        print('Your credentials will only be passed to %s and will not be exposed in GEO4PALM' % (endpoint))
-        username = input('Username:')
+        print("Please provide your Earthdata Login credentials to allow data access")
+        print("\n (Register here if you haven't, 'https://www.earthdata.nasa.gov/eosdis/science-system-description/eosdis-components/earthdata-login)'")
+        print("Your credentials will only be passed to %s and will not be exposed in GEO4PALM" % (endpoint))
+        username = input("Username:")
         password = getpass.getpass()
 
     
@@ -72,7 +74,6 @@ def download_sst(case_name, origin_time, static_tif_path):
 
     ## check if SST file is there
     if not os.path.exists(dst):
-        print(f"Downloading SST file to {static_tif_path}...")
          ## get identification info
         edl="urs.earthdata.nasa.gov"
 
@@ -87,14 +88,23 @@ def download_sst(case_name, origin_time, static_tif_path):
             for urls in itm['umm']['RelatedUrls']:
                 if urls['URL'].endswith(".nc") and urls['URL'].startswith("https"):
                     data_url = urls['URL']
-        urlretrieve(data_url, dst)
+        ## try to download, but if user credential not valid return the interface again
+        user_credential = False
+        while not user_credential:
+            try:
+                print(f"Downloading SST file to {static_tif_path}")
+                urlretrieve(data_url, dst)
+                user_credential = True
+            except HTTPError:
+                print("User credential not valid. Please re-enter.")
+                setup_earthdata_login_auth(edl)
+
         print(f"SST file downloaded to {static_tif_path}")
     else:
          while True:
             user_input = input("SST data exists, do you wish to continue download? [y/N]")
             if user_input.lower() == "y":
-                print(f"Downloading SST file to {static_tif_path}...")
-                         ## get identification info
+                ## get identification info
                 edl="urs.earthdata.nasa.gov"
 
                 setup_earthdata_login_auth(edl)
@@ -108,7 +118,17 @@ def download_sst(case_name, origin_time, static_tif_path):
                     for urls in itm['umm']['RelatedUrls']:
                         if urls['URL'].endswith(".nc") and urls['URL'].startswith("https"):
                             data_url = urls['URL']
-                urlretrieve(data_url, dst)
+                 ## try to download, but if user credential not valid return the interface again
+                user_credential = False
+                while not user_credential:
+                    try:
+                        print(f"Downloading SST file to {static_tif_path}")
+                        urlretrieve(data_url, dst)
+                        user_credential = True
+                    except HTTPError:
+                        print("User credential not valid. Please re-enter.")
+                        setup_earthdata_login_auth(edl)
+
                 print(f"SST file downloaded to {static_tif_path}")
                 break
             elif user_input.lower().lower() == "n":

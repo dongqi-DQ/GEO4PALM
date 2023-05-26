@@ -4,6 +4,23 @@ GEO4PALM is a Python tool that lets PALM users to download and preprocess geospa
 
 ## Getting Started
 
+### Python environment
+
+As Python packages can have mismatches between each other, we provided a `geo4palm_env.yml` file so that users can create an environemnt for GEO4PALM. To create the environment from the yml file:
+
+`conda env create -f geo4palm_env.yml`
+
+Activate the environment with:
+
+`conda activate geo4palm`
+
+To install `terracatalogueclient` using, try:
+
+`pip install terracatalogueclient -i https://artifactory.vgt.vito.be/api/pypi/python-packages/simple`
+
+TerraCatalogue client is for ESA land use API. More information can be found [here](https://vitobelgium.github.io/terracatalogueclient/installation.html).
+
+
 ### Don't have your own data sets? 
 
 GEO4PALM provides several interfaces for the basic features of PALM static driver including:
