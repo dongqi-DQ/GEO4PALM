@@ -1,6 +1,6 @@
 # GEO4PALM
 
-GEO4PALM is a Python tool that lets PALM users to download and preprocess geospatial data easier. GEO4PALM accepts all geospatial input files in geotiff or shp format. Once users have their own input data ready, GEO4PALM can convert such input data into PALM static driver. 
+GEO4PALM is a Python tool that lets PALM users to download and preprocess geospatial data easier. GEO4PALM accepts all geospatial input files in geotiff or shp format. Once users have their own input data ready, GEO4PALM can convert such input data into PALM static driver. The instruction below works for both Linux and Macos systems. For Windows system, you might need some minor adjustments.
 
 ## Getting Started
 
@@ -14,9 +14,22 @@ Activate the environment with:
 
 `conda activate geo4palm`
 
-To install `terracatalogueclient` using, try:
+To install `terracatalogueclient`, you need to follow the below steps.
+- First locate the `pip` tool in the geo4palm environment.Try `which -a pip` and you should see something like below
+```
+/usr/bin/pip
+/home/user/miniconda3/envs/geo4palm/bin/pip
+/bin/pip
+```
+- Copy the pip path from the geo4palm environment (`/home/user/miniconda3/envs/geo4palm/bin/pip` in this example). Then use the below command 
 
-`pip install terracatalogueclient -i https://artifactory.vgt.vito.be/api/pypi/python-packages/simple`
+`<pip path> install terracatalogueclient -i https://artifactory.vgt.vito.be/api/pypi/python-packages/simple`
+
+Make sure to replace "<pip path>" to the actual pip path you find from the first step and the command should look like below,
+
+```
+/home/user/miniconda3/envs/geo4palm/bin/pip install terracatalogueclient -i https://artifactory.vgt.vito.be/api/pypi/python-packages/simple
+```
 
 TerraCatalogue client is for ESA land use API. More information can be found [here](https://vitobelgium.github.io/terracatalogueclient/installation.html).
 
