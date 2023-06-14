@@ -418,7 +418,7 @@ def generate_config_text(df_in,crs_loc,crs_wgs="EPSG:4326",format_digit=1):
     ll_y += "\n"
     z_origin += "\n"
     static_config_output = static_config_output+nx+ny+nz+dx+dy+dz+ll_x+ll_y+z_origin
-    nest_string = "         nesting_mode   = 'one-way',\n"
+    nest_string = "         nesting_mode   = 'two-way',\n"
     namelist_config_output += domain_layouts + nest_string +"/\n"
     return static_config_output, namelist_config_output
 
