@@ -10,6 +10,7 @@
 #--------------------------------------------------------------------------------#
 
 import panel as pn
+pn.extension(notifications=True)
 import geoviews as gv
 import holoviews as hv
 import numpy as np
@@ -17,8 +18,10 @@ gv.extension('bokeh')
 from pyproj import Transformer
 import cartopy.crs as ccrs
 import pandas as pd
-pn.extension(notifications=True)
 import sys
+import configparser
+import io
+import pyproj
 
 
 centlat_input=pn.widgets.FloatInput(start=-90,end=90,value=0, name="center lat",width=90)
@@ -31,14 +34,14 @@ ny_input= pn.widgets.IntInput(start=1,value=1,name="ny",width=90)
 nz_input= pn.widgets.IntInput(start=1,value=1,name="nz",width=90)
 z_origin_input = pn.widgets.FloatInput(start=0,value=0,name="z_origin",width=90)
 
-crs_loc_input = pn.widgets.IntInput(start=0,value=2193,name="local projection (epsg)",max_width=100,width_policy='fit')
+crs_loc_input = pn.widgets.IntInput(start=0,value=0,name="local projection (epsg)",max_width=100,width_policy='fit')
 add_to_map_button=pn.widgets.Button(name="Add to map", margin=(10, 10 ,10, 20), button_type="primary",width=100)
 calculate_namelist_button=pn.widgets.Button(name="Get domain configure", margin=(10, 10 ,10 , 400), button_type="success",width=100)
-undo_button = pn.widgets.Button(name="undo",margin=(10, 10 ,10 , 20),button_type="default",width=100)
+undo_button = pn.widgets.Button(name="undo",margin=(10, 10 ,10 , 30),button_type="default",width=100)
 
 # domain_input_box=pn.WidgetBox(crs_loc_input,pn.Row(centlat_input,centlon_input,nx_input,dx_input,ny_input,dy_input),pn.Row(nz_input,dz_input,add_to_map_button,calculate_namelist_button),width=900)
 domain_input_box=pn.WidgetBox(pn.WidgetBox(crs_loc_input,pn.Row(centlat_input,centlon_input,nx_input,dx_input\
-                                                   ,ny_input,dy_input,nz_input,dz_input,z_origin_input,width=1090),\
+                                                   ,ny_input,dy_input,nz_input,dz_input,z_origin_input,width=1100),\
                                                    pn.Row(pn.Spacer(width=720),add_to_map_button,undo_button)),calculate_namelist_button,width=1100)
 
 # use this dataframe to save all the numbers
@@ -51,15 +54,17 @@ sate_image=gv.tile_sources.EsriImagery.opts(width=600,height=600)
 disp_map=pn.panel(sate_image)
 
 #create static config text box for output configure text
-static_config_text=pn.widgets.TextAreaInput(height=250,width=450)
+static_config_text=pn.widgets.TextAreaInput(height=250,width=460)
 copy_static_config_button = pn.widgets.Button(name="Copy static domain configure", button_type="default",width=100)
+draw_config_button = pn.widgets.Button(name="check configuration",button_type="primary",width=100) #button to plot domain based on the config text
+
 copy_source_code = "navigator.clipboard.writeText(source.value);"
 copy_static_config_button.js_on_click(args={"source": static_config_text}, code=copy_source_code)
 
-static_config_box=pn.WidgetBox(static_config_text,copy_static_config_button)
+static_config_box=pn.WidgetBox(static_config_text,pn.Row(copy_static_config_button,pn.layout.Spacer(width=100),draw_config_button))
 
 #create palm model namelist text box for output configure text
-namelist_text=pn.widgets.TextAreaInput(height=250,width=450)
+namelist_text=pn.widgets.TextAreaInput(height=250,width=460)
 copy_namelist_text_button = pn.widgets.Button(name="Copy namelist domain configure", button_type="default",width=100)
 copy_source_code = "navigator.clipboard.writeText(source.value);"
 copy_namelist_text_button.js_on_click(args={"source": namelist_text}, code=copy_source_code)
@@ -75,7 +80,8 @@ df_pane.float_format='{:,.3f}'.format
 
 def create_domain_boundary(df,centlon,centlat,nx,ny,nz,dx,dy,dz,z_origin,crs_loc,crs_in="EPSG:4326",crs_wgs="EPSG:4326",add_to_df=True):
     # df is to save all the boundary data
-    # nz,dz, z_origin is only used here as input to the dataframe, no calculations regarding these here. 
+    # nz,dz, z_origin is only used here as input to the dataframe, no calculations regarding these here.
+    check_crs_loc_input(crs_loc_input)
     in_to_loc = Transformer.from_crs(crs_in, crs_loc)
     loc_to_wgs = Transformer.from_crs(crs_loc,crs_wgs)
     
@@ -100,9 +106,17 @@ def create_domain_boundary(df,centlon,centlat,nx,ny,nz,dx,dy,dz,z_origin,crs_loc
 bd_create_domain_boundary = pn.bind(create_domain_boundary,centlat=centlat_input,centlon=centlon_input,\
                                     nx=nx_input,ny=ny_input,nz=nz_input,dx=dx_input,dy=dy_input,dz=dz_input,z_origin=z_origin_input,crs_loc=crs_loc_input)
 
+def check_crs_loc_input(crs_loc_input):
+    if (crs_loc_input.value < 1024) or(crs_loc_input.value > 32767):
+        pn.state.notifications.position = 'bottom-center'
+        pn.state.notifications.info("EPSG code of the UTM coordinate matches the entered lat, lon is used since no valid EPSG Code number is found in the input.", duration=0)        
+        utm_zone = get_utm_zone(centlat_input.value, centlon_input.value)
+        crs_loc_input.value = get_epsg_code(utm_zone)
+
 def on_button_click(event):
     # add domain boundary to the map
     pn.state.notifications.clear()
+    check_crs_loc_input(crs_loc_input)
     new_domain =  bd_create_domain_boundary(df=boundary_value_df)
     if not check_domain_draw_validation(boundary_value_df):
         pn.state.notifications.position = 'bottom-center'
@@ -158,9 +172,41 @@ def compare_grid_resolution(pdomain,cdomain):
         grid_res_valid = True
     if grid_res_valid == False:
         pn.state.notifications.position = 'bottom-center'
-        pn.state.notifications.info("The domain num {}'s grid is not compatable with its parent domain (num: {}).".format(int(cdomain.num),int(pdomain.num)), duration=0)
+        pn.state.notifications.info("The domain num {}'s grid resolution and grid number is not compatable with its parent domain (num: {}).".format(int(cdomain.num),int(pdomain.num)), duration=0)
     return grid_res_valid
-        
+
+# Define a function to get UTM zone from latitude and longitude
+def get_utm_zone(lat, lon):
+    # Calculate the zone number based on longitude, by chatgpt
+    zone_number = int((lon + 180) // 6 + 1)
+    # Calculate the zone letter based on latitude
+    if lat >= 72:
+        zone_letter = 'X'
+    elif lat < -80:
+        zone_letter = 'C'
+    else:
+        letters = 'CDEFGHJKLMNPQRSTUVWXX'
+        index = int((lat + 80) // 8)
+        zone_letter = letters[index]
+    # Return the UTM zone as a string
+    return str(zone_number) + zone_letter
+
+
+# Define a function to get EPSG coordinate number from UTM zone
+def get_epsg_code(utm_zone):
+    # Get the zone number and letter from the UTM zone string, by chatgpt
+    zone_number = int(utm_zone[:-1])
+    zone_letter = utm_zone[-1]
+    # Check if the zone is in the northern or southern hemisphere
+    if zone_letter >= 'N':
+        hemisphere = 'north'
+        epsg_code = 32600 + zone_number
+    else:
+        hemisphere = 'south'
+        epsg_code = 32700 + zone_number
+    # Return the EPSG code as an integer
+    return epsg_code
+
     
 def grid_resolution_check(df):
     grid_res_valid = True
@@ -176,7 +222,7 @@ def grid_resolution_check(df):
                         grid_res_valid = grid_res_valid*compare_grid_resolution(df.iloc[j],df.iloc[i])
     if grid_res_valid == False:
         pn.state.notifications.position = 'bottom-center'
-        pn.state.notifications.info("One ore more domais' grid resolution is not compatible with it's parent domain.\n You should not use the generated namelist directly.", duration=0)        
+        pn.state.notifications.info("One ore more domains' grid resolution and grid number combination is not compatible with it's parent domain. You should not use the generated namelist directly.", duration=0)        
     return grid_res_valid
                 
     
@@ -372,16 +418,95 @@ def generate_config_text(df_in,crs_loc,crs_wgs="EPSG:4326",format_digit=1):
     ll_y += "\n"
     z_origin += "\n"
     static_config_output = static_config_output+nx+ny+nz+dx+dy+dz+ll_x+ll_y+z_origin
-    nest_string = "         nesting_mode   = 'two-way',\n"
+    nest_string = "         nesting_mode   = 'one-way',\n"
     namelist_config_output += domain_layouts + nest_string +"/\n"
     return static_config_output, namelist_config_output
 
+def on_click_draw_config(event):
+    # draw domain on the map based on the text in the static_config_text box
+    pn.state.notifications.clear()
+    check_crs_loc_input(crs_loc_input)
+    bd_construct_df_from_static()
+    sort_domain_num(boundary_value_df)
+    domain_boundries_all = create_rectangles_from_df(boundary_value_df)
+    disp_map.object = sate_image * domain_boundries_all
+    df_pane.object = boundary_df_disp_columns(boundary_value_df.sort_values('num',ascending=True))
+    grid_resolution_check(boundary_value_df)
+
+def convert_confs_values(con_string,d_type):
+    # convert numerical values from the config string
+    con_string_list = con_string.split(",")
+    if d_type.lower() == "int":
+        value_list = [int(con_s.strip()) for con_s in con_string_list if con_s != '']
+    elif d_type.lower() == "float":
+        value_list = [float(con_s.strip()) for con_s in con_string_list if con_s != '']
+    return value_list
+
+def construct_df_from_static(static_config_input,crs_loc,crs_in="EPSG:4326",crs_wgs="EPSG:4326"):
+    #construct boundary_value_df from static_config_namelist
+    in_to_loc = Transformer.from_crs(crs_in, crs_loc)
+    loc_to_wgs = Transformer.from_crs(crs_loc,crs_wgs)
+    
+    #read the text from the configure input widget
+    config = configparser.ConfigParser(inline_comment_prefixes=("#","!"))
+    static_tmp = io.StringIO(static_config_input)
+    config.read_file(static_tmp)
+    if not config.has_section("domain"):
+        static_config_input = "[domain]\n" + static_config_input
+        static_tmp = io.StringIO(static_config_input)
+        config.read_file(static_tmp)
+    ndomain = convert_confs_values(config.get("domain","ndomain"),"int")[0]
+    centlat_root = convert_confs_values(config.get("domain","centlat"),"float")[0]
+    centlon_root = convert_confs_values(config.get("domain","centlon"),"float")[0]
+    nx = convert_confs_values(config.get("domain","nx"),"int")[:ndomain]
+    ny = convert_confs_values(config.get("domain","ny"),"int")[:ndomain]
+    nz = convert_confs_values(config.get("domain","nz"),"int")[:ndomain]
+    dx = convert_confs_values(config.get("domain","dx"),"float")[:ndomain]
+    dy = convert_confs_values(config.get("domain","dy"),"float")[:ndomain]
+    dz = convert_confs_values(config.get("domain","dz"),"float")[:ndomain]
+    ll_x = convert_confs_values(config.get("domain","ll_x"),"float")[:ndomain]
+    ll_y = convert_confs_values(config.get("domain","ll_y"),"float")[:ndomain]
+    z_origin = convert_confs_values(config.get("domain","z_origin"),"float")[:ndomain]
+    
+
+    #empty the boundary_value_df and then add the data from the config
+    boundary_value_df.drop(boundary_value_df.index,inplace=True)
+    for i in range(ndomain):
+        if i == 0:
+            #get the local coordinate of the(0,0), aka xmin_loc and ymin_loc for the root domain
+            centy_loc_tmp,centx_loc_tmp = in_to_loc.transform(centlat_root,centlon_root)
+            xmin_loc_tmp = centx_loc_tmp - nx[i]*dx[i]/2 + ll_x[i]
+            ymin_loc_tmp = centy_loc_tmp - ny[i]*dy[i]/2 + ll_y[i]
+            xmax_loc_tmp = centx_loc_tmp + nx[i]*dx[i]/2 + ll_x[i]
+            ymax_loc_tmp = centy_loc_tmp + ny[i]*dy[i]/2 + ll_y[i]
+            centlat_tmp = centlat_root
+            centlon_tmp = centlon_root
+        else:
+            xmin_loc_tmp = boundary_value_df.iloc[0].xmin + ll_x[i]
+            ymin_loc_tmp = boundary_value_df.iloc[0].ymin + ll_y[i]
+            xmax_loc_tmp = xmin_loc_tmp + nx[i]*dx[i]
+            ymax_loc_tmp = ymin_loc_tmp + ny[i]*dy[i]
+            centx_loc_tmp = xmin_loc_tmp + nx[i]*dx[i]/2
+            centy_loc_tmp = ymin_loc_tmp + ny[i]*dy[i]/2
+            centlat_tmp, centlon_tmp = loc_to_wgs.transform(centy_loc_tmp,centx_loc_tmp)
+
+        boundary_value_df.loc[i] = {"centlon":centlon_tmp,"centlat":centlat_tmp,"centx":centx_loc_tmp,"centy":centy_loc_tmp,\
+                                     "nx":nx[i],"ny":ny[i],"nz":nz[i],"dx":dx[i],"dy":dy[i],\
+                                     "dz":dz[i],"xmin":xmin_loc_tmp,\
+                                    "ymin":ymin_loc_tmp,"xmax":xmax_loc_tmp,"ymax":ymax_loc_tmp,"z_origin":z_origin[i]}
+    
+    return boundary_value_df
+                               
 bd_generate_config_text = pn.bind(generate_config_text,crs_loc=crs_loc_input)
+
+bd_construct_df_from_static=pn.bind(construct_df_from_static,static_config_text,crs_loc_input)
 
 undo_button.on_click(on_undo_button_click)
 
 calculate_namelist_button.on_click(on_configure_button_click)
 
+draw_config_button.on_click(on_click_draw_config)
+
 add_to_map_button.on_click(on_button_click)
 
-palm_domain_config_tool = pn.Column(domain_input_box,pn.Row(disp_map,pn.Column(static_config_box,namelist_config_box)),df_pane).servable(title="PALM toolkit")
+palm_domain_config_tool = pn.Column(domain_input_box,pn.Row(disp_map,pn.Column(static_config_box,pn.Spacer(width=10),namelist_config_box)),df_pane).servable(title="PALM toolkit")
