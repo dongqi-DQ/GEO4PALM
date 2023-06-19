@@ -2,6 +2,10 @@
 
 GEO4PALM is a Python tool that lets PALM users to download and preprocess geospatial data easier. GEO4PALM accepts all geospatial input files in geotiff or shp format. Once users have their own input data ready, GEO4PALM can convert such input data into PALM static driver. The instruction below works for both Linux and Macos systems. For Windows system, you might need some minor adjustments.
 
+# Table of Contents
+1. [Python environment](#python-environment)
+2. [Online data sets](#dont-have-your-own-data-sets)
+
 ## Getting Started
 
 ### Python environment
@@ -34,7 +38,7 @@ Make sure to replace "<pip path>" to the actual pip path you find from the first
 TerraCatalogue client is for ESA land use API. More information can be found [here](https://vitobelgium.github.io/terracatalogueclient/installation.html).
 
 
-### Don't have your own data sets? 
+## Don't have your own data sets? 
 
 GEO4PALM provides several interfaces for the basic features of PALM static driver including:
 
@@ -59,7 +63,7 @@ In the GEO4PALM input namelist, users can either specify the input geospatial da
 
 You are welcome to ask it on the GitHub issue system. 
 
-### How to run?
+## How to run?
 
 Download the entire code to your local directory.
 
