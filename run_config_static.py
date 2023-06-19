@@ -104,6 +104,8 @@ pavement = ast.literal_eval(config.get("urban", "pavement"))
 street = ast.literal_eval(config.get("urban", "street"))
 
 ## [tif files for plant canopy]
+tree_lai_max = ast.literal_eval(config.get("plant", "tree_lai_max"))
+lad_max_height = ast.literal_eval(config.get("plant", "lad_max_height"))
 sfch = ast.literal_eval(config.get("plant", "sfch"))
 
 
@@ -146,6 +148,8 @@ for i in range(0,ndomain):
                     'ny': ny[i],
                     'nz': nz[i],
                     'z_origin': z_origin[i],
+                    'tree_lai_max': tree_lai_max[i],
+                    'lad_max_height': lad_max_height[i],
                     }
         
         tif_dict_d01 = {}
@@ -232,6 +236,8 @@ for i in range(0,ndomain):
                     'ny': ny[i],
                     'nz': nz[i],
                     'z_origin': z_origin[i],
+                    'tree_lai_max': tree_lai_max[i],
+                    'lad_max_height': lad_max_height[i],
                     }
         ll_x_nest, ll_y_nest = ll_x[i], ll_y[i]
 

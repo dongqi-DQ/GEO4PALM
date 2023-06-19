@@ -113,6 +113,10 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
     tif_right = dom_dict['east']
     tif_north = dom_dict['north']
     tif_south = dom_dict['south']
+    ### leaf area index parameters
+    tree_lai_max = dom_dict['tree_lai_max']      # default value 5.0
+    lad_max_height = dom_dict['lad_max_height']  # default value 0.4
+    
     
     # assign tiff file names
     dem_tif = f"{tmp_path}{case_name}_DEM_N{idomain+1:02d}.tif"
@@ -306,9 +310,9 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
         tree_3d = tree_3d.astype(np.float)
         tree_3d[tree_3d==0] = -9999
     # specify parameters for LAD calculation
-        tree_lai_max = 5
-        scale_height=np.nanquantile(np.where(tree_height>0,tree_height,np.nan),0.9) # use the top 10% quantile to scale the lai
-        lad_max_height = 0.4
+     #   tree_lai_max = 5
+     #   lad_max_height = 0.4
+        scale_height=np.nanquantile(np.where(tree_height>0,tree_height,np.nan),0.9) # use the top 10% quantile to scale the lai  
         ml_n_low = 0.5
         ml_n_high = 6.0
         
