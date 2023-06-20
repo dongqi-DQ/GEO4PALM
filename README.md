@@ -1,10 +1,12 @@
 # GEO4PALM
 
-GEO4PALM is a Python tool that lets PALM users to download and preprocess geospatial data easier. GEO4PALM accepts all geospatial input files in geotiff or shp format. Once users have their own input data ready, GEO4PALM can convert such input data into PALM static driver. The instruction below works for both Linux and Macos systems. For Windows system, you might need some minor adjustments.
+GEO4PALM is a Python tool that lets PALM users to download and preprocess geospatial data easier. GEO4PALM accepts all geospatial input files in geotiff or shp format. Once users have their own input data ready, GEO4PALM can convert such input data into PALM static driver. The instruction below works for Linux operation system. For Windows and MacOS, some minor adjustments may need to be done by users themselves.
 
 # Table of Contents
 1. [Python environment](#python-environment)
-2. [Online data sets](#dont-have-your-own-data-sets)
+2. [PALM domain utility](#palm-domain-utility)
+3. [Online data sets](#dont-have-your-own-data-sets)
+4. [How to run GEO4PALM?](#how-to-run-geo4palm)
 
 ## Getting Started
 
@@ -37,8 +39,81 @@ Make sure to replace "<pip path>" to the actual pip path you find from the first
 
 TerraCatalogue client is for ESA land use API. More information can be found [here](https://vitobelgium.github.io/terracatalogueclient/installation.html).
 
+## PALM domain utility
+Users may visualise domain by running `palm_domain_utility.py` via `panel`. This can be done on local machine and/or a remote server.
+
+### Local machine
+
+On local machines, use the command below:
+
+```
+panel serve --port 8081 palm_domain_utility.py --show
+```
+The terminal will return information as follows:
+
+```
+2023-06-02 14:15:42,168 Starting Bokeh server version 3.1.1 (running on Tornado 6.2)
+2023-06-02 14:15:42,334 User authentication hooks NOT provided (default user enabled)
+2023-06-02 14:15:42,336 Bokeh app running at: http://localhost:8081/palm_domain_utility
+```
+
+The port number (8081) can be any number assigned by useres. If the port option `--port xxxx` is emitted, the program will choose a random port number to use. With the `--show` option, the web-based GUI will automatically pop up via the default web browser in the user's environment. Alternatively, users can emit the `--show` optoin and copy and paste the url `http://localhost:xxxx/palm_domain_utility` in their prefered browser to access the GUI.
+
+### Remote server
+To access the PALM domain utility via a remote server, users need to first assign a port number for the purpose of **port forwarding**. For example, if one aims to use the port 9821 to communicate, then the user wants to connect to a remote server that is listening on port 9821 via ssh using this command:
+```
+ssh -L 9821:localhost:9821 [ssh_host]
+```
+The "[ssh_host]" is the address/name of the remote server. Note that if you are using port forwarding on a regular basis, and don't want the hassle of opening a new tunnel every time, you can include a port forwarding line in your ssh config file ~/.ssh/config on your local machine. Under the alias for the server, add the following lines (full tutorial refer to [here](https://support.nesi.org.nz/hc/en-gb/articles/360001523916-Port-Forwarding)):
+```
+LocalForward <local_port> <host_alias>:<remote_port>
+ExitOnForwardFailure yes
+```
+
+After setting up the port forwarding, use the command below:
+
+```
+panel serve --port 9821 palm_domain_utility.py
+```
+Remember to change the port number that assigned earlier in ssh. To access the GUI, copy and paste the url `http://localhost:xxxx/palm_domain_utility` in a web browser.
+
+*NB: For advanced users, who want to use a local port number different to the remote port number in port forwarding, you need to add `--allow-websocket-origin localhost:xxxx` in the panel command line, where "xxxx" is the local port number.*
+
+### How to use the GUI?
+![domain_utility_screenshot](https://github.com/dongqi-DQ/GEO4PALM/assets/22810987/1f25f70e-53db-4755-b36e-aa24b3488e87)
+
+#### To generate a namelist
+1.	Input the desired map projection of PALM.
+2.	Enter configuration of each domain. Use `Add to map` button to add the domain. Repeat this process for all nesting domains. Use `undo` to remove the newest domain from the map.
+3.	Once all domains are added, click `Get domain configure` to generate the configuration lines for GEO4PALM and PALM namelists separately.
+4.	Copy and paste the configuration lines for GEO4PALM and PALM.
+5.	Note that the utility checks and returns warning regarding overlapping of the domains. It also automatically adjusts the domains to avoid violetion of  nesting rules in PALM.
+
+#### To visualise with an existing namelist
+The PALM domain utility also allows users to visualise domains on satellilte imagery with an existing namelist.  
+a. Copy and paste an existing GEO4PALM namelist into the GUI,for example:
+```
+[domain]
+ndomain = 1,
+centlat = -43.00000, 
+centlon = 172.00000, 
+nx = 100, 
+ny = 100, 
+nz = 100, 
+dx = 10.0, 
+dy = 10.0, 
+dz = 10.0, 
+ll_x = 0.0, 
+ll_y = 0.0, 
+z_origin  = 0.0, 
+```
+b. Click `check configuration` to visualise the domains.
+
+*NB: The satellilte map subtab is interactive, allowing users to navigate and explore.*
 
 ## Don't have your own data sets? 
+
+### GEO4PALM downloads online data for you
 
 GEO4PALM provides several interfaces for the basic features of PALM static driver including:
 
@@ -59,11 +134,8 @@ In the GEO4PALM input namelist, users can either specify the input geospatial da
 2. Register to download data from ESA WorldCover [here](https://esa-worldcover.org/en!) if you haven't
 3. Registration not required for OSM data. We use [OSMnx](https://github.com/gboeing/osmnx) package
 
-### Have questions or issues?
 
-You are welcome to ask it on the GitHub issue system. 
-
-## How to run?
+## How to run GEO4PALM?
 
 Download the entire code to your local directory.
 
@@ -139,7 +211,10 @@ ln -sf lu_csv/your_csv lu_2_PALM_num.csv
 
 For urban and plant canopy tif file fileds, if users do not have files available, they should leave the file names empty as `"",`. If a user desires to use data from OSM (OpenStreetMap), please leave the field as `"osm",`. Building footprint, building height, building ID, pavement type, and street type will be derived from OSM data. For buildings with no height information available, a dummy value of 3 m is given.
 
-A namelist example is given in `JOBS/Christchurch/INPUT/` folder 
+A namelist example is given in `JOBS/Chch_online/INPUT/` folder 
+
+#### Water temperature
+If "online" is used for `sst`, the water temperature is derived from UKMO daily SST data downloaded from OPeNDAP. The SST at the nearest grid point will be used for water temperature. The day of the year is derived from `origin_time` in the namelist. The location to take SST data depends on `centlat` and `centlon` in the namelist.
 
 #### Input tif files explained
 
@@ -170,17 +245,6 @@ python run_config_static.py case_name
 
 _If "nasa" is used for `dem` and/or `lu`, the script will guide the user through the NASA AρρEEARS API. If "esa" is included for `dem` and/or `lu`, then the script will guide the user through ESA's Terrascope API._
 
-### Visualise domain on OSM 
-Users may visualise domain by running `visualise_domains.py` or `visualise_terrain.py`:
-```
-python visulalise_domains.py [namelist_file]
-```
-or 
-```
-python visulalise_terrain.py [namelist_file]
-```
-This can be done before static files are created. The two scripts are similar, while the former displays domains using `IPython` (pop-up Python image window) and the later displays domains in a web browser. As the domain visualisation images are downloaded from two different online sources, the downloading speed may vary between the two scripts. Users can opt between the two based on their own preferences. 
-
 ### Flat terrain and precursor run 
 Once a static driver is used, all the PALM domains in the simulation requires static drivers. In case a flat terrain static driver and/or precursor run static driver are required, users may run `static2flat.py`. 
 ```
@@ -189,8 +253,9 @@ python static2flat.py [static_file] [nx,ny]
 Note that this requires no urban variables (e.g. buildings and streets) in the input static driver. If precursor run is not required, users do not need to specify `nx` and `ny`. This script can be found in `$master_directory/util/tools/`
 
 
-### Water temperature
-If "online" is used for `sst`, the water temperature is derived from UKMO daily SST data downloaded from OPeNDAP. The SST at the nearest grid point will be used for water temperature. The day of the year is derived from `origin_time` in the namelist. The location to take SST data depends on `centlat` and `centlon` in the namelist.
+## Have questions or issues?
+
+You are welcome to ask it on the GitHub issue system. 
 
 
 --------------------------------------------------------------------------------------------  
