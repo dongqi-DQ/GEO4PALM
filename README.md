@@ -12,7 +12,7 @@ GEO4PALM is a Python tool that lets PALM users to download and preprocess geospa
 
 ### Python environment
 
-As Python packages can have mismatches between each other, we provided a `geo4palm_env.yml` file so that users can create an environemnt for GEO4PALM. To create the environment from the yml file:
+As Python packages can have mismatches between each other, we provide a `geo4palm_env.yml` file so that users can create an environemnt for GEO4PALM as follows:
 
 `conda env create -f geo4palm_env.yml`
 
@@ -20,18 +20,18 @@ Activate the environment with:
 
 `conda activate geo4palm`
 
-To install `terracatalogueclient`, you need to follow the below steps.
-- First locate the `pip` tool in the geo4palm environment.Try `which -a pip` and you should see something like below
+To install `terracatalogueclient`, users need to follow the following steps:  
+1. locate the `pip` tool in the geo4palm environment.Try `which -a pip` which gives something like:
 ```
 /usr/bin/pip
 /home/user/miniconda3/envs/geo4palm/bin/pip
 /bin/pip
 ```
-- Copy the pip path from the geo4palm environment (`/home/user/miniconda3/envs/geo4palm/bin/pip` in this example). Then use the below command 
+2. Copy the pip path for the geo4palm environment (namely, `/home/user/miniconda3/envs/geo4palm/bin/pip` in this example). Then try:
 
 `<pip path> install terracatalogueclient -i https://artifactory.vgt.vito.be/api/pypi/python-packages/simple`
 
-Make sure to replace "<pip path>" to the actual pip path you find from the first step and the command should look like below,
+e.g. 
 
 ```
 /home/user/miniconda3/envs/geo4palm/bin/pip install terracatalogueclient -i https://artifactory.vgt.vito.be/api/pypi/python-packages/simple
@@ -40,7 +40,7 @@ Make sure to replace "<pip path>" to the actual pip path you find from the first
 TerraCatalogue client is for ESA land use API. More information can be found [here](https://vitobelgium.github.io/terracatalogueclient/installation.html).
 
 ## PALM domain utility
-Users may visualise domain by running `palm_domain_utility.py` via `panel`. This can be done on local machine and/or a remote server.
+Users may visualise domain by running `palm_domain_utility.py` via `panel`. This can be done on a local machine and/or a remote server.
 
 ### Local machine
 
@@ -64,7 +64,7 @@ To access the PALM domain utility via a remote server, users need to first assig
 ```
 ssh -L 9821:localhost:9821 [ssh_host]
 ```
-The "[ssh_host]" is the address/name of the remote server. Note that if you are using port forwarding on a regular basis, and don't want the hassle of opening a new tunnel every time, you can include a port forwarding line in your ssh config file ~/.ssh/config on your local machine. Under the alias for the server, add the following lines (full tutorial refer to [here](https://support.nesi.org.nz/hc/en-gb/articles/360001523916-Port-Forwarding)):
+`[ssh_host]` is the address/name of the remote server. Note that if you are using port forwarding on a regular basis, and don't want the hassle of opening a new tunnel every time, you can include a port forwarding line in your ssh config file ~/.ssh/config on your local machine. Under the alias for the server, add the following lines (full tutorial refer to [here](https://support.nesi.org.nz/hc/en-gb/articles/360001523916-Port-Forwarding)):
 ```
 LocalForward <local_port> <host_alias>:<remote_port>
 ExitOnForwardFailure yes
@@ -83,7 +83,7 @@ Remember to change the port number that assigned earlier in ssh. To access the G
 ![domain_utility_screenshot](https://github.com/dongqi-DQ/GEO4PALM/assets/22810987/1f25f70e-53db-4755-b36e-aa24b3488e87)
 
 #### To generate a namelist
-1.	Input the desired map projection of PALM.
+1.	Enter the desired map projection of PALM in `local projection (epsg)`.
 2.	Enter configuration of each domain. Use `Add to map` button to add the domain. Repeat this process for all nesting domains. Use `undo` to remove the newest domain from the map.
 3.	Once all domains are added, click `Get domain configure` to generate the configuration lines for GEO4PALM and PALM namelists separately.
 4.	Copy and paste the configuration lines for GEO4PALM and PALM.
@@ -91,7 +91,7 @@ Remember to change the port number that assigned earlier in ssh. To access the G
 
 #### To visualise with an existing namelist
 The PALM domain utility also allows users to visualise domains on satellilte imagery with an existing namelist.  
-a. Copy and paste an existing GEO4PALM namelist into the GUI,for example:
+a. Enter the map projection of PALM in `local projection (epsg)`. Copy and paste an existing GEO4PALM namelist into the GUI,for example:
 ```
 [domain]
 ndomain = 1,
@@ -121,6 +121,7 @@ GEO4PALM provides several interfaces for the basic features of PALM static drive
 2. NASA land use classification data sets (resolution may vary depeonding on the data set selected)
 3. ESA WorldCover land use classification (10 m resolution; global)
 4. OpenStreetMap (OSM) buildings and pavements/streets
+5. GHRSST Level 4 MUR product for sea surface temperatuer (SST)
 
 ### How do I download data using GEO4PALM?
 
@@ -128,6 +129,7 @@ In the GEO4PALM input namelist, users can either specify the input geospatial da
 1. `"nasa",` to download and process data via NASA Earthdata interface
 3. `"esa",` to donwload and process data via ESA WorldCover interface
 4. `"osm",` to download and process data via OSMnx
+5. `"online",` to downlaod and process SST data via NASA Earthdata and OPeNDAP interface
 
 **Note:**
 1. Register to download data from NASA Earthdata [here](https://www.earthdata.nasa.gov/eosdis/science-system-description/eosdis-components/earthdata-login) if you haven't
@@ -190,6 +192,8 @@ pavement          - input for pavement type
 street            - input for building ID
 
 [plant]           - input for plant canopy model; can leave as "" if this feature is not included in the simulations, or provided by user
+tree_lai_max      - input value for maximum leaf area index (LAI)
+lad_max_height    - input value for the height where the leaf area index (LAI) reaches leave area density (LAD) 
 sfch              - input for plant height; this is for leave area density (LAD)
 ```
 _**Note**: The `origin_time` setting is similar to `origin_date_time` in [PALM documentation](https://palm.muk.uni-hannover.de/trac/wiki/doc/app/initialization_parameters#origin_date_time). This variable is required in static drivers, but will not be used in PALM simulation. Rather the date time should be specified in PALM's p3d namelist. The sunset/sunrise time is affected by lat/lon attributes in the static driver._
@@ -200,6 +204,7 @@ To convert land use classifcation to PALM-recognisable types, a lookup table (se
 - New Zealand Land Cover Data Base (LCDB) v5.0: `nzlcdb_2_PALM_num.csv` 
 - Collection 6 MODIS Land Cover Type 1: `NASA_LC_type1_PALM_num.csv`
 - ESA WorldCover 2020 v1: `esa_2020v1_lu.csv`
+- German Space Agency (DLR) data sets: `dlr_lu.csv`
 
 Before running GEO4PALM, link the corresponding csv file to `util/lu_2_PALM_num.csv`:
 ```
@@ -211,10 +216,10 @@ ln -sf lu_csv/your_csv lu_2_PALM_num.csv
 
 For urban and plant canopy tif file fileds, if users do not have files available, they should leave the file names empty as `"",`. If a user desires to use data from OSM (OpenStreetMap), please leave the field as `"osm",`. Building footprint, building height, building ID, pavement type, and street type will be derived from OSM data. For buildings with no height information available, a dummy value of 3 m is given.
 
-A namelist example is given in `JOBS/Chch_online/INPUT/` folder 
+Namelist examples are given in `JOBS/Chch_online/INPUT/` and  `JOBS/Berlin_DLR/INPUT/`
 
 #### Water temperature
-If "online" is used for `sst`, the water temperature is derived from UKMO daily SST data downloaded from OPeNDAP. The SST at the nearest grid point will be used for water temperature. The day of the year is derived from `origin_time` in the namelist. The location to take SST data depends on `centlat` and `centlon` in the namelist.
+If "online" is used for `sst`, the water temperature is derived from GHRSST Level 4 MUR product downloaded via NASA Earthdata. The SST at the nearest grid point will be used for water temperature. The day of the year is derived from `origin_time` in the namelist. The location to take SST data depends on `centlat` and `centlon` in the namelist.
 
 #### Input tif files explained
 
@@ -230,20 +235,21 @@ python shp2tif.py  [case_name] [shp file path] [variable_name]
 `shp2tif.py` converts shp file into the finest resolution configured in the namelist.
 **Note:** 
 1. Converting big shp files may require a large amount of RAM.
-2. At present only one building type is assigned for all buildings. Users are welcome to modify GEO4PALM if various building types are required.   
-3. Variables in the static driver here may not be inclusive. Users may refer to PALM input data standard or Heldens et al. (2020).
+2. LAD calculation only allows fixed values of `tree_lai_max ` and `lad_max_height` at the moment due to limited data availability. Future development will include spatial variation in LAD. Usres are welcome to modify the code based on their data availability.
+3. At present only one building type is assigned for all buildings. Users are welcome to modify GEO4PALM if various building types are required.   
+4. Variables in the static driver here may not be inclusive. Users may refer to PALM input data standard or Heldens et al. (2020).
 
 _Heldens, W., Burmeister, C., Kanani-Sühring, F., Maronga, B., Pavlik, D., Sühring, M., Zeidler, J., and Esch, T.: Geospatial input data for the PALM model system 6.0: model requirements, data sources and processing, Geosci. Model Dev., 13, 5833–5873, https://doi.org/10.5194/gmd-13-5833-2020, 2020._
 
 
 ### Run the main script
 
-Once the namelist and all tif input from users are ready. One can run the script:
+Once the namelist and all tif input from users are ready. One can run the script in the main GEO4PALM directory:
 ```
 python run_config_static.py case_name
 ```
 
-_If "nasa" is used for `dem` and/or `lu`, the script will guide the user through the NASA AρρEEARS API. If "esa" is included for `dem` and/or `lu`, then the script will guide the user through ESA's Terrascope API._
+_If "nasa" is used for `dem` and/or `lu` and/or "online" is used for `sst`, the script will guide the user through the NASA AρρEEARS API. If "esa" is included for `dem` and/or `lu`, then the script will guide the user through ESA's Terrascope API._
 
 ### Flat terrain and precursor run 
 Once a static driver is used, all the PALM domains in the simulation requires static drivers. In case a flat terrain static driver and/or precursor run static driver are required, users may run `static2flat.py`. 
@@ -253,9 +259,9 @@ python static2flat.py [static_file] [nx,ny]
 Note that this requires no urban variables (e.g. buildings and streets) in the input static driver. If precursor run is not required, users do not need to specify `nx` and `ny`. This script can be found in `$master_directory/util/tools/`
 
 
-## Have questions or issues?
+## Do you have any questions or issues? 
 
-You are welcome to ask it on the GitHub issue system. 
+You are welcome to raise them in the GitHub issue system.
 
 
 --------------------------------------------------------------------------------------------  
