@@ -84,7 +84,7 @@ Remember to change the port number that assigned earlier in ssh. To access the G
 *NB: For advanced users, who want to use a local port number different to the remote port number in port forwarding, you need to add `--allow-websocket-origin localhost:xxxx` in the panel command line, where "xxxx" is the local port number.*
 
 ### How to use the GUI?
-![domain_utility_screenshot](https://github.com/dongqi-DQ/GEO4PALM/assets/22810987/1f25f70e-53db-4755-b36e-aa24b3488e87)
+![domain_utility_screenshot](domain_utility_screenshot.png)
 
 #### To generate a namelist
 1.	Enter the desired map projection of PALM in `local projection (epsg)`.
