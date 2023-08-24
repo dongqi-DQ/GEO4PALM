@@ -137,7 +137,7 @@ In the GEO4PALM input namelist, users can either specify the input geospatial da
 
 **Note:**
 1. Register to download data from NASA Earthdata [here](https://www.earthdata.nasa.gov/eosdis/science-system-description/eosdis-components/earthdata-login) if you haven't
-2. Register to download data from ESA WorldCover [here](https://esa-worldcover.org/en!) if you haven't
+2. Register to download data from ESA WorldCover [here](https://terrascope.be/en) if you haven't
 3. Registration not required for OSM data. We use [OSMnx](https://github.com/gboeing/osmnx) package
 
 
