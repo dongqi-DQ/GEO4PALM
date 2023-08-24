@@ -5,7 +5,8 @@
 # - draw a domain based on the center lat lon and grid size and numbers,
 #   and visually see where they are 
 # - generate configuration lines for the p3d namelist 
-# 
+# Changelog:
+# 24/08/2023 Bug fix. Fixed bugs related to projection and domain sorting.
 # @author: Jiawei Zhang 
 #--------------------------------------------------------------------------------#
 
@@ -46,7 +47,7 @@ domain_input_box=pn.WidgetBox(pn.WidgetBox(crs_loc_input,pn.Row(centlat_input,ce
 
 # use this dataframe to save all the numbers
 # p_num is the parent number, num is the actual number
-boundary_value_df = pd.DataFrame(columns=["centlon","centlat","centx","centy","nx","ny","nz","dx","dy","dz","xmin","ymin","xmax","ymax","p_num","num","z_origin"])
+boundary_value_df=pd.DataFrame(columns=["centlon","centlat","centx","centy","nx","ny","nz","dx","dy","dz","xmin","ymin","xmax","ymax","p_num","num","z_origin"])
 
 
 # map display
@@ -78,29 +79,34 @@ def boundary_df_disp_columns(df,column_list=["centlon","centlat","nx","ny","nz",
 df_pane = pn.pane.DataFrame(boundary_df_disp_columns(boundary_value_df), width=600)
 df_pane.float_format='{:,.3f}'.format
 
-def create_domain_boundary(df,centlon,centlat,nx,ny,nz,dx,dy,dz,z_origin,crs_loc,crs_in="EPSG:4326",crs_wgs="EPSG:4326",add_to_df=True):
+def create_domain_boundary(centlon,centlat,nx,ny,nz,dx,dy,dz,z_origin,crs_loc,crs_in="EPSG:4326",crs_wgs="EPSG:4326",add_to_df=True):
     # df is to save all the boundary data
     # nz,dz, z_origin is only used here as input to the dataframe, no calculations regarding these here.
+    global boundary_value_df
     check_crs_loc_input(crs_loc_input)
-    in_to_loc = Transformer.from_crs(crs_in, crs_loc)
-    loc_to_wgs = Transformer.from_crs(crs_loc,crs_wgs)
+    in_to_loc = Transformer.from_crs(crs_in, crs_loc,always_xy=True)
+    loc_to_wgs = Transformer.from_crs(crs_loc,crs_wgs,always_xy=True)
     
-    centy_loc,centx_loc = in_to_loc.transform(centlat,centlon)
+    centx_loc,centy_loc = in_to_loc.transform(centlon,centlat)
     ymin_loc = centy_loc-dy*ny/2
     xmin_loc = centx_loc-dx*nx/2
     ymax_loc =  ymin_loc+ dy*ny
     xmax_loc =  xmin_loc +dx*nx
     
-    ymin_wgs,xmin_wgs = loc_to_wgs.transform(ymin_loc,xmin_loc)
-    ymax_wgs,xmax_wgs = loc_to_wgs.transform(ymax_loc,xmax_loc)
+    xmin_wgs,ymin_wgs = loc_to_wgs.transform(xmin_loc,ymin_loc)
+    xmax_wgs,ymax_wgs = loc_to_wgs.transform(xmax_loc,ymax_loc)
     # this is only calculated to store in the dataframe so it can be displayed in the app.
-    centy_wgs,centx_wgs = loc_to_wgs.transform(centy_loc,centx_loc)
+    centx_wgs,centy_wgs = loc_to_wgs.transform(centx_loc,centy_loc)
     
     domain_boundary = gv.Rectangles([(xmin_wgs,ymin_wgs, xmax_wgs, ymax_wgs)]).opts(fill_alpha=0,line_width=2,line_color="r")
     if add_to_df:
         #save all the data, needed for adjust/generate final boundary configure
-        df.loc[len(df)] = {"centlon":centx_wgs,"centlat":centy_wgs,"centx":centx_loc,"centy":centy_loc,"nx":nx,"ny":ny,"nz":nz,"dx":dx,"dy":dy,"dz":dz,"xmin":xmin_loc,\
-                           "ymin":ymin_loc,"xmax":xmax_loc,"ymax":ymax_loc,"z_origin":z_origin}
+        #use append instead of loc to make it compatable when moving the domain
+        boundary_value_df=boundary_value_df.append({"centlon":centx_wgs,"centlat":centy_wgs,"centx":centx_loc,"centy":centy_loc,"nx":nx,"ny":ny,"nz":nz,"dx":dx,\
+                   "dy":dy,"dz":dz,"xmin":xmin_loc,"ymin":ymin_loc,"xmax":xmax_loc,"ymax":ymax_loc,"z_origin":z_origin},ignore_index=True)
+        boundary_value_df.reset_index(drop=True,inplace=True)
+        #df.loc[len(df)] = {"centlon":centx_wgs,"centlat":centy_wgs,"centx":centx_loc,"centy":centy_loc,"nx":nx,"ny":ny,"nz":nz,"dx":dx,"dy":dy,"dz":dz,"xmin":xmin_loc,\
+        #                   "ymin":ymin_loc,"xmax":xmax_loc,"ymax":ymax_loc,"z_origin":z_origin}
     return domain_boundary
 
 bd_create_domain_boundary = pn.bind(create_domain_boundary,centlat=centlat_input,centlon=centlon_input,\
@@ -117,7 +123,7 @@ def on_button_click(event):
     # add domain boundary to the map
     pn.state.notifications.clear()
     check_crs_loc_input(crs_loc_input)
-    new_domain =  bd_create_domain_boundary(df=boundary_value_df)
+    new_domain =  bd_create_domain_boundary()
     if not check_domain_draw_validation(boundary_value_df):
         pn.state.notifications.position = 'bottom-center'
         pn.state.notifications.info("The new domain will be overlapping with exising ones. Please check and change your settings.", duration=5000)
@@ -130,7 +136,7 @@ def create_rectangles_from_df(df):
     domain_all = None
     for i in range(0,df.shape[0]):
         tmp_boundary = df.iloc[i]
-        tmp_domain_boundary=create_domain_boundary(df,tmp_boundary.centx,tmp_boundary.centy,\
+        tmp_domain_boundary=create_domain_boundary(tmp_boundary.centx,tmp_boundary.centy,\
                                                    tmp_boundary.nx,tmp_boundary.ny,tmp_boundary.nz,tmp_boundary.dx,\
                                                    tmp_boundary.dy,tmp_boundary.dz,tmp_boundary.z_origin,crs_loc=crs_loc_input.value,\
                                                    crs_in=crs_loc_input.value,add_to_df=False)
@@ -146,7 +152,9 @@ def on_configure_button_click(event):
     adjust_domains(boundary_value_df)
     domain_boundries_all = create_rectangles_from_df(boundary_value_df)
     disp_map.object = sate_image * domain_boundries_all
-    df_pane.object = boundary_df_disp_columns(boundary_value_df.sort_values('num',ascending=True))
+    boundary_value_df.sort_values('num',ascending=True,inplace=True)
+    boundary_value_df.reset_index(drop=True,inplace=True)
+    df_pane.object = boundary_df_disp_columns(boundary_value_df)
     grid_resolution_check(boundary_value_df)
     static_config_text.value,namelist_text.value=bd_generate_config_text(df_in=boundary_value_df)
 
@@ -240,7 +248,7 @@ def domain_domain_relation(ps1,ps2,min_gap_grid_num=1):
     if (ps1.xmin > ps2.xmax) or (ps2.xmin > ps1.xmax) or (ps1.ymin > ps2.ymax) or (ps2.ymin > ps1.ymax):
         # not connected at all
         relation_num = 0
-    if (ps1.xmin < ps2.xmin) and (ps1.ymin < ps2.ymin) and (ps1.xmax > ps2.xmax) and (ps1.ymax > ps2.ymax):
+    elif (ps1.xmin < ps2.xmin) and (ps1.ymin < ps2.ymin) and (ps1.xmax > ps2.xmax) and (ps1.ymax > ps2.ymax):
         # ps1 is the parent domain
         if (ps1.dz*ps1.nz) > (ps2.dz*ps2.nz):
             # ps1 is the parent domain from vertical as well
@@ -289,14 +297,15 @@ def switch_domain_num(df,old_num,new_num,column_idx=11,keep_old_num=True,row_idx
 def sort_domain_num(df):
     # df.iloc[0].p_num = parent_num
     # df.iloc[0].num = domain_num
+    df.reset_index(drop=True,inplace=True)
     df['p_num'] = -1
-    df['num'] = range(0,df.shape[0])
+    df['num'] = range(1,df.shape[0]+1)
     df['p_num'] = df['p_num'].astype(int)
     df['num'] = df['num'].astype(int)
     parent_column_number = list(df.columns).index('p_num')
     domain_column_number = list(df.columns).index('num')
     for i in range(0,df.shape[0]):
-        for j in range(i,df.shape[0]):
+        for j in range(0,df.shape[0]):
             relation_num = domain_domain_relation(df.iloc[i],df.iloc[j])
             if relation_num == 1:
                 if df.iloc[i].num > df.iloc[j].num:
@@ -306,8 +315,8 @@ def sort_domain_num(df):
                     #update the domains which has current domain as it's parent domain to the new parent domain number
                     #using df.iloc[j].num below as the old parent number since df.iloc[j].num is now the old df.iloc[i].num after switch
                     switch_domain_num(df,df.iloc[j].num,df.iloc[i].num,column_idx=parent_column_number,keep_old_num=False)
-                if (df.iloc[j].p_num == -1) or (domain_domain_relation(df.iloc[int(df.iloc[j].p_num)],df.iloc[i]) == 1):
-                    df.iloc[j,parent_column_number] = df.iloc[i].num
+                if (df.iloc[j].p_num == -1) or (domain_domain_relation(df.loc[df.num==int(df.iloc[j].p_num)].squeeze(),df.iloc[i]) == 1):
+                    df.iloc[j,parent_column_number] = df.iloc[i].num 
                     
             elif relation_num == 2:
                 # if df.iloc[j] is a parent domain
@@ -315,8 +324,8 @@ def sort_domain_num(df):
                     # switch the numbers to make sure parent domain has smaller numbers
                     switch_domain_num(df,df.iloc[i].num,df.iloc[j].num,column_idx=domain_column_number,keep_old_num=True)
                     #change all domain whose parent domain number is the df.iloc[j] to df.iloc[j]'s new domain number
-                    switch_domain_num(df,df.iloc[j].num,df.iloc[i].num,column_idx=parent_column_number,keep_old_num=False)
-                if (df.iloc[i].p_num == -1) or (domain_domain_relation(df.iloc[int(df.iloc[i].p_num)],df.iloc[j]) == 1):
+                    switch_domain_num(df,df.iloc[i].num,df.iloc[j].num,column_idx=parent_column_number,keep_old_num=False)
+                if (df.iloc[i].p_num == -1) or (domain_domain_relation(df.loc[df.num==int(df.iloc[i].p_num)].squeeze(),df.iloc[j]) == 1):
                     # if df.iloc[i] has no parent, set it to df.iloc[j] or
                     # if df.iloc[j] is within the current domain's present parent domain, 
                     # set df.iloc[j] as df.iloc[i]'s new parent domain
@@ -348,9 +357,7 @@ def adjust_domains(df):
     for i in range(0,df.shape[0]-1):
         #use this two temperary vairables for calculation, easy to read
         current_domain = df.iloc[i]
-        tmp_parent = df[df["num"] == current_domain.p_num].squeeze()
-        
-        
+        tmp_parent = df[df["num"] == current_domain.p_num].squeeze()        
         tmp_parent.xmin = current_domain.xmin - np.ceil((current_domain.xmin - tmp_parent.xmin) / tmp_parent.dx).astype(int)*tmp_parent.dx
         tmp_parent.ymin = current_domain.ymin - np.ceil((current_domain.ymin - tmp_parent.ymin) / tmp_parent.dy).astype(int)*tmp_parent.dy
         tmp_parent.centx = tmp_parent.xmin + tmp_parent.nx*tmp_parent.dx/2
@@ -371,7 +378,7 @@ def generate_config_text(df_in,crs_loc,crs_wgs="EPSG:4326",format_digit=1):
     df.reset_index(drop=True,inplace=True)
     df["xmin"]= df["xmin"]- df["xmin"][0]
     df["ymin"]= df["ymin"]- df["ymin"][0]
-    loc_to_wgs = Transformer.from_crs(crs_loc,crs_wgs)
+    loc_to_wgs = Transformer.from_crs(crs_loc,crs_wgs,always_xy=True)
     
     # static_config_output for the static driver
     static_config_output = "[domain]\n"
@@ -380,7 +387,7 @@ def generate_config_text(df_in,crs_loc,crs_wgs="EPSG:4326",format_digit=1):
     namelist_config_output =" &nesting_parameters \n"
     
     static_config_output += "ndomain = {},\n".format(df.shape[0])
-    cent_lat,cent_lon = loc_to_wgs.transform(df.iloc[0].centy,df.iloc[0].centx)
+    cent_lon,cent_lat = loc_to_wgs.transform(df.iloc[0].centx,df.iloc[0].centy)
     static_config_output += "centlat = {:0.5f}, \n".format(cent_lat)+"centlon = {:0.5f}, \n".format(cent_lon)
     nx = "nx = "
     ny = "ny = "
@@ -403,9 +410,9 @@ def generate_config_text(df_in,crs_loc,crs_wgs="EPSG:4326",format_digit=1):
         ll_y += "{:0.{}f}, ".format(df.iloc[i].ymin,format_digit)
         z_origin += "{:0.{}f}, ".format(df.iloc[i].z_origin,format_digit)
         if i == 0:
-            tmp_domain_layout = "palm_d" + "{:0.0f}, ".format(i+1)
+            tmp_domain_layout = "'palm_d{:01d}', ".format(i+1)
         else:
-            tmp_domain_layout = " "*38 + "palm_d" + "{:0.0f}, ".format(i+1)
+            tmp_domain_layout = " "*25 + "'palm_d{:01d}', ".format(i+1)
         tmp_domain_layout += "{:0.0f},  {:0.0f}, process_num, {:0.1f}, {:0.1f},\n".format(df.iloc[i].num,df.iloc[i].p_num,df.iloc[i].xmin,df.iloc[i].ymin)
         domain_layouts += tmp_domain_layout
     nx += "\n"
@@ -425,13 +432,29 @@ def generate_config_text(df_in,crs_loc,crs_wgs="EPSG:4326",format_digit=1):
 def on_click_draw_config(event):
     # draw domain on the map based on the text in the static_config_text box
     pn.state.notifications.clear()
+
+    #read the center lat lon from the configure input widget
+    config = configparser.ConfigParser(inline_comment_prefixes=("#","!"))
+    static_tmp = io.StringIO(static_config_text.value)
+    config.read_file(static_tmp)
+    if not config.has_section("domain"):
+        static_config_input = "[domain]\n" + static_config_input
+        static_tmp = io.StringIO(static_config_input)
+        config.read_file(static_tmp)
+    centlat_input.value = convert_confs_values(config.get("domain","centlat"),"float")[0]
+    centlon_input.value = convert_confs_values(config.get("domain","centlon"),"float")[0]
+    static_tmp.close()
+    
     check_crs_loc_input(crs_loc_input)
     bd_construct_df_from_static()
     sort_domain_num(boundary_value_df)
     domain_boundries_all = create_rectangles_from_df(boundary_value_df)
     disp_map.object = sate_image * domain_boundries_all
-    df_pane.object = boundary_df_disp_columns(boundary_value_df.sort_values('num',ascending=True))
+    boundary_value_df.sort_values('num',ascending=True,inplace=True)
+    boundary_value_df.reset_index(drop=True,inplace=True)
+    df_pane.object = boundary_df_disp_columns(boundary_value_df)
     grid_resolution_check(boundary_value_df)
+    static_config_text.value,namelist_text.value=bd_generate_config_text(df_in=boundary_value_df)
 
 def convert_confs_values(con_string,d_type):
     # convert numerical values from the config string
@@ -444,8 +467,8 @@ def convert_confs_values(con_string,d_type):
 
 def construct_df_from_static(static_config_input,crs_loc,crs_in="EPSG:4326",crs_wgs="EPSG:4326"):
     #construct boundary_value_df from static_config_namelist
-    in_to_loc = Transformer.from_crs(crs_in, crs_loc)
-    loc_to_wgs = Transformer.from_crs(crs_loc,crs_wgs)
+    in_to_loc = Transformer.from_crs(crs_in, crs_loc,always_xy=True)
+    loc_to_wgs = Transformer.from_crs(crs_loc,crs_wgs,always_xy=True)
     
     #read the text from the configure input widget
     config = configparser.ConfigParser(inline_comment_prefixes=("#","!"))
@@ -474,7 +497,7 @@ def construct_df_from_static(static_config_input,crs_loc,crs_in="EPSG:4326",crs_
     for i in range(ndomain):
         if i == 0:
             #get the local coordinate of the(0,0), aka xmin_loc and ymin_loc for the root domain
-            centy_loc_tmp,centx_loc_tmp = in_to_loc.transform(centlat_root,centlon_root)
+            centx_loc_tmp,centy_loc_tmp = in_to_loc.transform(centlon_root,centlat_root)
             xmin_loc_tmp = centx_loc_tmp - nx[i]*dx[i]/2 + ll_x[i]
             ymin_loc_tmp = centy_loc_tmp - ny[i]*dy[i]/2 + ll_y[i]
             xmax_loc_tmp = centx_loc_tmp + nx[i]*dx[i]/2 + ll_x[i]
@@ -488,7 +511,7 @@ def construct_df_from_static(static_config_input,crs_loc,crs_in="EPSG:4326",crs_
             ymax_loc_tmp = ymin_loc_tmp + ny[i]*dy[i]
             centx_loc_tmp = xmin_loc_tmp + nx[i]*dx[i]/2
             centy_loc_tmp = ymin_loc_tmp + ny[i]*dy[i]/2
-            centlat_tmp, centlon_tmp = loc_to_wgs.transform(centy_loc_tmp,centx_loc_tmp)
+            centlon_tmp,centlat_tmp = loc_to_wgs.transform(centx_loc_tmp,centy_loc_tmp)
 
         boundary_value_df.loc[i] = {"centlon":centlon_tmp,"centlat":centlat_tmp,"centx":centx_loc_tmp,"centy":centy_loc_tmp,\
                                      "nx":nx[i],"ny":ny[i],"nz":nz[i],"dx":dx[i],"dy":dy[i],\
@@ -501,6 +524,7 @@ bd_generate_config_text = pn.bind(generate_config_text,crs_loc=crs_loc_input)
 
 bd_construct_df_from_static=pn.bind(construct_df_from_static,static_config_text,crs_loc_input)
 
+                               
 undo_button.on_click(on_undo_button_click)
 
 calculate_namelist_button.on_click(on_configure_button_click)
@@ -508,5 +532,6 @@ calculate_namelist_button.on_click(on_configure_button_click)
 draw_config_button.on_click(on_click_draw_config)
 
 add_to_map_button.on_click(on_button_click)
+
 
 palm_domain_config_tool = pn.Column(domain_input_box,pn.Row(disp_map,pn.Column(static_config_box,pn.Spacer(width=10),namelist_config_box)),df_pane).servable(title="PALM toolkit")

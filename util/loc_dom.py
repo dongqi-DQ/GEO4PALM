@@ -57,7 +57,7 @@ def domain_location(default_projection,config_projection, dom_dict):
 
         inProj = Proj(init=default_projection)
         outProj = Proj(init=config_projection)
-        t = Transformer.from_proj(inProj,outProj)
+        t = Transformer.from_proj(inProj,outProj, always_xy=True)
         tif_centx,tif_centy = t.transform(centlon,centlat)
     
     tif_west, tif_east = tif_centx- (nx-1)*dx/2, tif_centx+(nx-1)*dx/2
