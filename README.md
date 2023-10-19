@@ -89,16 +89,26 @@ Remember to change the port number that assigned earlier in ssh. To access the G
 ### How to use the GUI?
 ![domain_utility_screenshot](domain_utility_screenshot.png)
 
-#### To generate a namelist
-1.	Enter the desired map projection of PALM in `local projection (epsg)`.
-2.	Enter configuration of each domain. Use `Add to map` button to add the domain. Repeat this process for all nesting domains. Use `undo` to remove the newest domain from the map.
-3.	Once all domains are added, click `Get domain configure` to generate the configuration lines for GEO4PALM and PALM namelists separately.
-4.	Copy and paste the configuration lines for GEO4PALM and PALM.
-5.	Note that the utility checks and returns warning regarding overlapping of the domains. It also automatically adjusts the domains to avoid violetion of  nesting rules in PALM.
+#### Create domains. 
+1. In order to create a domain, you can prescribe `center lat`, `center lon`, grid numbers (`nx`,`ny`,`nz`) and grid resolution (`dx`,`dy`,`dz`). You can either enter the local epsg code (4 digits) in `local projection (epsg)` manually or leave it empty (the utility can automatically find/fill the best suitable UTM coordinate for you).
 
-#### To visualise with an existing namelist
-The PALM domain utility also allows users to visualise domains on satellilte imagery with an existing namelist.  
-a. Enter the map projection of PALM in `local projection (epsg)`. Copy and paste an existing GEO4PALM namelist into the GUI,for example:
+2. Click `Add to map` button to add the domain onto the interactive map widget (`Domain Vis`).
+    > * The utility automatically does overlap-check when adding a new domain. To prevent the check, you can tick **Allow overlap** option. This function is only provided so you can better see how much you need to change your domain to avoid the overlap. The utility won't be able to generate configure file when there are overlaps between any of the domains.
+    > * **undo** button, you can undo/remove the last added domain. Only works before you click "Get domain configure". Once you have generated domain configure, you need to use `Remove domain` function instead to remove any domains.
+
+3. Repeat these two steps to create as many domains as you need.
+
+4. `Get domain configure`. Once you have created some domains, click this button to get the configure text needed for both the GEO4PALM config file (`Static namelist Config`) and  &nesting_parameters section in the PALM namelist (`PALM namlist`).
+
+5. Copy and paste the configuration lines for GEO4PALM and PALM.
+    > * When you click `Get domain configure`, the utility will move the domains slightly if needed to comply with the parent-child domain boundary requirement.
+    > * A domain list table will also be created under `Domain list` tab to show the information of all domains including the domain number and parent domain number.
+#### Modify domains.
+1. Move the domain. Use `Move Domain` tab if you want to move any domain. Simply enter the `domain number` (displayed on the interactive map) you want to move, and distance you want to move in meter in `east_west_move (m)` or/and `south_north_move (m)`. Positive values means move from east (south) to west (north), vice versa for the negative values. Click the `move domain` button to make the change.
+2. Remove the domain. Use `Remove domain` tab if you want to remove any domain. Simply enter the domain number in `Remove Domain number` and click `Remove` button.
+    > You can still use the functions mentioned in the previous section to add more domains. Just remember to click "Get domain configure" to allow the utility to adjust/finalize the domain configure text before you use it.
+#### Import domain configure.
+If you already have an existing GEO4PALM configure file and would like to visualize the domain. Simply copy the [domain] section to the `Static namelist Congfig` and click `check configuration`. This will import the domain setup into the utility. Below is an example of a [domain] section.
 ```
 [domain]
 ndomain = 1,
@@ -116,7 +126,8 @@ z_origin  = 0.0,
 ```
 b. Click `check configuration` to visualise the domains.
 
-*NB: The satellilte map subtab is interactive, allowing users to navigate and explore.*
+> * You should enter the local projection in `local projection (epsg)`as well. Otherwise, the utility will automatically find the most suitable UTM for you.
+> * After import, you will also be able to use all the functionalities to add/modify the domains.
 
 ## Don't have your own data sets? 
 
