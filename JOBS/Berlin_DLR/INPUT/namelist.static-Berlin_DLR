@@ -3,7 +3,6 @@ case_name = "Berlin_DLR",   # prefix for a case
 origin_time = "2021-03-01 12:00:00 +00",          # time in yyyy-mm-dd HH:MM:SS +HH format (+00 as in UTC)  
 config_proj = "EPSG:25833", # projection for PALM
 default_proj = "EPSG:4326", # projection of lat/lon to find domain location
-lu_table = "dlr_lu.csv",
 
 [domain]
 ndomain   = 3,                                     # max number of domains
@@ -19,13 +18,9 @@ z_origin  = 0.0,   0.0,   0.0,      0.0,
 ll_x      = 0.0,  540.0, 1134.0, 1296.0, 
 ll_y      = 0.0,  540.0, 1134.0, 1296.0, 
 
-[settings]
-water_temperature = 283.0, 283.0, 283.0,
-building_height_dummy = 3.0, 3.0, 3.0,
-tree_height_filter = 1.5, 1.5, 1.5,
 
 [geotif] 
-water     = "online",          "online",          "online",          "online",
+sst       = "online",          "online",          "online",          "online",
 dem       = "Berlin_terrain_height_2m_DLR.tif",          "Berlin_terrain_height_2m_DLR.tif",          "Berlin_terrain_height_2m_DLR.tif",          "Berlin_terrain_height_2m_DLR.tif",
 lu        = "Berlin_lu_2m_DLR.tif",          "Berlin_lu_2m_DLR.tif",          "Berlin_lu_2m_DLR.tif",          "Berlin_lu_2m_DLR.tif",
 resample_method = "nearest", "nearest", "nearest", "nearest",
@@ -46,6 +41,6 @@ pavement = "",  "Berlin_pavement_type_2m_DLR.tif", "Berlin_pavement_type_2m_DLR.
 street   = "",  "Berlin_street_type_2m_DLR.tif", "Berlin_street_type_2m_DLR.tif",
 
 [plant]
-tree_lad_max   =  5.0, 5.0, 5.0,
+tree_lai_max   =  5.0, 5.0, 5.0,
 lad_max_height =  0.4, 0.4, 0.4,
 sfch = "","Berlin_vegetation_patch_height_2m_DLR.tif", "Berlin_vegetation_patch_height_2m_DLR.tif",

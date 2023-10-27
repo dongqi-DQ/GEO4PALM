@@ -7,11 +7,8 @@
 # - generate configuration lines for the p3d namelist 
 # Changelog:
 # 24/08/2023 Bug fix. Fixed bugs related to projection and domain sorting.
-# 19/10/2023 Update GUI interface, added functions including moving and removing domains,
-# different colors and legend are used when draw the domain over the interactive map.
 # @author: Jiawei Zhang 
 #--------------------------------------------------------------------------------#
-
 
 import panel as pn
 pn.extension(notifications=True)
@@ -26,32 +23,27 @@ import sys
 import configparser
 import io
 import pyproj
-import colorcet as cc
 
-template = pn.template.BootstrapTemplate(title='PALM Domain Utility')
-#line color used to automatically given domain line colors
-line_color=cc.glasbey_category10
 
-overlap_switch=pn.widgets.Checkbox(name="Allow overlap", value=False,align="center")
-centlat_input=pn.widgets.FloatInput(start=-90,end=90,value=0, name="center lat",width=100)
-centlon_input=pn.widgets.FloatInput(start=-180,end=180,value=0,name="center lon",width=100)
-dx_input= pn.widgets.FloatInput(start=0,value=0,name="dx",width=100)
-dy_input= pn.widgets.FloatInput(start=0,value=0,name="dy",width=100)
-dz_input= pn.widgets.FloatInput(start=0,value=0,name="dz",width=100)
-nx_input= pn.widgets.IntInput(start=1,value=1,name="nx",width=100)
-ny_input= pn.widgets.IntInput(start=1,value=1,name="ny",width=100)
-nz_input= pn.widgets.IntInput(start=1,value=1,name="nz",width=100)
-z_origin_input = pn.widgets.FloatInput(start=0,value=0,name="z_origin",width=100)
+centlat_input=pn.widgets.FloatInput(start=-90,end=90,value=0, name="center lat",width=90)
+centlon_input=pn.widgets.FloatInput(start=-180,end=180,value=0,name="center lon",width=90)
+dx_input= pn.widgets.FloatInput(start=0,value=0,name="dx",width=90)
+dy_input= pn.widgets.FloatInput(start=0,value=0,name="dy",width=90)
+dz_input= pn.widgets.FloatInput(start=0,value=0,name="dz",width=90)
+nx_input= pn.widgets.IntInput(start=1,value=1,name="nx",width=90)
+ny_input= pn.widgets.IntInput(start=1,value=1,name="ny",width=90)
+nz_input= pn.widgets.IntInput(start=1,value=1,name="nz",width=90)
+z_origin_input = pn.widgets.FloatInput(start=0,value=0,name="z_origin",width=90)
 
-crs_loc_input = pn.widgets.IntInput(start=0,value=0,name="local projection (epsg)",width=100,align=("start","center"),margin=(10,20,0,20))
-add_to_map_button=pn.widgets.Button(name="Add to map", button_type="primary",width=100)
-undo_button = pn.widgets.Button(name="undo",button_type="default",width=100)
-calculate_namelist_button=pn.widgets.Button(name="Get domain configure", button_type="success",width=100,align=("center","center"))
+crs_loc_input = pn.widgets.IntInput(start=0,value=0,name="local projection (epsg)",max_width=100,width_policy='fit')
+add_to_map_button=pn.widgets.Button(name="Add to map", margin=(10, 10 ,10, 20), button_type="primary",width=100)
+calculate_namelist_button=pn.widgets.Button(name="Get domain configure", margin=(10, 10 ,10 , 400), button_type="success",width=100)
+undo_button = pn.widgets.Button(name="undo",margin=(10, 10 ,10 , 30),button_type="default",width=100)
 
 # domain_input_box=pn.WidgetBox(crs_loc_input,pn.Row(centlat_input,centlon_input,nx_input,dx_input,ny_input,dy_input),pn.Row(nz_input,dz_input,add_to_map_button,calculate_namelist_button),width=900)
 domain_input_box=pn.WidgetBox(pn.WidgetBox(crs_loc_input,pn.Row(centlat_input,centlon_input,nx_input,dx_input\
-                                                   ,ny_input,dy_input,nz_input,dz_input,z_origin_input,align=("start","center"),margin=(0,20,0,10)),\
-                                                   pn.Row(overlap_switch,add_to_map_button,undo_button,align=("end","center"),margin=(0,18,10,10))),calculate_namelist_button,width=1115)
+                                                   ,ny_input,dy_input,nz_input,dz_input,z_origin_input,width=1100),\
+                                                   pn.Row(pn.Spacer(width=720),add_to_map_button,undo_button)),calculate_namelist_button,width=1100)
 
 # use this dataframe to save all the numbers
 # p_num is the parent number, num is the actual number
@@ -60,8 +52,8 @@ boundary_value_df=pd.DataFrame(columns=["centlon","centlat","centx","centy","nx"
 
 # map display
 sate_image=gv.tile_sources.EsriImagery.opts(width=600,height=600)
-disp_map=pn.panel(sate_image,name="Domain Vis")
-disp_map.object.opts(active_tools=['wheel_zoom',]) 
+disp_map=pn.panel(sate_image)
+
 #create static config text box for output configure text
 static_config_text=pn.widgets.TextAreaInput(height=250,width=460)
 copy_static_config_button = pn.widgets.Button(name="Copy static domain configure", button_type="default",width=100)
@@ -70,7 +62,7 @@ draw_config_button = pn.widgets.Button(name="check configuration",button_type="p
 copy_source_code = "navigator.clipboard.writeText(source.value);"
 copy_static_config_button.js_on_click(args={"source": static_config_text}, code=copy_source_code)
 
-static_config_box=pn.WidgetBox(static_config_text,pn.Row(copy_static_config_button,pn.layout.Spacer(width=100),draw_config_button),name="Static namelist Config")
+static_config_box=pn.WidgetBox(static_config_text,pn.Row(copy_static_config_button,pn.layout.Spacer(width=100),draw_config_button))
 
 #create palm model namelist text box for output configure text
 namelist_text=pn.widgets.TextAreaInput(height=250,width=460)
@@ -78,30 +70,16 @@ copy_namelist_text_button = pn.widgets.Button(name="Copy namelist domain configu
 copy_source_code = "navigator.clipboard.writeText(source.value);"
 copy_namelist_text_button.js_on_click(args={"source": namelist_text}, code=copy_source_code)
 
-namelist_config_box=pn.WidgetBox(namelist_text,copy_namelist_text_button,name="PALM namelist")
-
-def overlap_switch_callback(event):
-    # give notification to the overlap switch
-    if event.new == True:
-        pn.state.notifications.position = 'bottom-center'
-        pn.state.notifications.info("You have allowed the domain to overlap. This only meant for you to see the"\
-                                    +"domain. If it's overlapped, you should adjust the domain settings to redraw the domain.",\
-                                    duration=8000)
-    if event.new == False:
-        pn.state.notifications.position = 'bottom-center'
-        pn.state.notifications.info("You have forbid the domain to overlap.",duration=5000)    
+namelist_config_box=pn.WidgetBox(namelist_text,copy_namelist_text_button)
 
 def boundary_df_disp_columns(df,column_list=["centlon","centlat","nx","ny","nz","dx","dy","dz","p_num","num","z_origin"]):
     # simple function to choose which columns in the dataframe to display
-    df["p_num"] = df["p_num"].astype(int, errors = 'ignore' )
-    df["num"] = df["num"].astype(int, errors = 'ignore' )
     return df[column_list].sort_values("num").reset_index(drop=True)
 #dataframe table display
-df_pane = pn.pane.DataFrame(boundary_df_disp_columns(boundary_value_df), width=600,name="Domain list")
+df_pane = pn.pane.DataFrame(boundary_df_disp_columns(boundary_value_df), width=600)
 df_pane.float_format='{:,.3f}'.format
 
-
-def create_domain_boundary(centlon,centlat,nx,ny,nz,dx,dy,dz,z_origin,crs_loc,num=None,crs_in="EPSG:4326",crs_wgs="EPSG:4326",add_to_df=True):
+def create_domain_boundary(centlon,centlat,nx,ny,nz,dx,dy,dz,z_origin,crs_loc,crs_in="EPSG:4326",crs_wgs="EPSG:4326",add_to_df=True):
     # df is to save all the boundary data
     # nz,dz, z_origin is only used here as input to the dataframe, no calculations regarding these here.
     global boundary_value_df
@@ -119,18 +97,13 @@ def create_domain_boundary(centlon,centlat,nx,ny,nz,dx,dy,dz,z_origin,crs_loc,nu
     xmax_wgs,ymax_wgs = loc_to_wgs.transform(xmax_loc,ymax_loc)
     # this is only calculated to store in the dataframe so it can be displayed in the app.
     centx_wgs,centy_wgs = loc_to_wgs.transform(centx_loc,centy_loc)
-    if num == None:
-        domain_boundary = gv.Rectangles([(xmin_wgs,ymin_wgs, xmax_wgs, ymax_wgs,0)],label="Domain new",vdims='value').opts(line_color=tuple(line_color[0]),fill_alpha=0,line_width=3)
-    else:
-        domain_boundary = gv.Rectangles([(xmin_wgs,ymin_wgs, xmax_wgs, ymax_wgs,num)],label="Domain " +str(int(num)),vdims='value').opts(line_color=tuple(line_color[int(num)]),fill_alpha=0,line_width=3)
+    
+    domain_boundary = gv.Rectangles([(xmin_wgs,ymin_wgs, xmax_wgs, ymax_wgs)]).opts(fill_alpha=0,line_width=2,line_color="r")
     if add_to_df:
         #save all the data, needed for adjust/generate final boundary configure
         #use append instead of loc to make it compatable when moving the domain
-        new_row_df = pd.DataFrame({"centlon":centx_wgs,"centlat":centy_wgs,"centx":centx_loc,"centy":centy_loc,"nx":nx,"ny":ny,"nz":nz,"dx":dx,\
-                                   "dy":dy,"dz":dz,"xmin":xmin_loc,"ymin":ymin_loc,"xmax":xmax_loc,"ymax":ymax_loc,"z_origin":z_origin},index=[0])
-        boundary_value_df=pd.concat([boundary_value_df, new_row_df], ignore_index=True)
-        #boundary_value_df=boundary_value_df.append({"centlon":centx_wgs,"centlat":centy_wgs,"centx":centx_loc,"centy":centy_loc,"nx":nx,"ny":ny,"nz":nz,"dx":dx,\
-        #           "dy":dy,"dz":dz,"xmin":xmin_loc,"ymin":ymin_loc,"xmax":xmax_loc,"ymax":ymax_loc,"z_origin":z_origin},ignore_index=True)
+        boundary_value_df=boundary_value_df.append({"centlon":centx_wgs,"centlat":centy_wgs,"centx":centx_loc,"centy":centy_loc,"nx":nx,"ny":ny,"nz":nz,"dx":dx,\
+                   "dy":dy,"dz":dz,"xmin":xmin_loc,"ymin":ymin_loc,"xmax":xmax_loc,"ymax":ymax_loc,"z_origin":z_origin},ignore_index=True)
         boundary_value_df.reset_index(drop=True,inplace=True)
         #df.loc[len(df)] = {"centlon":centx_wgs,"centlat":centy_wgs,"centx":centx_loc,"centy":centy_loc,"nx":nx,"ny":ny,"nz":nz,"dx":dx,"dy":dy,"dz":dz,"xmin":xmin_loc,\
         #                   "ymin":ymin_loc,"xmax":xmax_loc,"ymax":ymax_loc,"z_origin":z_origin}
@@ -140,7 +113,7 @@ bd_create_domain_boundary = pn.bind(create_domain_boundary,centlat=centlat_input
                                     nx=nx_input,ny=ny_input,nz=nz_input,dx=dx_input,dy=dy_input,dz=dz_input,z_origin=z_origin_input,crs_loc=crs_loc_input)
 
 def check_crs_loc_input(crs_loc_input):
-    if (crs_loc_input.value == None) or (crs_loc_input.value < 1024) or(crs_loc_input.value > 32767):
+    if (crs_loc_input.value < 1024) or(crs_loc_input.value > 32767):
         pn.state.notifications.position = 'bottom-center'
         pn.state.notifications.info("EPSG code of the UTM coordinate matches the entered lat, lon is used since no valid EPSG Code number is found in the input.", duration=0)        
         utm_zone = get_utm_zone(centlat_input.value, centlon_input.value)
@@ -149,22 +122,15 @@ def check_crs_loc_input(crs_loc_input):
 def on_button_click(event):
     # add domain boundary to the map
     pn.state.notifications.clear()
-    if nx_input.value == 0 or dx_input.value == 0 or ny_input.value == 0 or dy_input.value == 0 or nz_input.value == 0 or dz_input.value == 0:
+    check_crs_loc_input(crs_loc_input)
+    new_domain =  bd_create_domain_boundary()
+    if not check_domain_draw_validation(boundary_value_df):
         pn.state.notifications.position = 'bottom-center'
-        pn.state.notifications.info("Wrong domain grid configure. Please check nx/ny/nz/dx/dy/dz.", duration=5000)
-    else:        
-        check_crs_loc_input(crs_loc_input)
-        new_domain =  bd_create_domain_boundary()
-        if (not check_domain_draw_validation(boundary_value_df) ) and (not overlap_switch.value):
-            pn.state.notifications.position = 'bottom-center'
-            pn.state.notifications.info("The new domain will be overlapping with exising ones. Please check and change your settings.", duration=5000)
-            boundary_value_df.drop(boundary_value_df.tail(1).index,inplace=True)
-        else:
-            if not check_domain_draw_validation(boundary_value_df):
-                pn.state.notifications.position = 'bottom-center'
-                pn.state.notifications.info("The new domain is overlapping with exising ones. You have ticked the 'Allow overlapping'. Please undo and modify the domain settings to avoid overlapping.", duration=5000)           
-            disp_map.object = disp_map.object * new_domain
-        df_pane.object = boundary_df_disp_columns(boundary_value_df)
+        pn.state.notifications.info("The new domain will be overlapping with exising ones. Please check and change your settings.", duration=5000)
+        boundary_value_df.drop(boundary_value_df.tail(1).index,inplace=True)
+    else:
+        disp_map.object = disp_map.object * new_domain
+    df_pane.object = boundary_df_disp_columns(boundary_value_df)
 
 def create_rectangles_from_df(df):
     domain_all = None
@@ -173,7 +139,7 @@ def create_rectangles_from_df(df):
         tmp_domain_boundary=create_domain_boundary(tmp_boundary.centx,tmp_boundary.centy,\
                                                    tmp_boundary.nx,tmp_boundary.ny,tmp_boundary.nz,tmp_boundary.dx,\
                                                    tmp_boundary.dy,tmp_boundary.dz,tmp_boundary.z_origin,crs_loc=crs_loc_input.value,\
-                                                   num=tmp_boundary.num, crs_in=crs_loc_input.value,add_to_df=False)
+                                                   crs_in=crs_loc_input.value,add_to_df=False)
         if domain_all is None:
             domain_all = tmp_domain_boundary
         else:
@@ -184,11 +150,10 @@ def on_configure_button_click(event):
     pn.state.notifications.clear()
     sort_domain_num(boundary_value_df)
     adjust_domains(boundary_value_df)
-    
-    boundary_value_df.sort_values('num',ascending=True,inplace=True)
-    boundary_value_df.reset_index(drop=True,inplace=True)
     domain_boundries_all = create_rectangles_from_df(boundary_value_df)
     disp_map.object = sate_image * domain_boundries_all
+    boundary_value_df.sort_values('num',ascending=True,inplace=True)
+    boundary_value_df.reset_index(drop=True,inplace=True)
     df_pane.object = boundary_df_disp_columns(boundary_value_df)
     grid_resolution_check(boundary_value_df)
     static_config_text.value,namelist_text.value=bd_generate_config_text(df_in=boundary_value_df)
@@ -460,7 +425,7 @@ def generate_config_text(df_in,crs_loc,crs_wgs="EPSG:4326",format_digit=1):
     ll_y += "\n"
     z_origin += "\n"
     static_config_output = static_config_output+nx+ny+nz+dx+dy+dz+ll_x+ll_y+z_origin
-    nest_string = "         nesting_mode   = 'one-way',\n"
+    nest_string = "         nesting_mode   = 'two-way',\n"
     namelist_config_output += domain_layouts + nest_string +"/\n"
     return static_config_output, namelist_config_output
 
@@ -470,10 +435,12 @@ def on_click_draw_config(event):
 
     #read the center lat lon from the configure input widget
     config = configparser.ConfigParser(inline_comment_prefixes=("#","!"))
-    if not static_config_text.value.strip().startswith("[domain]"):
-        static_config_text.value = "[domain]\n" + static_config_text.value
     static_tmp = io.StringIO(static_config_text.value)
     config.read_file(static_tmp)
+    if not config.has_section("domain"):
+        static_config_input = "[domain]\n" + static_config_input
+        static_tmp = io.StringIO(static_config_input)
+        config.read_file(static_tmp)
     centlat_input.value = convert_confs_values(config.get("domain","centlat"),"float")[0]
     centlon_input.value = convert_confs_values(config.get("domain","centlon"),"float")[0]
     static_tmp.close()
@@ -557,99 +524,7 @@ bd_generate_config_text = pn.bind(generate_config_text,crs_loc=crs_loc_input)
 
 bd_construct_df_from_static=pn.bind(construct_df_from_static,static_config_text,crs_loc_input)
 
-#move domain tool
-ew_move_input = pn.widgets.FloatInput(name="east_west_move (m)")
-
-sn_move_input = pn.widgets.FloatInput(name="south_north_move (m)")
-
-domain_num_input = pn.widgets.IntInput(value=0,name="domain number")
-
-move_domain_button = pn.widgets.Button(name="move domain",button_type="primary",align="center",margin=(25,15,0,15),width=100) #button to move domain
-
-move_domain_box=pn.WidgetBox(pn.Row(pn.Column(domain_num_input,ew_move_input,sn_move_input),move_domain_button),\
-                             name="Move Domain",width=480)
-
-
-def move_center_lat_lon_wgs(centlon,centlat,dx,dy,ew_move,sn_move):
-    wgs_geod = pyproj.Geod(ellps='WGS84')
-    
-    east_azimuth = 90 # degrees
-    north_azimuth = 0 # degrees
-    ew_move_grid = (ew_move//dx)*dx
-    sn_move_grid = (sn_move//dy)*dy
-    lon_tmp, lat_tmp, _ = wgs_geod.fwd(centlon,centlat, east_azimuth, ew_move_grid)
-    centlon_new, centlat_new, _ = wgs_geod.fwd( lon_tmp, lat_tmp,north_azimuth, sn_move_grid)
-    return centlon_new,centlat_new
-
-def move_boundary_df_centlatlon(num,ew_move,sn_move,crs_loc,crs_in="EPSG:4326",crs_wgs="EPSG:4326"):
-    global boundary_value_df  # use this to declare that the global variable boundary_value_df is used in this function
-    if not (num in boundary_value_df.num.values ):
-        #if the num is not in the existing domain numbers
-        pn.state.notifications.position = 'bottom-center'
-        pn.state.notifications.info("Cannot move the domain. The domain number {} is not in the existing domain.".format(int(num)), duration=0)
-    else:
-        single_domain_df=boundary_value_df.loc[boundary_value_df.num==num]
-        centlon_old = single_domain_df["centlon"].values.item()
-        centlat_old = single_domain_df["centlat"].values.item()
-        nx          = single_domain_df["nx"].values.item()
-        ny          = single_domain_df["ny"].values.item()
-        nz          = single_domain_df["nz"].values.item()
-        dx          = single_domain_df["dx"].values.item()
-        dy          = single_domain_df["dy"].values.item()
-        dz          = single_domain_df["dz"].values.item()
-        z_origin    = single_domain_df["z_origin"].values.item()
-        num         = single_domain_df["num"].values.item()
-        centlon_new,centlat_new = move_center_lat_lon_wgs(centlon_old,centlat_old,dx,dy,ew_move,sn_move)
-        boundary_value_df = boundary_value_df.loc[boundary_value_df.num!=num]
-        create_domain_boundary(centlon_new,centlat_new,nx,ny,nz,dx,dy,dz,z_origin,crs_loc,num,crs_in=crs_in,crs_wgs=crs_wgs,add_to_df=True)
-
-bd_move_boundary_df_centlatlon = pn.bind(move_boundary_df_centlatlon,num=domain_num_input,ew_move=ew_move_input,sn_move=sn_move_input,crs_loc=crs_loc_input)
-
-def on_click_move_domain(event):
-    pn.state.notifications.clear()
-    bd_move_boundary_df_centlatlon()
-    if not check_domain_draw_validation(boundary_value_df):
-        pn.state.notifications.position = 'bottom-center'
-        pn.state.notifications.info("The domain after move will overlap with other domains. Please check your move.", duration=5000)
-        bd_construct_df_from_static()
-    sort_domain_num(boundary_value_df)
-    adjust_domains(boundary_value_df)
-    
-    domain_boundries_all = create_rectangles_from_df(boundary_value_df)
-    disp_map.object = sate_image * domain_boundries_all
-    boundary_value_df.sort_values('num',ascending=True,inplace=True)
-    boundary_value_df.reset_index(drop=True,inplace=True)
-    df_pane.object = boundary_df_disp_columns(boundary_value_df)
-    grid_resolution_check(boundary_value_df)
-    static_config_text.value,namelist_text.value=bd_generate_config_text(df_in=boundary_value_df)
-
-# remove domain tool
-remove_domain_num_input=pn.widgets.IntInput(start=0,name="Remove Domain number")
-remove_domain_button = pn.widgets.Button(name="Remove",button_type="danger",width=100,align="end",margin=(0,10,5,25))
-remove_domain_box=pn.WidgetBox("Cannot be undone. Backup the namelist is advised.", pn.Row(remove_domain_num_input,remove_domain_button),\
-                               width=480,name="Remove domain")
-
-def remove_domain_onclick(event):
-    #remove the selected domain
-    global boundary_value_df
-    pn.state.notifications.clear()
-    if remove_domain_num_input.value in boundary_value_df['num'].values:
-        boundary_value_df = boundary_value_df[boundary_value_df.num != remove_domain_num_input.value]
-        sort_domain_num(boundary_value_df)
-        domain_boundries_all = create_rectangles_from_df(boundary_value_df)
-        disp_map.object = sate_image * domain_boundries_all
-        boundary_value_df.sort_values('num',ascending=True,inplace=True)
-        boundary_value_df.reset_index(drop=True,inplace=True)
-        df_pane.object = boundary_df_disp_columns(boundary_value_df)
-        grid_resolution_check(boundary_value_df)
-        static_config_text.value,namelist_text.value=bd_generate_config_text(df_in=boundary_value_df)
-    else:
-        pn.state.notifications.position = 'bottom-center'
-        pn.state.notifications.info("The domain number does not exist.", duration=5000)
-
-
-watcher = overlap_switch.param.watch(overlap_switch_callback,'value',onlychanged=True)
-
+                               
 undo_button.on_click(on_undo_button_click)
 
 calculate_namelist_button.on_click(on_configure_button_click)
@@ -658,18 +533,5 @@ draw_config_button.on_click(on_click_draw_config)
 
 add_to_map_button.on_click(on_button_click)
 
-move_domain_button.on_click(on_click_move_domain)
 
-remove_domain_button.on_click(remove_domain_onclick)
-
-config_tool = pn.Tabs(static_config_box,namelist_config_box)
-
-domain_modify_tool=pn.Tabs(move_domain_box,remove_domain_box)
-
-domain_display_tool = pn.Tabs(disp_map,df_pane)
-
-palm_domain_config_tool = pn.Column(domain_input_box,pn.Spacer(height=10),\
-                                    pn.WidgetBox(pn.Row(pn.Column(config_tool,pn.Spacer(height=10),domain_modify_tool),\
-                                                        pn.Spacer(width=10),domain_display_tool)),styles={'margin': '0 auto'},)
-template.main.append(palm_domain_config_tool)
-template.servable(title="PALM Toolkit")
+palm_domain_config_tool = pn.Column(domain_input_box,pn.Row(disp_map,pn.Column(static_config_box,pn.Spacer(width=10),namelist_config_box)),df_pane).servable(title="PALM toolkit")
