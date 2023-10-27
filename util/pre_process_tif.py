@@ -60,7 +60,7 @@ def process_tif(tif_file, tif_type, config_proj, case_name, tmp_path, idomain, d
     ds_geo_out.rio.to_raster(out_file,windowed=True)
     print(f"{tif_type} tif file processed to {tmp_path}")
         
-def process_osm_building(bld_file, config_proj, case_name, tmp_path, idomain, dx, dy, building_height_dummy):
+def process_osm_building(bld_file, config_proj, case_name, tmp_path, idomain, dx, dy):
     '''
     Function to process OSM building info
     '''
@@ -105,7 +105,7 @@ def process_osm_building(bld_file, config_proj, case_name, tmp_path, idomain, dx
                     gpd_file.loc[i,"new_height"] = max_lvl*3
         elif type(gpd_file.loc[i,"height"]) is type(None) or gpd_file.loc[i,"level"] is type(None) and gpd_file["osmid"] > 0:
             # if no building height is given then set as 3 m
-            gpd_file.loc[i,"new_height"] = building_height_dummy 
+            gpd_file.loc[i,"new_height"] = 3 
     # make building height geocube
     bldh_geogrid = make_geocube(vector_data=gpd_file, measurements=["new_height"], resolution = (dx, dy), output_crs=config_proj)
     # make building ID geocube
@@ -157,7 +157,7 @@ def process_all(prefix):
     # read namelist
     settings_cfg = configparser.ConfigParser(inline_comment_prefixes='#')
     config = configparser.RawConfigParser()
-    namelist =  f"./JOBS/{prefix}/INPUT/config.static-{prefix}"
+    namelist =  f"./JOBS/{prefix}/INPUT/namelist.static-{prefix}"
     config.read(namelist)
     ## [case]
     case_name =  ast.literal_eval(config.get("case", "case_name"))[0]
@@ -166,12 +166,7 @@ def process_all(prefix):
     config_proj = ast.literal_eval(config.get("case", "config_proj"))[0]
     # use WGS84 (EPSG:4326) for centlat/centlon
     default_proj = ast.literal_eval(config.get("case", "default_proj"))[0] 
-    
-    ## [default settings or filter values]
-    water_temperature_default = ast.literal_eval(config.get("settings", "water_temperature"))
-    building_height_dummy = ast.literal_eval(config.get("settings", "building_height_dummy"))
-    tree_height_filter = ast.literal_eval(config.get("settings", "tree_height_filter"))
-    
+
     ## [domain configuration]
     ndomain = ast.literal_eval(config.get("domain", "ndomain"))[0]
     centlat = ast.literal_eval(config.get("domain", "centlat"))[0]
@@ -190,7 +185,7 @@ def process_all(prefix):
         config_proj_code = convert_wgs_to_utm(centlon, centlat)
         config_proj = f"EPSG:{config_proj_code}"
     ## [required tif files]
-    water = ast.literal_eval(config.get("geotif", "water"))
+    sst = ast.literal_eval(config.get("geotif", "sst"))
     dem = ast.literal_eval(config.get("geotif", "dem"))
     lu = ast.literal_eval(config.get("geotif", "lu"))
     resample_method = ast.literal_eval(config.get("geotif", "resample_method"))
@@ -244,13 +239,13 @@ def process_all(prefix):
             lu_file = static_tif_path+lu[i]
         process_tif(lu_file, "LU", config_proj, case_name, tmp_path, i, dx[i], resample_method[i], dom_cfg_dict)
         ## water temperature (if provided by user)
-        if water[i] != "online" and water[i]!="":
-            water_file = static_tif_path+water[i]
-            process_tif(water_file, "WATER_T", config_proj, case_name, tmp_path, i, dx[i], resample_method[i], dom_cfg_dict)
+        if sst[i] != "online" and sst[i]!="":
+            sst_file = static_tif_path+sst[i]
+            process_tif(sst_file, "SST", config_proj, case_name, tmp_path, i, dx[i], resample_method[i], dom_cfg_dict)
         # OSM buildings
         if bldh[i]=="osm":
             bld_file = f"{static_tif_path}{case_name}_osm_building_N{i+1:02d}.gpkg"
-            process_osm_building(bld_file, config_proj, case_name, tmp_path, i, dx[i], dy[i],building_height_dummy[i])
+            process_osm_building(bld_file, config_proj, case_name, tmp_path, i, dx[i], dy[i])
         # if local file provided
         elif bldh[i]!="osm" and bldh[i]!="":
             bld_file = static_tif_path+bldh[i]

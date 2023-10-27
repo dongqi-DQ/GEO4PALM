@@ -113,20 +113,10 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
     tif_right = dom_dict['east']
     tif_north = dom_dict['north']
     tif_south = dom_dict['south']
-    ## land use look up table
-    lu_csv_file = dom_dict["lu_csv_file"]
-    
     ### leaf area index parameters
-    tree_lad_max = dom_dict['tree_lad_max']      # default value 5.0
+    tree_lai_max = dom_dict['tree_lai_max']      # default value 5.0
     lad_max_height = dom_dict['lad_max_height']  # default value 0.4
     
-    ## water input file options
-    water_temperature_file = dom_dict['water_temperature_file']
-    
-    ### settings
-    water_temperature_default = dom_dict['water_temperature_default']
-    bldh_dummy = dom_dict['bldh_dummy']
-    tree_height_filter = dom_dict['tree_height_filter']
     
     # assign tiff file names
     dem_tif = f"{tmp_path}{case_name}_DEM_N{idomain+1:02d}.tif"
@@ -222,39 +212,11 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
         gc.collect()
 
     # process water type
-    water_lu = lu2palm(lu, 'water', lu_csv_file)
+    water_lu = lu2palm(lu, 'water')
     water_type =  np.array([[cell if cell>0 else -9999 for cell in row] for row in water_lu])
     
-    # set up water temperature
-    # other parameters stay the same as default
-    print("Processing water temperature")
-    water_tif = dem_tif.replace("DEM","WATER_T")
-    # create array for water_pars
-    water_pars = np.zeros((7,water_type.shape[0],water_type.shape[1]))
-    
-    if water_temperature_file == "online":
-        static_tif_path = tmp_path.replace("TMP","INPUT")
-        water_temperature = get_nearest_sst(centlat, centlon, case_name, static_tif_path)
-        water_pars[0,:,:][water_type>0] = water_temperature
-    elif os.path.exists(water_tif):
-        water_geo, lat, lon = readgeotiff(water_tif)
-        water_data = extract_tiff(water_geo, lat, lon, dom_dict, tif_left,tif_south,tif_north,config_proj,case_name)
-        del water_geo, lat, lon    
-        gc.collect()
-        water_temperature = water_data
-        ## use input water temperature to locate water bodies
-        water_type[water_temperature>0] = 2
-        ## apply NaNs
-        water_temperature[water_type<0] = -9999.0
-        water_pars[0,:,:] = water_temperature[:,:]
-    else:
-        water_pars[0,:,:][water_type>0] = water_temperature_default
-    
-    water_pars[water_pars<=0] = -9999.0
-    
-    
     # process pavement
-    pavement_lu = lu2palm(lu, 'pavement', lu_csv_file)
+    pavement_lu = lu2palm(lu, 'pavement')
     pavement_type =  np.array([[cell if cell>0 else -9999 for cell in row] for row in pavement])
     
     # if pavement tif input is provided
@@ -272,8 +234,7 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
     street_type[water_type>0] = -9999
     
     # process building height
-    building_height =  np.array([[cell if cell>=0 else -9999 for cell in row] for row in bldh])
-    building_height[building_height==0] = bldh_dummy
+    building_height =  np.array([[cell if cell>0 else -9999 for cell in row] for row in bldh])
     building_height[water_type>0] = -9999
     building_height[pavement_type > 0 ] = -9999
     
@@ -290,13 +251,13 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
         buildings_3d, zbld = make_3d_from_2d(building_height, x, y, dz)
     
     # process vegetation
-    vegetation_type = lu2palm(lu, 'vegetation', lu_csv_file)
+    vegetation_type = lu2palm(lu, 'vegetation')
     vegetation_type[water_type>0] = -9999
     vegetation_type[pavement_type>0] = -9999
     vegetation_type[building_type>0] = -9999
 
     # process bare land
-    bare_land = lu2palm(lu, 'building', lu_csv_file)
+    bare_land = lu2palm(lu, 'building')
     bare_land[building_type>0] = -9999 
     bare_land[pavement_type>0] = -9999 
     bare_land[water_type>0] = -9999 
@@ -311,7 +272,7 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
     # process soil
     soil_type = np.zeros_like(lu)
     soil_type[:] = -9999
-    soil_type = lu2palm(lu, 'soil', lu_csv_file)
+    soil_type = lu2palm(lu, 'soil')
     soil_type[building_type>0] = -9999 
     soil_type[pavement_type>0] = 1
     soil_type[water_type>0] = -9999
@@ -335,7 +296,7 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
     # process lad
     # remove cars and some other "noise"
         tree_height = np.copy(sfch_tmp)
-        tree_height[tree_height<=tree_height_filter] = -9999
+        tree_height[tree_height<=1.5] = -9999
     # remove single points in the domain
         n_thresh = 1
         labeled_array, num_features = label(tree_height)
@@ -346,9 +307,11 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
         tree_height[mask] = -9999
     # generate 3d variables for LAD        
         tree_3d, zlad = make_3d_from_2d(tree_height, x, y, dz)
-        tree_3d = tree_3d.astype(float)
+        tree_3d = tree_3d.astype(np.float)
         tree_3d[tree_3d==0] = -9999
     # specify parameters for LAD calculation
+     #   tree_lai_max = 5
+     #   lad_max_height = 0.4
         scale_height=np.nanquantile(np.where(tree_height>0,tree_height,np.nan),0.9) # use the top 10% quantile to scale the lai  
         ml_n_low = 0.5
         ml_n_high = 6.0
@@ -360,7 +323,7 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
                     continue
                 else:
                     #  Calculate height of maximum LAD
-                    tree_lai_scaled = tree_lad_max* tree_height[idy, idx]/scale_height
+                    tree_lai_scaled = tree_lai_max* tree_height[idy, idx]/scale_height
                     z_lad_max = lad_max_height * tree_height[idy, idx]
 
                     #  Calculate the maximum LAD after Lalic and Mihailovic (2004)
@@ -416,6 +379,28 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
     albedo_vegetation[albedo_building>0] = 0
     albedo_type = albedo_pavement + albedo_vegetation + albedo_building + albedo_water
     albedo_type[albedo_type[:,:]<=0] = -127.0
+    
+    # set up water temperature
+    # other parameters stay the same as default
+    print("Processing water temperature")
+    sst_tif = dem_tif.replace("DEM","SST")
+    # create array for water_pars
+    water_pars = np.zeros((7,water_type.shape[0],water_type.shape[1]))
+    
+    if os.path.exists(sst_tif):
+        sst_geo, lat, lon = readgeotiff(sst_tif)
+        sst_data = extract_tiff(sst_geo, lat, lon, dom_dict, tif_left,tif_south,tif_north,config_proj,case_name)
+        del sst_geo, lat, lon    
+        gc.collect()
+        water_temperature = sst_data
+        water_temperature[water_type<0] = -9999.0
+        water_pars[0,:,:] = water_temperature[:,:]
+    else:    
+        static_tif_path = tmp_path.replace("TMP","INPUT")
+        water_temperature = get_nearest_sst(centlat, centlon, case_name, static_tif_path)
+        water_pars[0,:,:][water_type>0] = water_temperature
+    
+    water_pars[water_pars<=0] = -9999.0
     
     
     # process surface fraction
