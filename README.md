@@ -200,7 +200,7 @@ tree_height_filter     -  user input to filter small objects, i.e., if object he
 
 
 [geotif]          -  required input from user; can be provided by users in the INPUT folder or "online"
-sst               -  input for water temperature
+water             -  input for water temperature
 dem               -  digital elevation model input for topography
 lu                -  land use classification  
 resample_method   -  method to resample geotiff files for interpolation/extrapolation
@@ -245,7 +245,7 @@ For urban and plant canopy tif file fileds, if users do not have files available
 Configuration file examples are given in `JOBS/Chch_online/INPUT/` and  `JOBS/Berlin_DLR/INPUT/`
 
 #### Water temperature
-If `"online"` is used for `sst`, the water temperature is derived from GHRSST Level 4 MUR product downloaded via NASA Earthdata. The SST at the nearest grid point will be used for water temperature. The day of the year is derived from `origin_time` in the configuration file. The location to take SST data depends on `centlat` and `centlon` in the namelist.
+If `"online"` is used for `water`, the water temperature is derived from GHRSST Level 4 MUR product downloaded via NASA Earthdata. The SST at the nearest grid point will be used for water temperature. The day of the year is derived from `origin_time` in the configuration file. The location to take SST data depends on `centlat` and `centlon` in the namelist.
 
 Users can provide a prescribed water temperature using `water_temperature` in `[settings]` for each simulation domain or provide a spatial tif file with water temperature for water bodies. 
 
@@ -277,7 +277,7 @@ Once the configuration file and all tif input from users are ready. One can run 
 python run_config_static.py case_name
 ```
 
-_If "nasa" is used for `dem` and/or `lu` and/or "online" is used for `sst`, the script will guide the user through the NASA AρρEEARS API. If "esa" is included for `dem` and/or `lu`, then the script will guide the user through ESA's Terrascope API._
+_If "nasa" is used for `dem` and/or `lu` and/or "online" is used for `water`, the script will guide the user through the NASA AρρEEARS API. If "esa" is included for `dem` and/or `lu`, then the script will guide the user through ESA's Terrascope API._
 
 ### Flat terrain and precursor run 
 Once a static driver is used, all the PALM domains in the simulation requires static drivers. In case a flat terrain static driver and/or precursor run static driver are required, users may run `static2flat.py`. 
