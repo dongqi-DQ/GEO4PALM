@@ -12,15 +12,18 @@
 import pandas as pd
 import numpy as np
 
-def lu2palm(array, classification):
+def lu2palm(array, classification, lu_csv_file):
 
 
     '''
     The classification can be:
         'vegetation', 'pavement', 'building', 'water', 'soil', etc.
     '''
-    
-    tab = pd.read_csv('./util/lu_2_PALM_num.csv')
+    try:
+        tab = pd.read_csv(lu_csv_file)
+    except:
+        print("Cannot find land use look up table, use default instead")
+        tab = pd.read_csv('./util/lu_2_PALM_num.csv')
     array_out = np.zeros_like(array)
     if classification == 'vegetation':
         for l in range(0,tab.shape[0]):

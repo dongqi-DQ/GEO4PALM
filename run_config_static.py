@@ -61,7 +61,7 @@ pd.options.mode.chained_assignment = None
 settings_cfg = configparser.ConfigParser(inline_comment_prefixes='#')
 config = configparser.RawConfigParser()
 prefix = sys.argv[1]
-namelist =  f"./JOBS/{prefix}/INPUT/namelist.static-{prefix}"
+namelist =  f"./JOBS/{prefix}/INPUT/config.static-{prefix}"
 config.read(namelist)
 ## [case]
 case_name =  ast.literal_eval(config.get("case", "case_name"))[0]
@@ -70,6 +70,9 @@ origin_time = ast.literal_eval(config.get("case", "origin_time"))[0]
 config_proj = ast.literal_eval(config.get("case", "config_proj"))[0]
 # use WGS84 (EPSG:4326) for centlat/centlon
 default_proj = ast.literal_eval(config.get("case", "default_proj"))[0] 
+# land use look up table
+lu_table = ast.literal_eval(config.get("case", "lu_table"))[0]
+lu_csv_file = f"./JOBS/{prefix}/INPUT/{lu_table}"
 
 ## [domain configuration]
 ndomain = ast.literal_eval(config.get("domain", "ndomain"))[0]
@@ -85,8 +88,13 @@ z_origin = ast.literal_eval(config.get("domain", "z_origin"))
 ll_x = ast.literal_eval(config.get("domain", "ll_x"))
 ll_y = ast.literal_eval(config.get("domain", "ll_y"))
 
+## [default settings or filter values]
+water_temperature_default = ast.literal_eval(config.get("settings", "water_temperature"))
+building_height_dummy = ast.literal_eval(config.get("settings", "building_height_dummy"))
+tree_height_filter = ast.literal_eval(config.get("settings", "tree_height_filter"))
+
 ## [required tif files]
-sst = ast.literal_eval(config.get("geotif", "sst"))
+water = ast.literal_eval(config.get("geotif", "water"))
 dem = ast.literal_eval(config.get("geotif", "dem"))
 lu = ast.literal_eval(config.get("geotif", "lu"))
 
@@ -104,7 +112,7 @@ pavement = ast.literal_eval(config.get("urban", "pavement"))
 street = ast.literal_eval(config.get("urban", "street"))
 
 ## [tif files for plant canopy]
-tree_lai_max = ast.literal_eval(config.get("plant", "tree_lai_max"))
+tree_lad_max = ast.literal_eval(config.get("plant", "tree_lad_max"))
 lad_max_height = ast.literal_eval(config.get("plant", "lad_max_height"))
 sfch = ast.literal_eval(config.get("plant", "sfch"))
 
@@ -141,6 +149,7 @@ for i in range(0,ndomain):
         dom_cfg_d01 = {'origin_time': origin_time,
                     'centlat': centlat,  
                     'centlon': centlon,
+                    'lu_csv_file': lu_csv_file,
                     'dx': dx[i],
                     'dy': dy[i],
                     'dz': dz[i],
@@ -148,8 +157,12 @@ for i in range(0,ndomain):
                     'ny': ny[i],
                     'nz': nz[i],
                     'z_origin': z_origin[i],
-                    'tree_lai_max': tree_lai_max[i],
+                    'tree_lad_max': tree_lad_max[i],
                     'lad_max_height': lad_max_height[i],
+                    'water_temperature_file': water[i],
+                    'water_temperature_default': water_temperature_default[i],
+                    'bldh_dummy': building_height_dummy[i],
+                    'tree_height_filter': tree_height_filter[i],
                     }
         
         tif_dict_d01 = {}
@@ -162,13 +175,14 @@ for i in range(0,ndomain):
         # configure domain location information
         dom_cfg_d01 = domain_location(default_proj, config_proj,  dom_cfg_d01)
         area_radius = np.max([dx[i]*nx[i], dy[i]*ny[0]])*1.2 # units=metre
-        # generate static driver 
-#         dom_cfg_d01 = generate_palm_static(case_name_d01, config_proj, tif_proj, dom_cfg_d01, tif_dict_d01)
         
         #--------------------------------------------------------------------------------#
         ## first check if we need to download data from online sources
-        ## SST data
-        if tif_dict_d01["sst"]=="online":
+        ## water temperature data
+        ## NOTE: this check is only done for the root domain as we assume that if users have their own data covering the root
+        ## domain then the data should cover the child domains
+        #--------------------------------------------------------------------------------#
+        if "online" in tif_geotif_dict['water']:
             download_sst(case_name, origin_time, static_tif_path)
         ## DEM and land use (currently only for NASA online data sets)
         ## prepare dictionaries
@@ -183,8 +197,8 @@ for i in range(0,ndomain):
             start_date_dict["DEM"] = dem_start_date
             end_date_dict["DEM"] = dem_end_date
         if "nasa" in tif_dict_d01["lu"]:
-            # https://lpdaac.usgs.gov/documents/101/MCD12_User_Guide_V6.pdf
-            geodata_name_dict["Land_Use"] = ["MCD12Q1.006",]
+            # https://lpdaac.usgs.gov/documents/1409/MCD12_User_Guide_V61.pdf
+            geodata_name_dict["Land_Use"] = ["MCD12Q1.061",]
             output_format_dict["Land_Use"] = "geotiff"
             # User to choose the start/end date
             start_date_dict["Land_Use"] = lu_start_date
@@ -229,6 +243,7 @@ for i in range(0,ndomain):
         # downloading data for nested domains
         #--------------------------------------------------------------------------------#
         dom_cfg_nest = {'origin_time': origin_time,
+                    'lu_csv_file': lu_csv_file,
                     'dx': dx[i],
                     'dy': dy[i],
                     'dz': dz[i],
@@ -236,8 +251,12 @@ for i in range(0,ndomain):
                     'ny': ny[i],
                     'nz': nz[i],
                     'z_origin': z_origin[i],
-                    'tree_lai_max': tree_lai_max[i],
+                    'tree_lad_max': tree_lad_max[i],
                     'lad_max_height': lad_max_height[i],
+                    'water_temperature_file': water[i],
+                    'water_temperature_default': water_temperature_default[i],
+                    'bldh_dummy': building_height_dummy[i],
+                    'tree_height_filter': tree_height_filter[i],
                     }
         ll_x_nest, ll_y_nest = ll_x[i], ll_y[i]
 
