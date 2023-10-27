@@ -1,0 +1,54 @@
+[case]
+case_name = "Chch_online",   # prefix for a case
+origin_time = "2021-01-01 00:00:00 +00",          # time in yyyy-mm-dd HH:MM:SS +HH format (+00 as in UTC)  
+config_proj = "EPSG:2193", # projection for PALM
+default_proj = "EPSG:4326", # projection of lat/lon to find domain location
+lu_table = "esa_2020v1_lu.csv",
+
+
+[domain]
+ndomain   = 3,                                     # max number of domains
+centlat   = -43.529599,                           # centre latitude
+centlon   = 172.72,                           # centre longitude
+nx        = 144,   312,    540,    1296,    
+ny        = 144,   312,    540,    1296,   
+nz        = 108,   108,    108,     108,   
+dx        = 27.0,  9.0,   3.0,      1.0,   
+dy        = 27.0,  9.0,   3.0,      1.0,  
+dz        = 27.0,  9.0,   3.0,      1.0, 
+z_origin  = 0.0,   0.0,   0.0,      0.0,
+ll_x      = 0.0,  540.0, 1134.0, 1296.0, 
+ll_y      = 0.0,  540.0, 1134.0, 1296.0, 
+
+[settings]
+water_temperature = 283.0, 283.0, 283.0,
+building_height_dummy = 5.0, 5.0, 5.0,
+tree_height_filter = 3.0, 3.0, 3.0,
+
+
+[geotif] 
+water       = "online",          "",          "",          "online",
+dem       = "nasa",          "nasa",          "nasa",          "nasa",
+lu        = "esa",          "esa",          "esa",          "esa",
+resample_method = "nearest", "nearest", "nearest", "nearest",
+# if NASA API is used format in YYYY-MM-DD
+# SST date should be the same as the orignin_time
+
+## No need to change start/end dates for NASA SRTMGL1_NC.003 
+dem_start_date = '2000-02-12',
+dem_end_date = '2000-02-20',
+## start/end dates for land use data set
+lu_start_date = '2020-10-01',
+lu_end_date = '2020-10-30',
+
+[urban]
+bldh     = "",  "osm", "osm",
+bldid    = "",  "osm", "osm",
+pavement = "",  "osm", "osm",
+street   = "",  "osm", "osm",
+
+[plant]
+tree_lad_max   =  5.0, 5.0, 5.0,
+lad_max_height =  0.4, 0.4, 0.4,
+sfch = "","","", "",
+
