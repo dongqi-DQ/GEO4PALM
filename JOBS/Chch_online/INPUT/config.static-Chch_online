@@ -22,8 +22,8 @@ ll_y      = 0.0,  540.0, 1134.0, 1296.0,
 
 [settings]
 water_temperature = 283.0, 283.0, 283.0,
-building_height_dummy = 5.0, 5.0, 5.0,
-tree_height_filter = 3.0, 3.0, 3.0,
+building_height_dummy = 3.0, 3.0, 3.0, 
+tree_height_filter = 1.5, 1.5, 1.5,
 
 
 [geotif] 
