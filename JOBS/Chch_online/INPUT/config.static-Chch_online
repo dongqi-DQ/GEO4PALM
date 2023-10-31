@@ -3,6 +3,8 @@ case_name = "Chch_online",   # prefix for a case
 origin_time = "2021-01-01 00:00:00 +00",          # time in yyyy-mm-dd HH:MM:SS +HH format (+00 as in UTC)  
 config_proj = "EPSG:2193", # projection for PALM
 default_proj = "EPSG:4326", # projection of lat/lon to find domain location
+lu_table = "esa_2020v1_lu.csv",
+
 
 [domain]
 ndomain   = 3,                                     # max number of domains
@@ -18,9 +20,14 @@ z_origin  = 0.0,   0.0,   0.0,      0.0,
 ll_x      = 0.0,  540.0, 1134.0, 1296.0, 
 ll_y      = 0.0,  540.0, 1134.0, 1296.0, 
 
+[settings]
+water_temperature = 283.0, 283.0, 283.0,
+building_height_dummy = 3.0, 3.0, 3.0, 
+tree_height_filter = 1.5, 1.5, 1.5,
+
 
 [geotif] 
-sst       = "online",          "online",          "online",          "online",
+water       = "online",          "",          "",          "online",
 dem       = "nasa",          "nasa",          "nasa",          "nasa",
 lu        = "esa",          "esa",          "esa",          "esa",
 resample_method = "nearest", "nearest", "nearest", "nearest",
@@ -41,7 +48,7 @@ pavement = "",  "osm", "osm",
 street   = "",  "osm", "osm",
 
 [plant]
-tree_lai_max   =  5.0, 5.0, 5.0,
+tree_lad_max   =  5.0, 5.0, 5.0,
 lad_max_height =  0.4, 0.4, 0.4,
 sfch = "","","", "",
 

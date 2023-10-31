@@ -143,7 +143,7 @@ GEO4PALM provides several interfaces for the basic features of PALM static drive
 
 ### How do I download data using GEO4PALM?
 
-In the GEO4PALM input namelist, users can either specify the input geospatial data filename or specify:
+In the GEO4PALM input configuration file, users can either specify the input geospatial data filename or specify:
 1. `"nasa",` to download and process data via NASA Earthdata interface
 3. `"esa",` to donwload and process data via ESA WorldCover interface
 4. `"osm",` to download and process data via OSMnx
@@ -161,11 +161,11 @@ In the GEO4PALM input namelist, users can either specify the input geospatial da
 
 Download the entire code to your local directory.
 
-In the master directory, you will find the main script `run_config_static.py`. To run this script, a namelist file is required. The namelist for each case should be `$master_directory/JOBS/case_name/INPUT/namelist.static-case_name`.
+In the master directory, you will find the main script `run_config_static.py`. To run this script, a configuration file is required. The configuration file for each case should be `$master_directory/JOBS/case_name/INPUT/config.static-case_name`.
 
-#### Preparing namelist 
+#### Preparing the configuration file 
 
-The namelist requires PALM domain configuration and geotiff filenames from users. The domain configuration is similar to variables used in PALM. 
+The configuration file requires PALM domain configuration and geotiff filenames from users. The domain configuration is similar to variables used in PALM. 
 
 Users must specify:
 ```
@@ -175,6 +175,8 @@ origin_time       -  date and time at model start*
 default_proj      -  default is EPSG:4326. This projection uses lat/lon to locate domain. This may not be changed.
 config_proj       -  projection of input tif files. GEO4PALM will automatically assign the UTM zone if not provided.
                      We recommend users use local projection with units in metre, e.g. for New Zealand users, EPSG:2193 is a recommended choice.
+
+lu_table          -  land use look up table to convert land use classification to PALM recognisable
 
 [domain]
 ndomain           -  maximum number of domains, when >=2, domain nesting is enabled  
@@ -189,8 +191,16 @@ z_origin          -  elevated terrain mean grid position in meters (leave as 0.0
 ll_x              -  lower left corner distance to the first domain in meters along x-axis   
 ll_y              -  lower left corner distance to the first domain in meters along y-axis   
 
+[settings]
+water_temperature      -  user input water temperature values when no water temperature data is available
+building_height_dummy  -  user input dummy height for buildings where building heights are missing in the 
+                          OSM data set or if building heights are 0.0 m in the input data 
+tree_height_filter     -  user input to filter small objects, i.e., if object height is smaller than this value
+                          then this object is not included in the LAD estimation
+
+
 [geotif]          -  required input from user; can be provided by users in the INPUT folder or "online"
-sst               -  input for water temperature
+water             -  input for water temperature
 dem               -  digital elevation model input for topography
 lu                -  land use classification  
 resample_method   -  method to resample geotiff files for interpolation/extrapolation
@@ -212,7 +222,7 @@ pavement          - input for pavement type
 street            - input for building ID
 
 [plant]           - input for plant canopy model; can leave as "" if this feature is not included in the simulations, or provided by user
-tree_lai_max      - input value for maximum leaf area index (LAI)
+tree_lad_max      - input value for maximum leaf area density (LAD)
 lad_max_height    - input value for the height where the leaf area index (LAI) reaches leave area density (LAD) 
 sfch              - input for plant height; this is for leave area density (LAD)
 ```
@@ -226,24 +236,22 @@ To convert land use classifcation to PALM-recognisable types, a lookup table (se
 - ESA WorldCover 2020 v1: `esa_2020v1_lu.csv`
 - German Space Agency (DLR) data sets: `dlr_lu.csv`
 
-Before running GEO4PALM, link the corresponding csv file to `util/lu_2_PALM_num.csv`:
-```
-# In util/
-ln -sf lu_csv/your_csv lu_2_PALM_num.csv
-```
+Before running GEO4PALM, the corresponding csv file for land use type conversion should be put in the `INPUT` folder. Otherwise, GEO4PALM uses the default csv file `util/lu_2_PALM_num.csv`.
 
 #### Urban surface and plant canopy
 
-For urban and plant canopy tif file fileds, if users do not have files available, they should leave the file names empty as `"",`. If a user desires to use data from OSM (OpenStreetMap), please leave the field as `"osm",`. Building footprint, building height, building ID, pavement type, and street type will be derived from OSM data. For buildings with no height information available, a dummy value of 3 m is given.
+For urban and plant canopy tif file fileds, if users do not have files available, they should leave the file names empty as `"",`. If a user desires to use data from OSM (OpenStreetMap), please leave the field as `"osm",`. Building footprint, building height, building ID, pavement type, and street type will be derived from OSM data. For buildings with no height information available, a dummy value `building_height_dummy` should be given in the configuration file.
 
-Namelist examples are given in `JOBS/Chch_online/INPUT/` and  `JOBS/Berlin_DLR/INPUT/`
+Configuration file examples are given in `JOBS/Chch_online/INPUT/` and  `JOBS/Berlin_DLR/INPUT/`
 
 #### Water temperature
-If "online" is used for `sst`, the water temperature is derived from GHRSST Level 4 MUR product downloaded via NASA Earthdata. The SST at the nearest grid point will be used for water temperature. The day of the year is derived from `origin_time` in the namelist. The location to take SST data depends on `centlat` and `centlon` in the namelist.
+If `"online"` is used for `water`, the water temperature is derived from GHRSST Level 4 MUR product downloaded via NASA Earthdata. The SST at the nearest grid point will be used for water temperature. The day of the year is derived from `origin_time` in the configuration file. The location to take SST data depends on `centlat` and `centlon` in the namelist.
+
+Users can provide a prescribed water temperature using `water_temperature` in `[settings]` for each simulation domain or provide a spatial tif file with water temperature for water bodies. 
 
 #### Input tif files explained
 
-GEO4PALM only supports input files in tif format. All tif files must be put in `$master_directory/INPUT/` with filename specified in the namelist for the desired field and simulation domain. GEO4PALM has no requirements on data source, projection, and file size. Users do not need to preprocess tif files into specific resolution or projection for the configured domains. GEO4PALM will process all INPUT tif and store temporary tif files for each simulation domain in `$master_directory/TMP`. All static driver files will be stored in `$master_directory/OUTPUT`. All the input files specified in the namelist will be processed by GEO4PALM into PALM static driver based on the projection and grid spacing given in the namelist. 
+GEO4PALM only supports input files in tif format. All tif files must be put in `$master_directory/INPUT/` with filename specified in the configuration file for the desired field and simulation domain. GEO4PALM has no requirements on data source, projection, and file size. Users do not need to preprocess tif files into specific resolution or projection for the configured domains. GEO4PALM will process all INPUT tif and store temporary tif files for each simulation domain in `$master_directory/TMP`. All static driver files will be stored in `$master_directory/OUTPUT`. All the input files specified in the configuration file will be processed by GEO4PALM into PALM static driver based on the projection and grid spacing given in the configuration file. 
 
 For those who have shp files, we provide a small tool to convert shp files to tif files `shp2tif.py`. 
 
@@ -252,7 +260,7 @@ _How to use `shp2tif.py`?_
 python shp2tif.py  [case_name] [shp file path] [variable_name]
 ```
 
-`shp2tif.py` converts shp file into the finest resolution configured in the namelist.
+`shp2tif.py` converts shp file into the finest resolution configured in the configuration file.
 **Note:** 
 1. Converting big shp files may require a large amount of RAM.
 2. LAD calculation only allows fixed values of `tree_lai_max ` and `lad_max_height` at the moment due to limited data availability. Future development will include spatial variation in LAD. Usres are welcome to modify the code based on their data availability.
@@ -264,12 +272,12 @@ _Heldens, W., Burmeister, C., Kanani-Sühring, F., Maronga, B., Pavlik, D., Süh
 
 ### Run the main script
 
-Once the namelist and all tif input from users are ready. One can run the script in the main GEO4PALM directory:
+Once the configuration file and all tif input from users are ready. One can run the script in the main GEO4PALM directory:
 ```
 python run_config_static.py case_name
 ```
 
-_If "nasa" is used for `dem` and/or `lu` and/or "online" is used for `sst`, the script will guide the user through the NASA AρρEEARS API. If "esa" is included for `dem` and/or `lu`, then the script will guide the user through ESA's Terrascope API._
+_If "nasa" is used for `dem` and/or `lu` and/or "online" is used for `water`, the script will guide the user through the NASA AρρEEARS API. If "esa" is included for `dem` and/or `lu`, then the script will guide the user through ESA's Terrascope API._
 
 ### Flat terrain and precursor run 
 Once a static driver is used, all the PALM domains in the simulation requires static drivers. In case a flat terrain static driver and/or precursor run static driver are required, users may run `static2flat.py`. 

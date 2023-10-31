@@ -38,7 +38,7 @@ warnings.simplefilter('ignore')
 settings_cfg = configparser.ConfigParser(inline_comment_prefixes='#')
 config = configparser.RawConfigParser()
 prefix = sys.argv[1]
-namelist =  f"./JOBS/{prefix}/INPUT/namelist.static-{prefix}"
+namelist =  f"./JOBS/{prefix}/INPUT/config.static-{prefix}"
 config.read(namelist)
 ## [case]
 case_name =  ast.literal_eval(config.get("case", "case_name"))[0]
