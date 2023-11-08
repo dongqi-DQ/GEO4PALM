@@ -181,12 +181,12 @@ lu_table          -  land use look up table to convert land use classification t
 [domain]
 ndomain           -  maximum number of domains, when >=2, domain nesting is enabled  
 centlat, centlon  -  centre latitude and longitude of the first domain. Note this is not required for nested domains  
-nx                -  number of grid points along x-axis  
-ny                -  number of grid points along y-axis  
-nz                -  number of grid points along z-axis  
-dx                -  grid spacing in meters along x-axis  
-dy                -  grid spacing in meters along y-axis  
-dz                -  grid spacing in meters along z-axis  
+nx                -  number of grid points along the x-axis  
+ny                -  number of grid points along the y-axis  
+nz                -  number of grid points along the z-axis  
+dx                -  grid spacing in metres along the x-axis  
+dy                -  grid spacing in metres along the y-axis  
+dz                -  grid spacing in metres along the z-axis  
 z_origin          -  elevated terrain mean grid position in meters (leave as 0.0 if unknown)  
 ll_x              -  lower left corner distance to the first domain in meters along x-axis   
 ll_y              -  lower left corner distance to the first domain in meters along y-axis   
@@ -199,7 +199,7 @@ tree_height_filter     -  user input to filter small objects, i.e., if object he
                           then this object is not included in the LAD estimation
 
 
-[geotif]          -  required input from user; can be provided by users in the INPUT folder or "online"
+[geotif]          -  required input from the user; can be provided by users in the INPUT folder or "online"
 water             -  input for water temperature
 dem               -  digital elevation model input for topography
 lu                -  land use classification  
@@ -219,11 +219,11 @@ lu_end_date = '2020-10-30',
 bldh              - input for building height 
 bldid             - input for building ID
 pavement          - input for pavement type
-street            - input for building ID
+street            - input for street type
 
 [plant]           - input for plant canopy model; can leave as "" if this feature is not included in the simulations, or provided by user
-tree_lad_max      - input value for maximum leaf area density (LAD)
-lad_max_height    - input value for the height where the leaf area index (LAI) reaches leave area density (LAD) 
+tree_lad_max      - input value for maximum leaf area density (LADm)
+lad_max_height    - input value for the height where the leaf area density (LAD) reaches LADm 
 sfch              - input for plant height; this is for leave area density (LAD)
 ```
 _**Note**: The `origin_time` setting is similar to `origin_date_time` in [PALM documentation](https://palm.muk.uni-hannover.de/trac/wiki/doc/app/initialization_parameters#origin_date_time). This variable is required in static drivers, but will not be used in PALM simulation. Rather the date time should be specified in PALM's p3d namelist. The sunset/sunrise time is affected by lat/lon attributes in the static driver._
