@@ -22,7 +22,7 @@ from util.nearest import nearest
 from netCDF4 import Dataset
 import dask
 import requests
-
+import dask.array as da
 #Allows us to visualize the dask progress for parallel operations
 from dask.diagnostics import ProgressBar
 ProgressBar().register()
@@ -137,27 +137,33 @@ def download_sst(case_name, origin_time, static_tif_path):
                 print('Please answer y or n')
                 continue
 
-def nearest_sst(sst,idx_lat,idx_lon):
+def nearest_sst(sst,idx_lat,idx_lon,chunksize=100000):
     # find nearest available SST if no SST available at centlat, centlon
-    lat,lon = np.nonzero(sst)
+    lat,lon = da.nonzero(sst)
+    lat.compute_chunk_sizes()
+    lon.compute_chunk_sizes()
+    lat=da.rechunk(lat,chunks=chunksize)
+    lon=da.rechunk(lon,chunks=chunksize)
     min_idx = ((lat - idx_lat)**2 + (lon - idx_lon)**2).argmin()
-    return sst[lat[min_idx], lon[min_idx]]
+    min_idx = min_idx.compute()
+    lat_idx = lat[min_idx].compute()
+    lon_idx = lon[min_idx].compute()
+    return sst[lat_idx,lon_idx].compute()
 
 def get_nearest_sst(centlat, centlon, case_name, static_tif_path):
     # get nearest sst to be used as water temperatuer in water_pars
     sst_file = f"{static_tif_path}{case_name}-SST.nc"
-    with xr.open_dataset(sst_file, engine="netcdf4") as ds_sst:
-            sst = ds_sst["analysed_sst"].isel(time=0)
-            sst_lat = ds_sst["lat"]
-            sst_lon = ds_sst["lon"]
-            sst.data[np.isnan(sst.data)] = 0
-            _, idx_lat = nearest(sst_lat, centlat)
-            _, idx_lon = nearest(sst_lon, centlon)
-    if sst[idx_lat,idx_lon].data>0:
-        water_temperature = sst[idx_lat,idx_lon].data
-    else:
-        water_temperature = nearest_sst(sst.data, idx_lat, idx_lon)
-    
+    with xr.open_dataset(sst_file, engine="netcdf4",chunks={"lat":1000,"lon":1000}) as ds_sst:
+        sst = ds_sst["analysed_sst"].isel(time=0)
+        sst_lat = ds_sst["lat"]
+        sst_lon = ds_sst["lon"]
+        sst.data[np.isnan(sst.data)] = 0
+        _, idx_lat = nearest(sst_lat, centlat)
+        _, idx_lon = nearest(sst_lon, centlon)
+        if sst[idx_lat,idx_lon].data.compute()>0:
+            water_temperature = sst[idx_lat,idx_lon].data
+        else:
+            water_temperature = nearest_sst(sst.data, idx_lat, idx_lon)
     return water_temperature
 
 ########

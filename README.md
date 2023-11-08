@@ -47,7 +47,7 @@ e.g.
 TerraCatalogue client is for ESA land use API. More information can be found [here](https://vitobelgium.github.io/terracatalogueclient/installation.html).
 
 ## PALM domain utility
-Users may visualise domain by running `palm_domain_utility.py` via `panel`. This can be done on a local machine and/or a remote server.
+Users may plan/visualise/modify simulation domains by running `palm_domain_utility.py` via `panel`. This can be done on a local machine and/or a remote server.
 
 ### Local machine
 
@@ -108,7 +108,7 @@ Remember to change the port number that assigned earlier in ssh. To access the G
 2. Remove the domain. Use `Remove domain` tab if you want to remove any domain. Simply enter the domain number in `Remove Domain number` and click `Remove` button.
     > You can still use the functions mentioned in the previous section to add more domains. Just remember to click "Get domain configure" to allow the utility to adjust/finalize the domain configure text before you use it.
 #### Import domain configure.
-If you already have an existing GEO4PALM configure file and would like to visualize the domain. Simply copy the [domain] section to the `Static namelist Congfig` and click `check configuration`. This will import the domain setup into the utility. Below is an example of a [domain] section.
+If you already have an existing GEO4PALM configure file and would like to visualize the domain. Simply copy the [domain] section to the `Static namelist Congfig` and click `check configuration` to import and visulise the domains. Below is an example of a [domain] section.
 ```
 [domain]
 ndomain = 1,
@@ -124,7 +124,6 @@ ll_x = 0.0,
 ll_y = 0.0, 
 z_origin  = 0.0, 
 ```
-b. Click `check configuration` to visualise the domains.
 
 > * You should enter the local projection in `local projection (epsg)`as well. Otherwise, the utility will automatically find the most suitable UTM for you.
 > * After import, you will also be able to use all the functionalities to add/modify the domains.
