@@ -273,11 +273,11 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
     
     # process building height
     building_height =  np.array([[cell if cell>=0 else -9999 for cell in row] for row in bldh])
-    building_height[building_height==0] = bldh_dummy
     building_height[water_type>0] = -9999
     building_height[pavement_type > 0 ] = -9999
     
     building_id  =  np.array([[cell if cell>0 else -9999 for cell in row] for row in bldid])
+    building_height[(building_id>0) &(building_height==0) ] = bldh_dummy
     building_id[building_height==-9999] = -9999
     
     building_type =  np.array([[3 if cell>0 else -9999 for cell in row] for row in building_id])

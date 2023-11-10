@@ -77,16 +77,20 @@ def process_osm_building(bld_file, config_proj, case_name, tmp_path, idomain, dx
         gpd_file = gpd_file.assign(height=gpd_file["osmid"])
         gpd_file["height"] = None
     ## First, set all building height to 3 m when building exists
-    gpd_file.loc[gpd_file["osmid"] > 0, 'new_height'] = 3
+    gpd_file.loc[gpd_file["osmid"] > 0, 'new_height'] = float(building_height_dummy)
     ## calculate building height from OSM data
     ## note that if OSM do not have height data, the height will be 0 m
     for i in range(0,len(gpd_file["height"])):
         if type(gpd_file.loc[i,"height"]) is not type(None):
-            try:
-                gpd_file.loc[i,"new_height"]  = float(gpd_file.loc[i,"height"])
-            except:
+            if type(gpd_file.loc[i,"height"]) is not float:
+                try:
+                    gpd_file.loc[i,"new_height"]  = float(gpd_file.loc[i,"height"])
+                except:
                 # in case units are included
-                gpd_file.loc[i,"new_height"]  = float(gpd_file.loc[i,"height"][:-1])
+                    gpd_file.loc[i,"new_height"]  = float(gpd_file.loc[i,"height"][:-1])
+            else:
+                if not np.isnan(gpd_file.loc[i,"height"]):
+                    gpd_file.loc[i,"new_height"]  = float(gpd_file.loc[i,"height"])
         elif type(gpd_file.loc[i,"level"]) is not type(None):
             try:
                 gpd_file.loc[i,"new_height"] = float(gpd_file.loc[i,"level"])*3
@@ -103,9 +107,7 @@ def process_osm_building(bld_file, config_proj, case_name, tmp_path, idomain, dx
                 if ";" in gpd_file.loc[i,"level"]:
                     max_lvl = np.max([int(s.strip()) for s in gpd_file.loc[i,"level"].split(';')])
                     gpd_file.loc[i,"new_height"] = max_lvl*3
-        elif type(gpd_file.loc[i,"height"]) is type(None) or gpd_file.loc[i,"level"] is type(None) and gpd_file["osmid"] > 0:
-            # if no building height is given then set as 3 m
-            gpd_file.loc[i,"new_height"] = building_height_dummy 
+
     # make building height geocube
     bldh_geogrid = make_geocube(vector_data=gpd_file, measurements=["new_height"], resolution = (dx, dy), output_crs=config_proj)
     # make building ID geocube
