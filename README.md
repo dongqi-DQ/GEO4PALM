@@ -244,7 +244,7 @@ For urban and plant canopy tif file fileds, if users do not have files available
 Configuration file examples are given in `JOBS/Chch_online/INPUT/` and  `JOBS/Berlin_DLR/INPUT/`
 
 #### Water temperature
-If `"online"` is used for `water`, the water temperature is derived from GHRSST Level 4 MUR product downloaded via NASA Earthdata. The SST at the nearest grid point will be used for water temperature. The day of the year is derived from `origin_time` in the configuration file. The location to take SST data depends on `centlat` and `centlon` in the namelist.
+If `"online"` is used for `water`, the water temperature is derived from GHRSST Level 4 MUR product downloaded via NASA Earthdata. The SST at the nearest grid point will be used for water temperature. The day of the year is derived from `origin_time` in the configuration file. The location to take SST data depends on `centlat` and `centlon` in the GEO4PALM configuration file.
 
 Users can provide a prescribed water temperature using `water_temperature` in `[settings]` for each simulation domain or provide a spatial tif file with water temperature for water bodies. 
 
@@ -279,11 +279,11 @@ python run_config_static.py case_name
 _If "nasa" is used for `dem` and/or `lu` and/or "online" is used for `water`, the script will guide the user through the NASA AρρEEARS API. If "esa" is included for `dem` and/or `lu`, then the script will guide the user through ESA's Terrascope API._
 
 ### Flat terrain and precursor run 
-Once a static driver is used, all the PALM domains in the simulation requires static drivers. In case a flat terrain static driver and/or precursor run static driver are required, users may run `static2flat.py`. 
+Once a static driver is used, all the PALM domains in the simulation require static drivers. In case a flat terrain static driver and/or precursor run static driver are required, users may run `static2flat.py`. 
 ```
 python static2flat.py [static_file] [nx,ny]
 ```
-Note that this requires no urban variables (e.g. buildings and streets) in the input static driver. If precursor run is not required, users do not need to specify `nx` and `ny`. This script can be found in `$master_directory/util/tools/`
+Note that this requires no urban variables (e.g. buildings and streets) in the input static driver. If a precursor run is not required, users do not need to specify `nx` and `ny`. This script can be found in `$master_directory/util/tools/`
 
 
 ## Do you have any questions or issues? 
