@@ -9,6 +9,11 @@ GEO4PALM is a Python tool that lets PALM users to download and preprocess geospa
 **Citation:**  
 Lin, D., Zhang, J., Khan, B., Katurji, M., and Revell, L. E.: GEO4PALM v1.1: an open-source geospatial data processing toolkit for the PALM model system, Geosci. Model Dev. Discuss. [preprint], https://doi.org/10.5194/gmd-2023-150, in review, 2023.
 
+**Note:**
+**IMPORTANT**
+tree_lad_max (LADm), which is the input value for maximum leaf area density (LADm) as stated below, should be tree_lai_max. Namely, the maximum leaf area index should be used. See the discussion here https://github.com/dongqi-DQ/GEO4PALM/discussions/15#discussioncomment-7711919
+This change was made due to our latest revision and was not correct. Sorry for the confusion. This error will be revised as soon as we get the chance to revise our manuscript in the review portal. 
+
 # Table of Contents
 1. [Python environment](#python-environment)
 2. [PALM domain utility](#palm-domain-utility)
