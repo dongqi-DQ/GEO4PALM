@@ -117,7 +117,7 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
     lu_csv_file = dom_dict["lu_csv_file"]
     
     ### leaf area index parameters
-    tree_lad_max = dom_dict['tree_lad_max']      # default value 5.0
+    tree_lai_max = dom_dict['tree_lai_max']      # default value 5.0
     lad_max_height = dom_dict['lad_max_height']  # default value 0.4
     
     ## water input file options
@@ -360,7 +360,7 @@ def generate_palm_static(case_name, tmp_path, idomain, config_proj, dom_dict):
                     continue
                 else:
                     #  Calculate height of maximum LAD
-                    tree_lai_scaled = tree_lad_max* tree_height[idy, idx]/scale_height
+                    tree_lai_scaled = tree_lai_max* tree_height[idy, idx]/scale_height
                     z_lad_max = lad_max_height * tree_height[idy, idx]
 
                     #  Calculate the maximum LAD after Lalic and Mihailovic (2004)

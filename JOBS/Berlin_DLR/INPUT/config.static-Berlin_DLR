@@ -46,6 +46,6 @@ pavement = "",  "Berlin_pavement_type_2m_DLR.tif", "Berlin_pavement_type_2m_DLR.
 street   = "",  "Berlin_street_type_2m_DLR.tif", "Berlin_street_type_2m_DLR.tif",
 
 [plant]
-tree_lad_max   =  5.0, 5.0, 5.0,
+tree_lai_max   =  5.0, 5.0, 5.0,
 lad_max_height =  0.4, 0.4, 0.4,
 sfch = "","Berlin_vegetation_patch_height_2m_DLR.tif", "Berlin_vegetation_patch_height_2m_DLR.tif",
