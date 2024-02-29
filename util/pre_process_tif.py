@@ -60,11 +60,11 @@ def process_tif(tif_file, tif_type, config_proj, case_name, tmp_path, idomain, d
     ds_geo_out.rio.to_raster(out_file,windowed=True)
     print(f"{tif_type} tif file processed to {tmp_path}")
         
-def process_osm_building(bld_file, config_proj, case_name, tmp_path, idomain, dx, dy, building_height_dummy):
+def process_osm_building(bld_file, config_proj, case_name, tmp_path, idomain, dx, dy, building_height_dummy,option):
     '''
     Function to process OSM building info
     '''
-    bldh_out_file = f"{tmp_path}{case_name}_BLDH_N{idomain+1:02d}.tif"
+    bldh_out_file = f"{tmp_path}{case_name}_{option}_N{idomain+1:02d}.tif"
     print(f"Processing building tif file for Domain N{idomain+1:02d}")
     gpd_file = gpd.read_file(bld_file)
     gpd_file = gpd_file.assign(new_height=gpd_file["osmid"])
@@ -114,12 +114,14 @@ def process_osm_building(bld_file, config_proj, case_name, tmp_path, idomain, dx
     osmid_geogrid = make_geocube(vector_data=gpd_file, measurements=["osmid"], resolution = (dx, dy), output_crs=config_proj)
 
     # match projection with DEM
-    ds_dem = rxr.open_rasterio(bldh_out_file.replace("BLDH","DEM"))
+    ds_dem = rxr.open_rasterio(bldh_out_file.replace(f"{option}","DEM"))
     bldh_geogrid = bldh_geogrid.reindex(y=bldh_geogrid.y[::-1]).rio.reproject_match(ds_dem)
     osmid_geogrid = osmid_geogrid.reindex(y=osmid_geogrid.y[::-1]).rio.reproject_match(ds_dem)
     # save files 
-    bldh_geogrid.rio.to_raster(bldh_out_file)
-    osmid_geogrid.rio.to_raster(bldh_out_file.replace("BLDH","BLDID"))
+    if option=="BLDH":
+        bldh_geogrid.rio.to_raster(bldh_out_file)
+    if option=="BLDID":
+        osmid_geogrid.rio.to_raster(bldh_out_file.replace("BLDH","BLDID"))
     print(f"Building tif files processed to {tmp_path}")
         
 def process_osm_pavement_street(osm_file, tif_type, config_proj, case_name, tmp_path, idomain, dx, dy):
@@ -252,12 +254,15 @@ def process_all(prefix):
         # OSM buildings
         if bldh[i]=="osm":
             bld_file = f"{static_tif_path}{case_name}_osm_building_N{i+1:02d}.gpkg"
-            process_osm_building(bld_file, config_proj, case_name, tmp_path, i, dx[i], dy[i],building_height_dummy[i])
+            process_osm_building(bld_file, config_proj, case_name, tmp_path, i, dx[i], dy[i],building_height_dummy[i],"BLDH")
         # if local file provided
         elif bldh[i]!="osm" and bldh[i]!="":
             bld_file = static_tif_path+bldh[i]
             process_tif(bld_file, "BLDH", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
         # building ID - if not from OSM
+        if bldid[i]=="osm":
+            bld_file = f"{static_tif_path}{case_name}_osm_building_N{i+1:02d}.gpkg"
+            process_osm_building(bld_file, config_proj, case_name, tmp_path, i, dx[i], dy[i],building_height_dummy[i],"BLDID")
         if bldid[i]!="osm" and bldid[i]!="":
             bldid_file = static_tif_path+bldid[i]
             process_tif(bldid_file, "BLDID", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
