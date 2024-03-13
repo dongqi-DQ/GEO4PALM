@@ -7,7 +7,10 @@
 GEO4PALM is a Python tool that lets PALM users to download and preprocess geospatial data easier. GEO4PALM accepts all geospatial input files in geotiff or shp format. Once users have their own input data ready, GEO4PALM can convert such input data into PALM static driver. The instruction below works for Linux operation system. For Windows and MacOS, some minor adjustments may need to be done by users themselves.
 
 **New features for v2.0 (beta)**
+
 We adopted some of the LAD estimation features from PALM CSD and now users can input more tree features for LAD in PALM static drivers. Note that this is still at an early stage of testing, so we will keep an eye on the bugs :)
+
+Refer to the `Bottle_Lake` case for a configuration file example.
 
 **Citation:**  
 Lin, D., Zhang, J., Khan, B., Katurji, M., and Revell, L. E.: GEO4PALM v1.1: an open-source geospatial data processing toolkit for the PALM model system, Geosci. Model Dev. Discuss. [preprint], https://doi.org/10.5194/gmd-2023-150, in review, 2023.
