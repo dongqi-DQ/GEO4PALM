@@ -6,6 +6,9 @@
 
 GEO4PALM is a Python tool that lets PALM users to download and preprocess geospatial data easier. GEO4PALM accepts all geospatial input files in geotiff or shp format. Once users have their own input data ready, GEO4PALM can convert such input data into PALM static driver. The instruction below works for Linux operation system. For Windows and MacOS, some minor adjustments may need to be done by users themselves.
 
+**New features for v2.0 (beta)**
+We adopted some of the LAD estimation features from PALM CSD and now users can input more tree features for LAD in PALM static drivers. Note that this is still at an early stage of testing, so we will keep an eye on the bugs :)
+
 **Citation:**  
 Lin, D., Zhang, J., Khan, B., Katurji, M., and Revell, L. E.: GEO4PALM v1.1: an open-source geospatial data processing toolkit for the PALM model system, Geosci. Model Dev. Discuss. [preprint], https://doi.org/10.5194/gmd-2023-150, in review, 2023.
 
@@ -221,9 +224,19 @@ pavement          - input for pavement type
 street            - input for street type
 
 [plant]           - input for plant canopy model; can leave as "" if this feature is not included in the simulations, or provided by user
-tree_lad_max      - input value for maximum leaf area density (LADm)
-lad_max_height    - input value for the height where the leaf area density (LAD) reaches LADm 
-sfch              - input for plant height; this is for leave area density (LAD)
+lad_mode          - LAD estimation options: 1 means using the user prescribed values with sfch; 2 means using the full tree crwon input
+tree_lad_max      - Required for mode 1: input value for maximum leaf area density (LADm)
+lad_max_height    - Required for mode 1: input value for the height where the leaf area density (LAD) reaches LADm 
+sfch              - Required for mode 1: input for plant height; this is for leave area density (LAD)
+
+lai               - Required for mode 2: input of LAI (leaf area index) 
+patch_type        - Required for mode 2: vegetation patch types
+vegetation_height - Required for mode 2: vegetation height
+tree_height       - Required For mode 2: single tree height
+tree_crown_diameter - Required for mode 2: tree crown diameter
+tree_trunk_diameter - Required for mode 2: tree trunk diameter
+tree_type         - not implemented yet
+
 ```
 _**Note**: The `origin_time` setting is similar to `origin_date_time` in [PALM documentation](https://palm.muk.uni-hannover.de/trac/wiki/doc/app/initialization_parameters#origin_date_time). This variable is required in static drivers, but will not be used in PALM simulation. Rather the date time should be specified in PALM's p3d namelist. The sunset/sunrise time is affected by lat/lon attributes in the static driver._
 
