@@ -1,0 +1,62 @@
+[case]
+case_name = "Bottle_Lake",   # prefix for a case
+origin_time = "2019-02-01 00:00:00 +00",          # time in yyyy-mm-dd HH:MM:SS +HH format (+00 as in UTC)  
+config_proj = "EPSG:2193", # projection for PALM
+default_proj = "EPSG:4326", # projection of lat/lon to find domain location
+lu_table = "nzlcdb_2_PALM_num.csv",
+
+[domain]
+ndomain = 4,
+centlat = -43.46695,
+centlon = 172.69600,
+nx = 324, 216, 360, 468,
+ny = 324, 216, 360, 612,
+nz = 192, 144, 360, 648,
+dx = 36.0, 36.0, 12.0, 4.0,
+dy = 36.0, 36.0, 12.0, 4.0,
+dz = 36.0, 36.0, 12.0, 4.0,
+ll_x = 0.0, 1944.0, 3672.0, 4896.0,
+ll_y = 0.0, 1944.0, 3672.0, 4608.0,
+z_origin  = 0.0, 0.0, 0.0, 0.0,
+
+[settings]
+water_temperature = 283.0, 283.0, 283.0, 283.0,
+building_height_dummy = 3.0, 3.0, 3.0, 3.0,  
+tree_height_filter = 1.5, 1.5, 1.5, 1.5,
+
+[geotif] 
+water       = "online", "online", "online","online", #"online","online","online","online",
+dem       = "chch_gf_dem_15m.tif", "chch_gf_dem_15m.tif","chch_dem_1m.tif", "chch_dem_1m.tif",
+lu        = "Class_2018_9m_EPSG2193_shp2tif.tif","Class_2018_9m_EPSG2193_shp2tif.tif","Class_2018_9m_EPSG2193_shp2tif.tif","chch_lcdb_1m.tif",
+resample_method = "nearest",  "nearest", "nearest","nearest", "nearest","nearest", "nearest",
+# if NASA API is used format in YYYY-MM-DD
+# SST date should be the same as the orignin_time
+
+## No need to change start/end dates for NASA SRTMGL1_NC.003 
+dem_start_date = '2000-02-12',
+dem_end_date = '2000-02-20',
+## start/end dates for land use data set
+lu_start_date = '2020-10-01',
+lu_end_date = '2020-10-30',
+
+[urban]
+bldh     = "", "", "chch_bldh_merged_1m.tif","chch_bldh_merged_1m.tif","chch_bldh_merged_1m.tif","chch_bldh_merged_1m.tif","chch_bldh_merged_1m.tif",
+bldid    = "", "", "chch_bldID_merged_1m.tif","chch_bldID_merged_1m.tif","chch_bldID_merged_1m.tif","chch_bldID_merged_1m.tif","chch_bldID_merged_1m.tif",
+pavement = "", "", "osm","osm","osm",
+street   = "", "", "chch_street_1m.tif","chch_street_1m.tif","chch_street_1m.tif","chch_street_1m.tif","chch_street_1m.tif",
+
+[plant]
+lad_mode = 2, ## two options: 1 - use the fixed values provided; 2 - 2D input 
+
+sfch = "","","chch_sfch_1m.tif","chch_sfch_1m.tif","chch_sfch_1m.tif","chch_sfch_1m.tif","chch_sfch_1m.tif",
+
+lai = "","","Bottle_Lake_LAI.tif", "Bottle_Lake_LAI.tif", 
+patch_type = "","","Bottle_Lake_vegetation_type.tif","Bottle_Lake_vegetation_type.tif",
+vegetation_height = "","","Bottle_Lake_vegetation_height.tif","Bottle_Lake_vegetation_height.tif", ## vegetation patch height
+tree_height =  "","","Bottle_Lake_tree_height.tif","Bottle_Lake_tree_height.tif",
+tree_crown_diameter =  "","","Bottle_Lake_tree_crown_diameter.tif","Bottle_Lake_tree_crown_diameter.tif",
+tree_trunk_diameter = "","","Bottle_Lake_tree_trunk_diameter.tif","Bottle_Lake_tree_trunk_diameter.tif",
+tree_type = "","","","",""
+
+tree_lai_max   =  6.0, 6.0, 6.0,6.0,6.0
+lad_max_height =  0.4, 0.4, 0.4, 0.4, 0.4

@@ -206,8 +206,19 @@ def process_all(prefix):
     street = ast.literal_eval(config.get("urban", "street"))
 
     ## [tif files for plant canopy]
-    sfch = ast.literal_eval(config.get("plant", "sfch"))
-
+    lad_mode = ast.literal_eval(config.get("plant", "lad_mode"))[0]
+    if lad_mode==1:
+        sfch = ast.literal_eval(config.get("plant", "sfch"))
+    ## lad_mode 2D
+    if lad_mode==2:
+        lai = ast.literal_eval(config.get("plant", "lai"))
+        patch_type = ast.literal_eval(config.get("plant", "patch_type"))
+        vegetation_height = ast.literal_eval(config.get("plant", "vegetation_height"))
+        tree_height =  ast.literal_eval(config.get("plant", "tree_height"))
+        tree_crown_diameter =  ast.literal_eval(config.get("plant", "tree_crown_diameter"))
+        tree_trunk_diameter = ast.literal_eval(config.get("plant", "tree_trunk_diameter"))
+        tree_type = ast.literal_eval(config.get("plant", "tree_type"))
+    
     # specify the directory of tif files
     # users can provide their own tif files
     # otherwise will download from NASA or OSM
@@ -283,9 +294,32 @@ def process_all(prefix):
             street_file = static_tif_path+street[i]
             process_tif(street_file, "street", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
         # Surface height - for trees; if local file provided
-        if sfch[i]!="osm" and sfch[i]!="":
-            sfch_file = static_tif_path+sfch[i]
-            process_tif(sfch_file, "SFCH", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
-            
+        if lad_mode == 1:
+            if sfch[i]!="":
+                sfch_file = static_tif_path+sfch[i]
+                process_tif(sfch_file, "SFCH", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
+        if lad_mode == 2:
+            if lai[i]!="":
+                lai_file = static_tif_path+lai[i]
+                process_tif(lai_file, "LAI", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
+            if patch_type[i]!="":
+                patch_type_file = static_tif_path+patch_type[i]
+                process_tif(patch_type_file, "patch_type", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
+            if vegetation_height[i]!="":
+                vegetation_height_file = static_tif_path+vegetation_height[i]
+                process_tif(vegetation_height_file, "vegetation_height", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
+            if tree_height[i]!="":
+                tree_height_file = static_tif_path+tree_height[i]
+                process_tif(tree_height_file, "tree_height", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
+            if tree_crown_diameter[i]!="":
+                tree_crown_diameter_file = static_tif_path+tree_crown_diameter[i]
+                process_tif(tree_crown_diameter_file, "tree_crown_diameter", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
+            if tree_trunk_diameter[i]!="":
+                tree_trunk_diameter_file = static_tif_path+tree_trunk_diameter[i]
+                process_tif(tree_trunk_diameter_file, "tree_trunk_diameter", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
+            if tree_type[i]!="":
+                tree_type_file = static_tif_path+tree_type[i]
+                process_tif(tree_type_file, "tree_type", config_proj, case_name, tmp_path, i, dx[i], "nearest", dom_cfg_dict)
+    
 if __name__ == "__main__":
     process_all(sys.argv[1])

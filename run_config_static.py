@@ -112,10 +112,16 @@ pavement = ast.literal_eval(config.get("urban", "pavement"))
 street = ast.literal_eval(config.get("urban", "street"))
 
 ## [tif files for plant canopy]
+lad_mode = ast.literal_eval(config.get("plant", "lad_mode"))[0]
 tree_lai_max = ast.literal_eval(config.get("plant", "tree_lai_max"))
 lad_max_height = ast.literal_eval(config.get("plant", "lad_max_height"))
 sfch = ast.literal_eval(config.get("plant", "sfch"))
-
+patch_type = ast.literal_eval(config.get("plant", "patch_type"))
+vegetation_height = ast.literal_eval(config.get("plant", "vegetation_height"))
+tree_height =  ast.literal_eval(config.get("plant", "tree_height"))
+tree_crown_diameter =  ast.literal_eval(config.get("plant", "tree_crown_diameter"))
+tree_trunk_diameter = ast.literal_eval(config.get("plant", "tree_trunk_diameter"))
+tree_type = ast.literal_eval(config.get("plant", "tree_type"))
 
 
 # specify the directory of tif files
@@ -143,6 +149,32 @@ tif_geotif_dict = dict(config.items('geotif'))
 tif_urban_dict = dict(config.items('urban'))
 tif_plant_dict = dict(config.items('plant'))
 
+# specify the directory of tif files
+# users can provide their own tif files
+# otherwise will download from NASA or OSM
+static_tif_path = f'./JOBS/{case_name}/INPUT/'
+output_path = static_tif_path.replace("INPUT","OUTPUT")
+tmp_path = static_tif_path.replace("INPUT","TMP")
+## create folders for temporary tif files and final netcdf outputs
+if not os.path.exists(tmp_path):
+    print("Create tmp folder")
+    os.makedirs(tmp_path)
+if not os.path.exists(output_path):
+    print("Create output folder")
+    os.makedirs(output_path)
+    
+## check if UTM projection is given
+if len(config_proj)==0:
+    print("UTM projection not given, identifying...")
+    config_proj_code = convert_wgs_to_utm(centlon, centlat)
+    config_proj = f"EPSG:{config_proj_code}"
+    print(config_proj)
+## these dictionanries only pass keys 
+tif_geotif_dict = dict(config.items('geotif'))
+tif_urban_dict = dict(config.items('urban'))
+tif_plant_dict = dict(config.items('plant'))
+del tif_plant_dict["lad_mode"]
+
 for i in range(0,ndomain):
     if i == 0:
         case_name_d01 = case_name+"_N01"
@@ -157,6 +189,7 @@ for i in range(0,ndomain):
                     'ny': ny[i],
                     'nz': nz[i],
                     'z_origin': z_origin[i],
+                    'lad_mode': lad_mode,
                     'tree_lai_max': tree_lai_max[i],
                     'lad_max_height': lad_max_height[i],
                     'water_temperature_file': water[i],
@@ -251,6 +284,7 @@ for i in range(0,ndomain):
                     'ny': ny[i],
                     'nz': nz[i],
                     'z_origin': z_origin[i],
+                    'lad_mode': lad_mode,
                     'tree_lai_max': tree_lai_max[i],
                     'lad_max_height': lad_max_height[i],
                     'water_temperature_file': water[i],
