@@ -294,7 +294,7 @@ You are welcome to raise them in the GitHub issue system.
 --------------------------------------------------------------------------------------------  
 We have been trying to add more comments and more instructions of the scripts. However, the documentation may not be sufficiently inclusive. If there is anything unclear, please do not hesitate to contact us. 
 
-Dongqi Lin (dongqi.lin@canterbury.ac.nz)  
+Dongqi Lin (dongqi.lin@monash.edu)  
 Jiawei Zhang (Jiawei.Zhang@scionresearch.com)  
 
 @ Centre for Atmospheric Research, University of Canterbury
