@@ -73,13 +73,14 @@ crs_output = CRS.from_string(config_proj)
 tif_out_name = f"{var_name}_{res}m_"+config_proj.replace(":","")+"_shp2tif.tif"
 # read shp file
 tmp_dataset = gpd.read_file(shp_file)
+tmp_dataset_reproj =  tmp_dataset.to_crs(config_proj)
 geo_grid = make_geocube(
-    vector_data=tmp_dataset,
+    vector_data=tmp_dataset_reproj,
     measurements=[var_name],
     resolution=(res, res),
 ) 
-geo_grid = geo_grid[var_name]
+#geo_grid = geo_grid[var_name]
 geo_grid = geo_grid.reindex(y=geo_grid.y[::-1])
-tmp_dataset_reproj = geo_grid.rio.reproject(crs_output)
-tmp_dataset_reproj.rio.to_raster(f"./JOBS/{prefix}/INPUT/{tif_out_name}")
+tmp_dataset_output = geo_grid.rio.reproject(crs_output)
+tmp_dataset_output.rio.to_raster(f"./JOBS/{prefix}/INPUT/{tif_out_name}")
 print(f"tif file {tif_out_name} saved")
