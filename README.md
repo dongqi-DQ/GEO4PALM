@@ -37,12 +37,12 @@ To install `terracatalogueclient`, users need to follow the following steps:
 ```
 2. Copy the pip path for the geo4palm environment (namely, `/home/user/miniconda3/envs/geo4palm/bin/pip` in this example). Then try:
 
-`<pip path> install terracatalogueclient -i https://artifactory.vgt.vito.be/api/pypi/python-packages/simple`
+`<pip path> install terracatalogueclient -i https://artifactory.vgt.vito.be/api/pypi/python-packages-public/simple`
 
 e.g. 
 
 ```
-/home/user/miniconda3/envs/geo4palm/bin/pip install terracatalogueclient -i https://artifactory.vgt.vito.be/api/pypi/python-packages/simple
+/home/user/miniconda3/envs/geo4palm/bin/pip install terracatalogueclient -i https://artifactory.vgt.vito.be/api/pypi/python-packages-public/simple
 ```
 
 TerraCatalogue client is for ESA land use API. More information can be found [here](https://vitobelgium.github.io/terracatalogueclient/installation.html).
